@@ -1,0 +1,10 @@
+# Backend
+models/
+venv/
+__pycache__/
+*.webm
+
+# Frontend
+node_modules/
+dist/
+.env

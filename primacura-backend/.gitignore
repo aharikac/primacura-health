@@ -1,0 +1,22 @@
+# Secrets — never commit the OpenAI key
+.env
+.env.local
+
+# Build artefacts of the pipeline
+app_first_aid_vectordb/
+
+# Model cache
+.cache/
+hf_cache/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+#macOS
+.DS_Store
+
+backend.log
+
+models/

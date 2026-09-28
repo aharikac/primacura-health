@@ -1,0 +1,29 @@
+services:
+  backend:
+    build:
+      context: ./primacura-backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      # Persist the LanceDB vector database between container restarts
+      - vectordb_data:/app/app_first_aid_vectordb
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./primacura-frontend
+      dockerfile: Dockerfile
+      args:
+        # Change 'localhost' to your server's public IP/domain when deploying to production
+        - VITE_BACKEND_URL=http://localhost:8000
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  vectordb_data:

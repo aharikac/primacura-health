@@ -1,0 +1,99 @@
+condition,situation,symptoms,output
+Cardiac Arrest,Adult (puberty and older) when the heart stops beating or beats too ineffectively to keep blood flowing.,"Unresponsiveness, gasping breaths or not breathing, no pulse/heartbeat.","1. Call 911 (or instruct someone to call 911) and get an AED and first aid kit immediately.
+2. Check responsiveness and breathing (gasping is not normal breathing).
+3. Begin CPR immediately: Place hands on center of chest, deliver 30 compressions at a rate of 100-120 bpm and a depth of AT LEAST 2 inches (5 cm). Allow chest to fully recoil.
+4. Open airway (head-tilt/chin-lift) and deliver 2 rescue breaths (1 second each, watching chest rise).
+5. Maintain a 30:2 compression-to-ventilation ratio for single lay rescuers.
+6. As soon as AED arrives, turn it on, apply pads to bare dry chest (upper right, lower left armpit), clear person, analyze rhythm, and deliver shock if advised. Resume CPR immediately after shock/no-shock advice."
+Cardiac Arrest (Drowning),"Suspected drowning or hypoxic cardiac arrest in adults, children, or infants.","Unresponsive, taken from water, not breathing or gasping only.","1. Ensure scene safety and remove person from water safely. Call 911 and get an AED.
+2. Check responsiveness and breathing.
+3. For drowning/hypoxic arrest, give 2 initial rescue breaths FIRST before starting chest compressions.
+4. Immediately follow with cycles of 30 chest compressions and 2 rescue breaths (compressions at 100-120 bpm).
+5. Apply AED as soon as available, ensuring chest is wiped dry before applying pads."
+Cardiac Arrest,Child (age 1 to puberty) unresponsive and not breathing normally.,"Unresponsiveness, no breathing or only gasping, no pulse.","1. Call 911 (or send someone to call 911 and retrieve an AED). If alone with a child, perform 2 minutes of CPR (5 cycles of 30:2) BEFORE leaving to call 911/get AED.
+2. Begin CPR: Use 1 or 2 hands on center of chest, compress about 2 inches (5 cm) deep (1/3 chest depth) at 100-120 bpm.
+3. Give 2 rescue breaths after every 30 compressions (ratio 30:2 for single lay rescuer).
+4. Use pediatric AED pads if available; if not available, adult pads may be used ensuring they do not touch each other (place one on center of chest and one on upper back if necessary)."
+Cardiac Arrest,Infant (under 1 year of age) unresponsive and not breathing normally.,"Unresponsiveness, no breathing or gasping, blue/pale skin, silent.","1. Send someone to call 911 and get an AED. If alone, perform 2 minutes of CPR (5 cycles) first before calling 911.
+2. Place infant on a firm, flat surface. Place 2 thumbs centered on breastbone just below nipple line with hands encircling chest (or 2 fingers in center of chest).
+3. Compress about 1.5 inches (4 cm) deep (1/3 chest depth) at a rate of 100-120 bpm.
+4. Deliver 30 compressions followed by 2 gentle rescue breaths (cover infant's nose and mouth with your mouth, puffing gently into cheeks).
+5. Continue 30:2 cycles until EMS arrives or infant shows signs of life."
+Heart Attack,Myocardial infarction / acute coronary syndrome (conscious person).,"Chest pain, pressure, squeezing or tightness in chest/arms/neck/jaw/back; shortness of breath; dizziness; pale/cold sweat; nausea; anxiety/sense of impending doom.","1. Call 911 immediately. Do NOT delay calling.
+2. Have the person sit down, rest, and stay calm in a comfortable position (e.g., seated on floor leaning back).
+3. Loosen tight clothing around neck and waist.
+4. If the person is fully conscious, not allergic to aspirin, has no severe active bleeding or ulcers, and 911 dispatch or medical control approves, offer 1 full-strength (325 mg) or 2-4 low-dose (81 mg) chewable aspirins to chew.
+5. If prescribed nitroglycerin for chest pain, assist the conscious person in taking their own prescribed dose.
+6. Monitor breathing and pulse closely. NOTE: CPR and AED are NOT used for a conscious heart attack patient; perform CPR/AED ONLY if the person loses consciousness and stops breathing normally (progresses to cardiac arrest)."
+Choking,Conscious Adult or Child (over 1 year old) with severe airway obstruction.,"Inability to talk, cough, or breathe; high-pitched noise or silent effort; clutch at neck (universal choking sign); turning blue/pale; panic.","1. Verify severe choking: Ask 'Are you choking?' If they cannot speak or cough, act immediately.
+2. Instruct someone to call 911.
+3. Stand/kneel behind person. Give 5 sharp back blows between shoulder blades with heel of hand.
+4. If obstruction remains, perform 5 abdominal thrusts (Heimlich maneuver): Wrap arms around waist, place thumb-side of fist just above navel, grasp fist with other hand, and pull inward and upward sharply.
+5. Alternate 5 back blows and 5 abdominal thrusts until object is expelled or person becomes unresponsive.
+6. If person becomes unresponsive, lower carefully to ground, call 911, and begin CPR starting with compressions. Look in mouth before rescue breaths and remove object ONLY if clearly visible (never perform blind finger sweeps)."
+Choking,Conscious Infant (under 1 year old) with severe airway obstruction.,"Inability to cry, cough, or breathe; silent gasping; blue/pale skin tone.","1. Send someone to call 911 immediately.
+2. Hold infant face down along your forearm, supporting head/jaw with your hand, with infant's head lower than body.
+3. Deliver 5 firm back slaps between shoulder blades using heel of hand.
+4. Turn infant face up onto your opposite forearm, supporting back of head, keeping head lower than chest.
+5. Deliver 5 chest thrusts in center of chest (just below nipple line) using 2 fingers, compressing about 1.5 inches deep.
+6. Repeat cycles of 5 back slaps and 5 chest thrusts until object comes out or infant becomes unresponsive.
+7. If unresponsive, begin CPR (30 compressions, check mouth for visible object before giving 2 breaths; do not perform blind finger sweeps)."
+Anaphylaxis,"Severe, life-threatening systemic allergic reaction (food, insect sting, medication, latex).","Difficulty breathing/swallowing, wheezing, throat tightness, swelling of face/lips/tongue, widespread hives/itching, dizziness, fainting, rapid drop in blood pressure.","1. Call 911 immediately.
+2. Assist the person with administering their own prescribed epinephrine auto-injector (e.g., EpiPen) into the outer middle thigh. Hold firmly in place for 5-10 seconds.
+3. Massage injection site briefly if directed by device instructions.
+4. Have person lie flat with legs elevated (unless breathing is difficult, in which case keep sitting up).
+5. If symptoms persist or return after 5-10 minutes and EMS has not arrived, administer a second epinephrine auto-injector if available.
+6. Stay with person and monitor airway and breathing until medical help arrives."
+Diabetic Emergency,Symptomatic hypoglycemia (low blood sugar) in a conscious diabetic individual.,"Shakiness, sweating, confusion, irritability, pale skin, weakness, dizziness, hunger, rapid pulse.","1. Check responsiveness and safety.
+2. If person is CONSCIOUS and able to swallow safely, give 15-20 grams of fast-acting sugar (e.g., 4 oz fruit juice, regular soda, glucose tablets/gel, or candies).
+3. Have person rest for 15 minutes and recheck symptoms or blood glucose level.
+4. If still symptomatic or blood glucose remains under 70 mg/dL, give another 15-20g of fast-acting sugar.
+5. Once symptoms improve, provide a snack/meal with complex carbs and protein.
+6. IMPORTANT: If person is unresponsive, confused, unable to swallow, or having a seizure, do NOT put food/liquid in their mouth. Call 911 immediately and place in recovery position."
+Stroke,Suspected acute cerebrovascular event / brain ischemia.,"Sudden numbness/weakness of face, arm, or leg (especially on one side); sudden confusion, trouble speaking or understanding speech; sudden vision changes; sudden severe headache; loss of balance.","1. Use FAST screening tool:
+   - F (Face): Ask person to smile. Does one side of face droop?
+   - A (Arms): Ask person to raise both arms. Does one arm drift downward?
+   - S (Speech): Ask person to repeat a simple sentence. Is speech slurred or strange?
+   - T (Time): If any of these signs are present, call 911 IMMEDIATELY.
+2. Note the exact time symptoms first started (critical for hospital treatment decisions).
+3. Keep person calm, resting in a safe position (slightly elevated head/shoulders).
+4. Do NOT give food, drink, or aspirin (stroke can be hemorrhagic).
+5. Monitor airway, breathing, and responsiveness until EMS arrives."
+Opioid Overdose,"Suspected drug toxicity / overdose (e.g., fentanyl, heroin, prescription opioids).","Pinpoint pupils, unresponsiveness, severely slowed or absent breathing, blue/purple fingernails and lips, gurgling/snoring sounds.","1. Call 911 immediately.
+2. Administer Naloxone (Narcan) nasal spray if available: Insert tip into one nostril and press plunger firmly. Give additional doses every 2-3 minutes if no response.
+3. Check breathing. If person is not breathing or gasping, begin rescue breathing or CPR immediately.
+4. Turn person onto their side in recovery position if breathing resumes to prevent aspiration from vomiting.
+5. Stay with person until emergency responders arrive; naloxone effect may wear off before opioids clear."
+Severe Bleeding,Life-threatening arterial or venous hemorrhage from an extremity or junctional area.,"Spurt or steady flow of dark/bright red blood, pooling blood, blood-soaked clothing, signs of hemorrhagic shock (pale, cool skin, rapid pulse).","1. Call 911 immediately and ensure scene safety.
+2. Apply FIRM, DIRECT, CONTINUOUS PRESSURE directly over the wound using sterile gauze, clean cloth, or hands.
+3. If bleeding is uncontrolled on an arm or leg, apply a commercial tourniquet 2-3 inches above the wound (not over a joint). Tighten windlass rod until bleeding completely stops and secure it. Note application time.
+4. If tourniquet is unavailable or bleeding is junctional (groin/neck/shoulder), pack wound tightly with hemostatic gauze or clean cloth and maintain continuous hard direct pressure.
+5. Keep person warm and lie them flat to treat for shock. Do NOT remove saturated dressings; add more on top."
+Burns (Chemical to Eye),"Chemical splash or exposure in eyes (acid, alkali, household cleaner).","Eye pain, burning, redness, tearing, inability to open eye, blurred vision.","1. Call 911 or Poison Control (1-800-222-1222) immediately.
+2. Begin CONTINUOUS, GENTLE FLUSHING of the affected eye(s) with clean, lukewarm water or saline for AT LEAST 15 TO 20 MINUTES continuously before transport.
+3. Flush from the inner corner of the eye outward to avoid washing chemical into the uninjured eye.
+4. Ensure eyelids are held open during flushing to cleanse all surfaces under eyelids.
+5. Do NOT rub the eye, insert contact lenses forcefully, or use neutralizing chemical solutions.
+6. Cover eye loosely with sterile dressing after flushing and seek urgent emergency medical evaluation."
+Burns (Thermal),"Heat/fire/scald burn on skin (1st, 2nd, or 3rd degree).","Redness, severe pain, blistering, white/charred skin, swelling.","1. Ensure scene safety and stop burning process (cool fire, remove source).
+2. Call 911 for severe/large burns (face, hands, feet, groin, major joints, or widespread blistering/charring).
+3. Cool thermal burn immediately with cool/lukewarm running water for 10-20 minutes. Do NOT use ice, ice water, butter, or ointments.
+4. Remove jewelry or tight clothing near burned area before swelling occurs, unless stuck to burn.
+5. Cover burn loosely with sterile, non-stick dressing or clean dry cloth.
+6. Do NOT pop blisters. Keep person warm to prevent hypothermia."
+Poisoning / Ingestion,"Accidental or intentional ingestion of toxic substance, household chemical, or drug.","Nausea, vomiting, abdominal pain, burns around mouth, unusual breath odor, confusion, drowsiness, seizures.","1. Call Poison Help / Poison Control at 1-800-222-1222 immediately (or call 911 if person is unresponsive or having difficulty breathing).
+2. Identify substance, amount, and time of ingestion if safe to do so.
+3. Do NOT induce vomiting unless explicitly instructed by Poison Control or EMS.
+4. Do NOT give activated charcoal, milk, or water unless directed by medical experts.
+5. If person vomits, clear airway and turn onto side in recovery position."
+Seizures,Generalized tonic-clonic seizure or febrile seizure in child/adult.,"Uncontrolled shaking, muscle rigidity, loss of consciousness, eye rolling, drooling, loss of bowel/bladder control.","1. Protect person from injury: Clear area of hard, sharp objects. Place soft cushion under head.
+2. Note start time and duration of seizure.
+3. Do NOT restrain the person or stop movements.
+4. Do NOT place anything in the person's mouth (no fingers, spoons, objects).
+5. Turn person gently onto their side (recovery position) once jerking stops to keep airway clear.
+6. Call 911 if: seizure lasts longer than 5 minutes, a second seizure occurs immediately, person is pregnant/diabetic/injured, or person does not regain consciousness."
+"Head, Neck, or Spinal Injury","Trauma, fall, collision, or concussion with suspected cervical spine involvement.","Headache, confusion, dizziness, neck/back pain, numbness/tingling in extremities, weakness, paralysis, loss of consciousness.","1. Call 911 immediately.
+2. Keep person completely still. Manually stabilize head and neck in the position found; avoid twisting or bending spine.
+3. Do NOT move person unless in immediate life-threatening danger (e.g., fire, explosion).
+4. If person is wearing a helmet, do NOT remove it unless trained and airway is compromised.
+5. Monitor airway, breathing, and consciousness. Maintain head alignment if CPR becomes necessary (use jaw-thrust technique if trained)."

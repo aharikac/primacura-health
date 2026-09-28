@@ -1,0 +1,764 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: Arial, Helvetica, sans-serif;
+  color: #050505;
+  background: #111111;
+  font-synthesis: none;
+}
+
+* { box-sizing: border-box; }
+
+body { margin: 0; min-width: 320px; }
+button, input { font: inherit; }
+button, a { -webkit-tap-highlight-color: transparent; }
+button { cursor: pointer; }
+button:disabled { cursor: wait; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+.spin { animation: spin 0.8s linear infinite; }
+
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  background: #111111;
+}
+
+.phone-frame {
+  width: min(100%, 414px);
+  height: min(852px, calc(100vh - 40px));
+  min-height: 640px;
+  overflow: hidden;
+  position: relative;
+  background: #fff;
+  border: 7px solid #050505;
+  border-radius: 48px;
+  box-shadow: 0 0 0 5px #343434, 0 22px 48px rgba(0,0,0,.4);
+}
+
+/* ===== HOME SCREEN ===== */
+.home-screen, .guides-screen, .clarification-screen { height: 100%; background: #fff; display: flex; flex-direction: column; }
+/* Reduced padding to give more breathing room */
+/* Reduce bottom padding from 24px to 16px to pull the bottom text up */
+.home-screen {
+  height: 100%;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  padding: 28px 20px 16px; /* Reduced top padding from 40px to 28px */
+  justify-content: flex-start; /* Changed from space-between to prevent pushing bottom elements off-screen */
+  overflow-y: auto; /* Fallback safety scroll if screen height is very small */
+}
+
+/* Tighten intro header spacing slightly */
+.home-intro {
+  margin-bottom: 10px; 
+}
+
+.brand { 
+  display: flex; 
+  align-items: center; 
+  gap: 16px; 
+}
+.brand-mark { 
+  width: 60px; 
+  height: 60px; 
+  display: grid; 
+  place-items: center; 
+  flex-shrink: 0;
+  background: #d33b32; 
+  color: #fff; 
+  font-size: 40px; 
+  font-weight: 900; 
+}
+.brand-title { 
+  font-size: 32px; 
+  line-height: 1; 
+  font-weight: 900; 
+  letter-spacing: -1.2px; 
+  color: #050505; 
+}
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.brand-slogan { 
+  font-size: 13px; 
+  font-weight: 700; 
+  color: #9ca3af; /* Muted light gray so it stays in the background */
+  letter-spacing: 1.5px; 
+  margin-top: 4px; 
+  text-transform: uppercase; 
+}
+
+.home-top { flex: 1; display: flex; flex-direction: column; justify-content: flex-start; padding-top: 5px; }
+.eyebrow { margin: 0 0 8px; color: #cf3a32; font-size: 14px; font-weight: 900; letter-spacing: 2px; }
+.home-intro h1 { margin: 0; font-size: 36px; line-height: 1.05; letter-spacing: -1.5px; font-weight: 900; }
+
+.search-box { width: 100%; display: flex; align-items: center; gap: 18px; padding: 0 22px; border: 3px solid #090909; background: #fff; }
+.search-box input { width: 100%; min-width: 0; border: 0; outline: 0; color: #050505; font-size: 22px; font-weight: 800; }
+.search-box input::placeholder { color: #747a88; opacity: 1; }
+
+
+/* Reduced height from 220px to 130px to fit speech controls below it */
+/* Reduce the search box height by another 10px (from 130px to 120px) */
+.search-box-home { height: 120px; align-items: stretch; padding: 0; }
+/* Reduced font size and padding slightly to fit the new shorter text box */
+.search-box-home { height: 92px; align-items: stretch; padding: 0; }
+.search-box-home textarea { width: 100%; min-width: 0; border: 0; outline: 0; color: #050505; font-size: 18px; line-height: 1.4; font-weight: 800; padding: 12px 16px; resize: none; background: #fff; }
+.search-submit { flex: 0 0 64px; display: grid; place-items: center; border: 0; border-left: 3px solid #050505; background: #050505; color: #fff; align-self: stretch; }
+.search-submit:hover { background: #1f1f1f; }
+
+/* Reduce the gap between the action buttons slightly (from 12px to 10px) */
+.home-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px; /* Tighter gap */
+  margin-top: auto;
+  align-items: center;
+  width: 100%;
+}
+.call-button { width: 100%; min-height: 72px; display: flex; align-items: center; gap: 16px; padding: 12px 20px; border: 3px solid #050505; color: #fff; background: #d33b32; text-decoration: none; text-align: left; }
+.call-button:hover, .call-button:focus-visible { background: #b82d26; }
+.call-icon { width: 60px; height: 60px; display: grid; place-items: center; flex: 0 0 60px; background: #050505; }
+.call-copy { display: grid; gap: 3px; }
+.call-copy strong { font-size: 26px; line-height: 1; font-weight: 900; letter-spacing: 1px; }
+.call-copy small { font-size: 15px; font-weight: 800; }
+
+.home-note { margin: 0; color: #747a88; text-align: center; font-size: 14px; line-height: 1.25; font-weight: 800; }
+
+/* Container for the controls */
+.speech-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 10px;
+  margin-bottom: 10px; 
+  width: 100%;
+}
+
+.speech-label {
+  font-size: 14px;
+  color: #71717a;
+  margin: 0 0 12px 0;
+  font-weight: 500;
+  text-align: center;
+}
+
+.speech-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+}
+
+/* Microphone Dropdown Styling */
+.mic-selector {
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: #ffffff; /* Clean white background */
+  border: 1px solid #d1d5db; /* Crisp, subtle gray border */
+  border-radius: 8px; /* Matches the new Browse Guides button */
+  padding: 8px 32px 8px 12px; /* Slightly tighter padding to reduce bulk */
+  font-size: 14px;
+  color: #4b5563; /* Medium dark gray text for readability */
+  font-weight: 600; 
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04); /* Very soft depth */
+  
+  /* Custom modern chevron arrow */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  
+  /* Truncate long microphone names */
+  max-width: 200px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.mic-selector:hover:not(:disabled) {
+  border-color: #9ca3af; /* Darkens the border slightly on hover */
+  background-color: #f9fafb; /* Extremely light gray shift */
+}
+
+.mic-selector:focus {
+  border-color: #050505; /* Sharp black border on click to match the app theme */
+  box-shadow: 0 0 0 1px #050505;
+}
+
+.mic-selector:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Record/Stop Button Styling */
+.record-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: #ef4444; /* High-visibility red for recording */
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
+  white-space: nowrap; /* Keeps the icon, stop text, and timer together on one line */
+}
+
+/* Optional styling to make the timer text blend nicely */
+.record-button .record-timer {
+  font-size: 13px;
+  opacity: 0.85;
+  font-weight: 500;
+  margin-left: 2px;
+}
+
+.record-button:hover {
+  background-color: #dc2626;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(239, 68, 68, 0.3);
+}
+
+.record-button:active {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+/* Optional: If you want to differentiate the Stop state */
+.speech-controls:has(span) .record-button {
+  /* You can target the stop state if you prefer a different color when recording is active */
+  background-color: #18181b; 
+  box-shadow: 0 2px 4px rgba(24, 24, 27, 0.2);
+}
+
+.speech-controls:has(span) .record-button:hover {
+  background-color: #27272a;
+}
+
+/* ===== CLARIFICATION SCREEN ===== */
+.clarification-screen { 
+  height: 100%;
+  background: #fff;
+  display: flex; 
+  flex-direction: column; 
+  /* Reduced overall screen padding to keep everything in view */
+  padding: 20px 24px 20px; 
+  gap: 12px; /* Tighter gap between the major screen sections */
+  overflow: hidden; /* Enforces the zero-scroll layout */
+} 
+
+/* Forces the header to pull the safety message closer */
+.clarification-screen .inner-page-header.tight-bottom {
+  margin-bottom: -4px; 
+}
+
+/* Slimmed down safety reminder */
+.safety-reminder { 
+  display: flex;
+  flex-direction: column;
+  gap: 2px; 
+  padding: 12px 16px; 
+  border: 2px solid #fcd34d; 
+  border-left: 6px solid #f59e0b; 
+  background: #fffbeb; 
+  border-radius: 12px; 
+}
+
+.safety-reminder strong { 
+  color: #b45309; 
+  font-size: 14px; 
+  letter-spacing: .5px; 
+  font-weight: 900; 
+}
+
+.safety-reminder span { 
+  font-size: 13px; 
+  line-height: 1.2; 
+  font-weight: 700; 
+  color: #78350f; 
+}
+
+/* Compact message card to hold all the backend paragraphs safely */
+.clarification-message-container { 
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* Much tighter gap between backend \n\n splits */
+  background: #f8f8f9;
+  padding: 16px 20px; /* Reduced internal padding */
+  border: 2px solid #e4e4e7;
+  border-radius: 12px;
+  flex: 1; /* Allows it to consume available space... */
+  min-height: 0; /* ...but lets it shrink if needed */
+  overflow-y: auto; /* Failsafe: scrolls ONLY the card if on a microscopic screen */
+}
+
+/* Base text size scaled down for mobile fit */
+.clarification-paragraph { 
+  margin: 0; 
+  font-size: 16px; /* Scaled down from 18px */
+  line-height: 1.35; 
+  color: #3f3f46; 
+  font-weight: 600; 
+}
+
+/* Keeps the backend **bold** text punchy but proportional */
+.clarification-highlight {
+  color: #050505;
+  font-weight: 900;
+  font-size: 17px; 
+  letter-spacing: -0.3px;
+}
+
+/* Automatically targets the backend's "While you answer: call 911..." sentence */
+.clarification-paragraph:last-child {
+  color: #d33b32; /* Turns the final warning brand red */
+  font-weight: 800;
+  font-size: 14px;
+  margin-top: 4px; /* Slight visual separation from the questions */
+}
+
+/* Compressed search box */
+.clarification-screen .search-box { 
+  margin-top: auto; 
+  border-radius: 12px; 
+  flex-shrink: 0; 
+  min-height: 76px; /* Slimmed down from 92px to guarantee screen fit */
+}
+
+/* ===== GUIDES SCREEN ===== */
+.guides-screen { overflow: hidden; }
+.guides-header { display: flex; align-items: center; gap: 14px; padding: 48px 26px 18px; flex-shrink: 0; }
+.back-button { width: 44px; height: 48px; display: grid; place-items: center; border: 0; background: transparent; padding: 0; }
+.guides-header h1 { margin: 0; font-size: 28px; line-height: 1.02; letter-spacing: 1px; font-weight: 900; }
+.guides-screen > .search-box { width: calc(100% - 52px); margin: 0 26px 18px; height: 64px; flex-shrink: 0; }
+.guides-screen > .search-box input { font-size: 20px; }
+
+/* ===== GUIDES SCREEN ===== */
+.guides-screen { overflow: hidden; }
+.guides-header { display: flex; align-items: center; gap: 14px; padding: 48px 26px 18px; flex-shrink: 0; }
+.back-button { width: 44px; height: 48px; display: grid; place-items: center; border: 0; background: transparent; padding: 0; }
+.guides-header h1 { margin: 0; font-size: 28px; line-height: 1.02; letter-spacing: 1px; font-weight: 900; }
+.guides-screen > .search-box { width: calc(100% - 52px); margin: 0 26px 18px; height: 64px; flex-shrink: 0; }
+.guides-screen > .search-box input { font-size: 20px; }
+
+.guide-list { 
+  flex: 1; 
+  overflow-y: auto; 
+  -webkit-overflow-scrolling: touch; 
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 8px 26px 24px; /* Added 8px top padding to prevent hover clipping */
+}
+
+/* BASE CARD STYLING */
+.guide-row { 
+  width: 100%; 
+  min-height: 96px; 
+  height: auto; /* CRITICAL: Allows the button to expand vertically when text wraps */
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between; 
+  gap: 16px; 
+  padding: 20px; 
+  background: #ffffff; 
+  border: 2px solid #e4e4e7; 
+  border-radius: 12px; 
+  text-align: left; 
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02); 
+  cursor: pointer;
+}
+
+.guide-row:hover, .guide-row:focus-visible { 
+  border-color: #d33b32; 
+  background: #fffafa; 
+  transform: translateY(-2px); 
+  box-shadow: 0 6px 12px rgba(211, 59, 50, 0.08); 
+  outline: none;
+}
+
+/* Flexbox text container fix */
+.guide-row > div {
+  flex: 1;
+  min-width: 0; /* Lets text wrap without pushing the arrow away */
+  display: flex;
+  flex-direction: column;
+  gap: 4px; /* Small space between title and description */
+}
+
+.guide-row h2 { 
+  margin: 0; 
+  font-size: 20px; /* Scaled down slightly to fit better */
+  line-height: 1.2; 
+  letter-spacing: -0.5px; 
+  font-weight: 900; 
+  color: #050505;
+  white-space: pre-wrap; /* Forces stubborn button text to wrap at spaces */
+  word-break: break-word; /* Prevents massive words from breaking layout */
+}
+
+.guide-row p { 
+  margin: 0; 
+  color: #71717a; 
+  font-size: 15px; 
+  line-height: 1.3; 
+  font-weight: 600; 
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Add a beautiful red interaction state */
+.guide-row:hover, .guide-row:focus-visible { 
+  border-color: #d33b32; /* Brand red border */
+  background: #fffafa; /* Faint red background tint */
+  transform: translateY(-2px); /* Lifts the card up slightly */
+  box-shadow: 0 6px 12px rgba(211, 59, 50, 0.08); /* Soft red shadow */
+  outline: none;
+}
+
+
+/* Style, animate, and protect the arrow from shrinking */
+.guide-arrow {
+  color: #d33b32;
+  transition: transform 0.2s ease;
+  flex-shrink: 0; /* Prevents the arrow from getting squished by long text */
+}
+
+.guide-row:hover .guide-arrow {
+  transform: translateX(4px);
+}
+
+.empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; text-align: center; }
+.empty-state h2 { margin: 0 0 18px; font-size: 34px; line-height: 1.08; letter-spacing: -1px; font-weight: 900; }
+.empty-state p { margin: 0; color: #747a88; font-size: 22px; line-height: 1.22; font-weight: 800; }
+
+/* ===== 911 CONFIRMATION DIALOG ===== */
+.dialog-backdrop { position: absolute; inset: 0; z-index: 5; display: flex; align-items: flex-end; background: rgba(0,0,0,.84); }
+.confirm-sheet { width: 100%; padding: 28px 26px 32px; border-top: 4px solid #050505; background: #fff; }
+.confirm-heading { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; }
+.confirm-dot { width: 20px; height: 20px; background: #d33b32; }
+.confirm-heading h2 { margin: 0; font-size: 22px; letter-spacing: 1.5px; font-weight: 900; }
+.confirm-sheet p { margin: 0 0 26px; font-size: 21px; line-height: 1.3; font-weight: 800; }
+.call-button-sheet { justify-content: center; min-height: 80px; font-size: 26px; font-weight: 900; }
+.cancel-button { width: 100%; height: 80px; margin-top: 18px; border: 3px solid #050505; background: #fff; font-size: 24px; font-weight: 900; }
+
+/* ===== PROTOCOL SCREEN ===== */
+.protocol-screen { height: 100%; background: #fff; display: flex; flex-direction: column; padding: 48px 30px 28px; }
+.protocol-header { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
+.protocol-header h1 { margin: 0; font-size: 26px; line-height: 1.05; letter-spacing: -1px; font-weight: 900; }
+
+/* FIX: Changed justify-content to flex-start to stop the jumping, added padding */
+.protocol-body { 
+  flex: 1; 
+  display: flex; 
+  flex-direction: column; 
+  justify-content: flex-start; 
+  padding-top: 8px;
+  overflow-y: auto;
+}
+
+.step-counter { 
+  color: #d33b32; 
+  font-size: 15px; 
+  font-weight: 900; 
+  letter-spacing: 2px; 
+  margin-bottom: 16px; 
+  text-transform: uppercase;
+}
+
+/* VISUAL IMPROVEMENT: Formats the instruction text as a clean, bordered focus card */
+.step-text { 
+  margin: 0 0 auto 0; /* 'auto' bottom margin pushes the buttons to the bottom of the screen */
+  font-size: 26px; 
+  line-height: 1.35; 
+  letter-spacing: -0.5px; 
+  font-weight: 800; 
+  color: #050505;
+  white-space: pre-line; 
+  background: #ffffff;
+  padding: 24px;
+  border: 2px solid #e4e4e7;
+  border-left: 8px solid #d33b32; /* Bold red indicator on the left */
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+}
+
+.protocol-actions { display: flex; gap: 12px; flex-shrink: 0; margin-top: 24px; }
+
+/* VISUAL IMPROVEMENT: Rounds the navigation buttons to match the rest of the app */
+.step-nav { 
+  flex: 1; 
+  height: 64px; /* Slightly slimmer buttons */
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  gap: 12px; 
+  border: 2px solid #050505; 
+  border-radius: 12px; /* Matches home screen rounded buttons */
+  background: #fff; 
+  font-size: 20px; 
+  font-weight: 900; 
+  letter-spacing: 0.5px; 
+  transition: all 0.2s ease;
+}
+
+.step-nav:hover { background: #f4f4f5; transform: translateY(-1px); }
+.step-nav:active { transform: translateY(1px); }
+
+.step-nav-back { flex: 0 0 38%; color: #050505; }
+.step-nav-next { background: #d33b32; color: #fff; border-color: #d33b32; }
+.step-nav-next:hover { background: #b82d26; }
+.step-nav-full { flex: 1; }
+
+@media (max-width: 520px) {
+  .app-shell { padding: 0; }
+  .phone-frame { width: 100%; height: 100vh; min-height: 0; border: 0; border-radius: 0; box-shadow: none; }
+}
+
+/* ==========================================================================
+   DISCLAIMER BUTTON & SCREEN STYLES
+   ========================================================================== */
+
+/* Disclaimer trigger link on Home Screen */
+.disclaimer-link {
+  background: transparent;
+  border: none;
+  color: #747a88;
+  font-size: 13px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 2px;
+  padding: 4px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.2s ease;
+}
+
+.disclaimer-link:hover {
+  color: #050505;
+}
+
+/* Full Disclaimer View Container */
+.disclaimer-screen {
+  height: 100%;
+  width: 100%;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  padding: 40px 24px 24px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Custom Webkit scrollbar for long state disclaimers */
+.disclaimer-screen ::-webkit-scrollbar {
+  width: 6px;
+}
+
+.disclaimer-screen ::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.disclaimer-screen ::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 4px;
+}
+
+.disclaimer-screen ::-webkit-scrollbar-thumb:hover {
+  background-color: #94a3b8;
+}
+
+.safety-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #b82d26;
+  font-size: 16px;
+  letter-spacing: 0.5px;
+}
+
+/* ==========================================================================
+   RESPONSIVE EMERGENCY ELEMENTS
+   ========================================================================== */
+/* Hide the desktop message by default (on mobile) */
+.desktop-emergency-message {
+  display: none;
+  width: 100%;
+  padding: 16px 20px;
+  background: #ffffff;
+  border: 2px solid #e5e7eb;
+  border-left: 8px solid #d33b32; /* Bold red accent on the left */
+  border-radius: 6px;
+  color: #4b5563;
+  text-align: left;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.desktop-emergency-message strong {
+  color: #d33b32;
+  display: block;
+  font-size: 18px;
+  font-weight: 900;
+  margin-bottom: 4px;
+  letter-spacing: 0.5px;
+}
+
+/* On desktop: hide the dial button, show the text message */
+@media (min-width: 521px) {
+  .call-button {
+    display: none !important;
+  }
+  
+  .desktop-emergency-message {
+    display: block;
+  }
+}
+
+.known-button { 
+  width: 100%; 
+  height: 48px; /* Reduced from 54px */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 2px solid #050505; 
+  border-radius: 8px; 
+  background: #ffffff; 
+  color: #050505; 
+  font-size: 15px; 
+  font-weight: 900; 
+  padding: 0 22px; 
+  transition: all 0.2s ease;
+}
+
+.known-button:hover { 
+  background: #f4f4f5; /* Very light gray on hover to show interactivity */
+}
+
+.known-button:active {
+  background: #e4e4e7;
+  transform: translateY(1px);
+}
+
+.cancel-button:hover { background: #f1f1f1; }
+
+/* ==========================================================================
+   INNER PAGE BRANDING
+   ========================================================================== */
+.inner-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+}
+
+.inner-brand-title {
+  font-size: 18px;
+  font-weight: 900;
+  color: #050505;
+  letter-spacing: -0.5px;
+  line-height: 1;
+}
+
+.inner-brand-slogan {
+  font-size: 10px;
+  font-weight: 800;
+  color: #9ca3af; /* Muted gray */
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+/* ==========================================================================
+   COMMON INNER PAGE HEADERS
+   ========================================================================== */
+.inner-page-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 24px;
+  width: 100%;
+  margin-bottom: 24px;
+}
+
+.inner-page-header.tight-bottom {
+  margin-bottom: 16px; /* Tighter spacing for screens with tall content */
+}
+
+.header-top-row {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-back-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: #4b5563;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.nav-icon-circle {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #f4f4f5;
+  display: grid;
+  place-items: center;
+  border: 1px solid #e4e4e7;
+  transition: all 0.2s ease;
+}
+
+.nav-back-btn:hover .nav-icon-circle {
+  background: #e4e4e7; /* Darkens slightly on hover */
+}
+
+.header-title-row h1 {
+  margin: 0 0 6px 0;
+  font-size: 30px;
+  letter-spacing: -0.8px;
+  line-height: 1.1;
+  font-weight: 900;
+}
+
+.header-title-row p {
+  margin: 0;
+  color: #71717a;
+  font-size: 15px;
+  font-weight: 600;
+}
+

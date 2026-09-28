@@ -1,0 +1,15 @@
+app_first_aid_vectordb/
+
+# Model cache
+.cache/
+hf_cache/
+
+# Python
+__pycache__/
+*.py[cod]
+
+#macOS
+.DS_Store
+
+backend.log
+
