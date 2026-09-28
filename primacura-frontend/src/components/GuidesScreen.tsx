@@ -23,7 +23,7 @@ export function GuidesScreen({
 
   return (
     <main className="guides-screen">
-      <header className="inner-page-header" style={{ padding: '36px 26px 0' }}>
+      <header className="inner-page-header" style={{ padding: '28px 20px 0', boxSizing: 'border-box' }}>
         <div className="header-top-row">
           <button className="nav-back-btn" onClick={onBack} aria-label="Back to home">
             <div className="nav-icon-circle">
@@ -40,7 +40,7 @@ export function GuidesScreen({
 
         <div className="header-title-row">
           <h1>First-Aid Guides</h1>
-          <p>Select an emergency to view its protocol.</p>
+          <p>Select a condition to view its protocol.</p>
         </div>
       </header>
       <SearchBox value={query} onChange={setQuery} />
@@ -52,7 +52,7 @@ export function GuidesScreen({
                 <h2>{condition.title}</h2>
                 <p>{condition.description}</p>
               </div>
-              <ArrowRight className="guide-arrow" size={28} strokeWidth={2.8} aria-hidden="true" />
+              <ArrowRight className="guide-arrow" size={24} strokeWidth={2.8} aria-hidden="true" />
             </button>
           ))
         ) : (
