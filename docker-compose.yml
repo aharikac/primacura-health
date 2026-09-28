@@ -1,10 +1,22 @@
 services:
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - frontend
+      - backend
+
   backend:
     build:
       context: ./primacura-backend
       dockerfile: Dockerfile
-    ports:
-      - "8000:8000"
     volumes:
       # Persist the LanceDB vector database between container restarts
       - vectordb_data:/app/app_first_aid_vectordb
@@ -17,13 +29,13 @@ services:
       context: ./primacura-frontend
       dockerfile: Dockerfile
       args:
-        # Change 'localhost' to your server's public IP/domain when deploying to production
-        - VITE_BACKEND_URL=http://localhost:8000
-    ports:
-      - "8080:80"
+        # Defaults to production API URL; can be overridden in local .env
+        - VITE_BACKEND_URL=${VITE_BACKEND_URL:-https://api.primacura.health}
     depends_on:
       - backend
     restart: unless-stopped
 
 volumes:
   vectordb_data:
+  caddy_data:
+  caddy_config:

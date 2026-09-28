@@ -93,7 +93,7 @@ app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex=r"http://(localhost|127\.0\.0\.1)(:\d+)?",
+    allow_origin_regex=r"^https?://(([a-zA-Z0-9-]+\.)*primacura\.health|(localhost|127\.0\.0\.1)(:\d+)?)$",
     allow_methods=["*"],
     allow_headers=["*"],
 )

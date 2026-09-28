@@ -1,0 +1,7 @@
+www.primacura.health {
+    reverse_proxy frontend:80
+}
+
+api.primacura.health {
+    reverse_proxy backend:8000
+}
