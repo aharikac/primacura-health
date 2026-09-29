@@ -442,10 +442,19 @@ def run_first_aid_chat_agent(
     band = conversation.age_band
 
     ranked = results
-    if band is not None and "age_bands" in results.columns:
-        keep = results["age_bands"].apply(lambda b: row_covers_age(b, band))
+
+    # FIX CONTEXT LOSS: Bypass vector search if waiting for age
+    if conversation.turns and conversation.turns[-1].status == "age_clarification_needed":
+        locked_condition = conversation.turns[-1].suggested_condition
+        all_rows = table.to_pandas()
+        ranked = all_rows[all_rows["condition"] == locked_condition].copy()
+        if "_distance" not in ranked.columns:
+            ranked["_distance"] = 0.0
+
+    if band is not None and "age_bands" in ranked.columns:
+        keep = ranked["age_bands"].apply(lambda b: row_covers_age(b, band))
         if keep.any():
-            ranked = results[keep]
+            ranked = ranked[keep]
 
     matched_condition = ranked["condition"].iloc[0]
     match_score = float(ranked["_distance"].iloc[0])

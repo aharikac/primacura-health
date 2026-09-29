@@ -31,9 +31,10 @@ from typing import Any
 import logging
 import pandas as pd
 import uvicorn
-from fastapi import Body, FastAPI, UploadFile, File, HTTPException
+from fastapi import Body, FastAPI, UploadFile, File, HTTPException, Form
 from fastapi.middleware.cors import CORSMiddleware
 import whisper
+from pydantic import BaseModel
 import pchCore
 from pchCore import CONFIG, Conversation, load_dataset, load_embedding_model
 
@@ -98,20 +99,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
+class ChatRequest(BaseModel):
+    query: str
+    session_id: str = "default"
+    
 @app.post("/chat/")
-def chat_endpoint(
-    query: str = Body(..., embed=True, description="User query for first aid advice"),
-    session_id: str = Body("default", embed=True, description="Conversation identifier"),
-):
-    result = processUserQuery(query, session_id=session_id)
-    #result = f"Processed: {userQuery}" 
+def chat_endpoint(req: ChatRequest):
+    result = processUserQuery(req.query, session_id=req.session_id)
     return result
 
 @app.post("/transcribe/")
 async def speak_endpoint(
     audio_file: UploadFile = File(...),
-    session_id: str = Body("default", embed=True, description="Conversation identifier"),
+    session_id: str = Form("default", embed=True, description="Conversation identifier"),
 ):
     # CRITICAL: Generate a unique filename to prevent race conditions 
     # if multiple requests hit this endpoint at the same time.
