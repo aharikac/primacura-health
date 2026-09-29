@@ -30,7 +30,7 @@ export function ProtocolScreen({ condition, onBack }: { condition: Condition; on
       </header>
       <div className="protocol-body">
         <div className="step-counter">STEP {stepIndex + 1} OF {condition.steps.length}</div>
-        <p className="step-text">{condition.steps[stepIndex]}</p>
+        <p className="step-text">{condition.steps[stepIndex].replace(/([.!?])\s+/g, '$1\n\n')}</p>
       </div>
       <div className="protocol-actions">
         {stepIndex > 0 && (

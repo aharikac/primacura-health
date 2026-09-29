@@ -499,44 +499,80 @@ button:disabled { cursor: wait; }
 .cancel-button { width: 100%; height: 80px; margin-top: 18px; border: 3px solid #050505; background: #fff; font-size: 24px; font-weight: 900; }
 
 /* ===== PROTOCOL SCREEN ===== */
-.protocol-screen { height: 100%; background: #fff; display: flex; flex-direction: column; padding: 48px 30px 28px; }
-.protocol-header { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
-.protocol-header h1 { margin: 0; font-size: 26px; line-height: 1.05; letter-spacing: -1px; font-weight: 900; }
+.protocol-screen { 
+  height: 100%; 
+  background: #fff; 
+  display: flex; 
+  flex-direction: column; 
+  padding: 48px 24px 24px; /* Slightly reduced side padding for more text room */
+}
 
-/* FIX: Changed justify-content to flex-start to stop the jumping, added padding */
+.protocol-header { 
+  display: flex; 
+  align-items: center; 
+  gap: 14px; 
+  flex-shrink: 0; 
+}
+
+.protocol-header h1 { 
+  margin: 0; 
+  font-size: 26px; 
+  line-height: 1.05; 
+  letter-spacing: -1px; 
+  font-weight: 900; 
+}
+
 .protocol-body { 
   flex: 1; 
   display: flex; 
   flex-direction: column; 
   justify-content: flex-start; 
-  padding-top: 8px;
-  overflow-y: auto;
+  padding-top: 16px;
+  min-height: 0; /* Forces flexbox to respect constraints */
 }
 
 .step-counter { 
   color: #d33b32; 
-  font-size: 15px; 
+  font-size: 14px; 
   font-weight: 900; 
-  letter-spacing: 2px; 
-  margin-bottom: 16px; 
+  letter-spacing: 1.5px; 
+  margin-bottom: 12px; 
   text-transform: uppercase;
+  flex-shrink: 0;
 }
 
-/* VISUAL IMPROVEMENT: Formats the instruction text as a clean, bordered focus card */
+/* 
+  Visual Improvements: 
+  - Scaled down font size to 20px
+  - Increased line-height to 1.5 for breathing room
+  - Dropped font-weight to 600 (Semi-bold) for readable paragraphs
+  - Added internal scrolling so long API responses never push the buttons off screen
+*/
 .step-text { 
-  margin: 0 0 auto 0; /* 'auto' bottom margin pushes the buttons to the bottom of the screen */
-  font-size: 26px; 
-  line-height: 1.35; 
-  letter-spacing: -0.5px; 
-  font-weight: 800; 
-  color: #050505;
-  white-space: pre-line; 
-  background: #ffffff;
+  margin: 0; 
+  font-size: 20px; 
+  line-height: 1.5; 
+  letter-spacing: -0.2px; 
+  font-weight: 600; 
+  color: #1f2937; /* Dark charcoal instead of pure black for reduced eye strain */
+  white-space: pre-wrap; 
+  background: #fafafa;
   padding: 24px;
   border: 2px solid #e4e4e7;
-  border-left: 8px solid #d33b32; /* Bold red indicator on the left */
+  border-left: 6px solid #d33b32; 
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  
+  /* Internal Scrolling for long text */
+  flex: 1 1 auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.step-text strong, 
+.step-text b {
+  color: #050505;
+  font-weight: 900;
 }
 
 .protocol-actions { display: flex; gap: 12px; flex-shrink: 0; margin-top: 24px; }
