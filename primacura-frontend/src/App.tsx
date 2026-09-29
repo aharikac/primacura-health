@@ -88,6 +88,7 @@ export default function App() {
       };
 
       mediaRecorder.onstop = async () => {
+        setLoading(true);
         setStatus('Processing audio payload...');
 
         if (recordingTimeoutRef.current) {

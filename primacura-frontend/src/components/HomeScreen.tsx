@@ -52,7 +52,7 @@ export function HomeScreen({
               <select 
                 value={selectedMic} 
                 onChange={(e) => setSelectedMic(e.target.value)}
-                disabled={isRecording}
+                disabled={isRecording || loading}
                 className="mic-selector"
               >
                 {mics.map((mic) => (
@@ -63,7 +63,18 @@ export function HomeScreen({
               </select>
             )}
             <>
-              {!isRecording ? (
+              {loading ? (
+                <button 
+                  type="button" 
+                  className="record-button" 
+                  disabled
+                  style={{ opacity: 0.7, cursor: 'wait' }}
+                  aria-label="Processing audio description"
+                >
+                  <span className="spin">⏳</span>
+                  <span>Processing...</span>
+                </button>
+              ) : !isRecording ? (
                 <button 
                   type="button" 
                   className="record-button" 
