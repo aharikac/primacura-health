@@ -43,19 +43,17 @@ button:disabled { cursor: wait; }
 
 /* ===== HOME SCREEN ===== */
 .home-screen, .guides-screen, .clarification-screen { height: 100%; background: #fff; display: flex; flex-direction: column; }
-/* Reduced padding to give more breathing room */
-/* Reduce bottom padding from 24px to 16px to pull the bottom text up */
+
 .home-screen {
   height: 100%;
   background: #fff;
   display: flex;
   flex-direction: column;
-  padding: 28px 20px 16px; /* Reduced top padding from 40px to 28px */
-  justify-content: flex-start; /* Changed from space-between to prevent pushing bottom elements off-screen */
-  overflow-y: auto; /* Fallback safety scroll if screen height is very small */
+  padding: 28px 20px 16px; 
+  justify-content: flex-start; 
+  overflow-y: auto; 
 }
 
-/* Tighten intro header spacing slightly */
 .home-intro {
   margin-bottom: 10px; 
 }
@@ -92,7 +90,7 @@ button:disabled { cursor: wait; }
 .brand-slogan { 
   font-size: 13px; 
   font-weight: 700; 
-  color: #9ca3af; /* Muted light gray so it stays in the background */
+  color: #9ca3af; 
   letter-spacing: 1.5px; 
   margin-top: 4px; 
   text-transform: uppercase; 
@@ -102,7 +100,6 @@ button:disabled { cursor: wait; }
   flex: 1; 
   display: flex; 
   flex-direction: column; 
-  /* Changed from flex-start to space-evenly to distribute the empty space */
   justify-content: space-evenly; 
   padding-top: 5px; 
 }
@@ -114,22 +111,15 @@ button:disabled { cursor: wait; }
 .search-box input { width: 100%; min-width: 0; border: 0; outline: 0; color: #050505; font-size: 22px; font-weight: 800; }
 .search-box input::placeholder { color: #747a88; opacity: 1; }
 
-
-/* Reduced height from 220px to 130px to fit speech controls below it */
-/* Reduce the search box height by another 10px (from 130px to 120px) */
-.search-box-home { height: 120px; align-items: stretch; padding: 0; }
-/* Reduced font size and padding slightly to fit the new shorter text box */
 .search-box-home { height: 92px; align-items: stretch; padding: 0; }
 .search-box-home textarea { width: 100%; min-width: 0; border: 0; outline: 0; color: #050505; font-size: 18px; line-height: 1.4; font-weight: 800; padding: 12px 16px; resize: none; background: #fff; }
 .search-submit { flex: 0 0 64px; display: grid; place-items: center; border: 0; border-left: 3px solid #050505; background: #050505; color: #fff; align-self: stretch; }
 .search-submit:hover { background: #1f1f1f; }
 
-/* Reduce the gap between the action buttons slightly (from 12px to 10px) */
 .home-actions {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  /* Changed from auto to a fixed margin so it stops pushing to the absolute bottom */
   margin-top: 16px; 
   align-items: center;
   width: 100%;
@@ -144,7 +134,6 @@ button:disabled { cursor: wait; }
 
 .home-note { margin: 0; color: #747a88; text-align: center; font-size: 14px; line-height: 1.25; font-weight: 800; }
 
-/* Container for the controls */
 .speech-section {
   display: flex;
   flex-direction: column;
@@ -170,28 +159,23 @@ button:disabled { cursor: wait; }
   width: 100%;
 }
 
-/* Microphone Dropdown Styling */
 .mic-selector {
   appearance: none;
   -webkit-appearance: none;
-  background-color: #ffffff; /* Clean white background */
-  border: 1px solid #d1d5db; /* Crisp, subtle gray border */
-  border-radius: 8px; /* Matches the new Browse Guides button */
-  padding: 8px 32px 8px 12px; /* Slightly tighter padding to reduce bulk */
+  background-color: #ffffff; 
+  border: 1px solid #d1d5db; 
+  border-radius: 8px; 
+  padding: 8px 32px 8px 12px; 
   font-size: 14px;
-  color: #4b5563; /* Medium dark gray text for readability */
+  color: #4b5563; 
   font-weight: 600; 
   cursor: pointer;
   outline: none;
   transition: all 0.2s ease;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04); /* Very soft depth */
-  
-  /* Custom modern chevron arrow */
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04); 
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 10px center;
-  
-  /* Truncate long microphone names */
   max-width: 200px;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -199,12 +183,12 @@ button:disabled { cursor: wait; }
 }
 
 .mic-selector:hover:not(:disabled) {
-  border-color: #9ca3af; /* Darkens the border slightly on hover */
-  background-color: #f9fafb; /* Extremely light gray shift */
+  border-color: #9ca3af; 
+  background-color: #f9fafb; 
 }
 
 .mic-selector:focus {
-  border-color: #050505; /* Sharp black border on click to match the app theme */
+  border-color: #050505; 
   box-shadow: 0 0 0 1px #050505;
 }
 
@@ -214,37 +198,37 @@ button:disabled { cursor: wait; }
   box-shadow: none;
 }
 
-/* Record/Stop Button Styling */
+/* Default / Inactive Speak Button (White with Border) */
 .record-button {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background-color: #ef4444; /* High-visibility red for recording */
-  color: #ffffff;
-  border: none;
+  background-color: #ffffff; 
+  color: #050505;
+  border: 1px solid #e4e4e7;
   border-radius: 8px;
   padding: 10px 20px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
-  white-space: nowrap; /* Keeps the icon, stop text, and timer together on one line */
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  white-space: nowrap; 
 }
 
-/* Optional styling to make the timer text blend nicely */
 .record-button .record-timer {
   font-size: 13px;
   opacity: 0.85;
   font-weight: 500;
   margin-left: 2px;
+  color: #fee2e2;
 }
 
 .record-button:hover {
-  background-color: #dc2626;
+  background-color: #f4f4f5;
   transform: translateY(-1px);
-  box-shadow: 0 4px 6px rgba(239, 68, 68, 0.3);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 }
 
 .record-button:active {
@@ -252,15 +236,16 @@ button:disabled { cursor: wait; }
   box-shadow: none;
 }
 
-/* Optional: If you want to differentiate the Stop state */
+/* Active Recording / Stop Button (Dark Red) */
 .speech-controls:has(span) .record-button {
-  /* You can target the stop state if you prefer a different color when recording is active */
-  background-color: #18181b; 
-  box-shadow: 0 2px 4px rgba(24, 24, 27, 0.2);
+  background-color: #991b1b; 
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 2px 4px rgba(153, 27, 27, 0.2);
 }
 
 .speech-controls:has(span) .record-button:hover {
-  background-color: #27272a;
+  background-color: #7f1d1d;
 }
 
 /* ===== CLARIFICATION SCREEN ===== */
@@ -269,18 +254,15 @@ button:disabled { cursor: wait; }
   background: #fff;
   display: flex; 
   flex-direction: column; 
-  /* Reduced overall screen padding to keep everything in view */
   padding: 20px 24px 20px; 
-  gap: 12px; /* Tighter gap between the major screen sections */
-  overflow: hidden; /* Enforces the zero-scroll layout */
+  gap: 12px; 
+  overflow: hidden; 
 } 
 
-/* Forces the header to pull the safety message closer */
 .clarification-screen .inner-page-header.tight-bottom {
   margin-bottom: -4px; 
 }
 
-/* Slimmed down safety reminder */
 .safety-reminder { 
   display: flex;
   flex-direction: column;
@@ -306,30 +288,27 @@ button:disabled { cursor: wait; }
   color: #78350f; 
 }
 
-/* Compact message card to hold all the backend paragraphs safely */
 .clarification-message-container { 
   display: flex;
   flex-direction: column;
-  gap: 10px; /* Much tighter gap between backend \n\n splits */
+  gap: 10px; 
   background: #f8f8f9;
-  padding: 16px 20px; /* Reduced internal padding */
+  padding: 16px 20px; 
   border: 2px solid #e4e4e7;
   border-radius: 12px;
-  flex: 1; /* Allows it to consume available space... */
-  min-height: 0; /* ...but lets it shrink if needed */
-  overflow-y: auto; /* Failsafe: scrolls ONLY the card if on a microscopic screen */
+  flex: 1; 
+  min-height: 0; 
+  overflow-y: auto; 
 }
 
-/* Base text size scaled down for mobile fit */
 .clarification-paragraph { 
   margin: 0; 
-  font-size: 16px; /* Scaled down from 18px */
+  font-size: 16px; 
   line-height: 1.35; 
   color: #3f3f46; 
   font-weight: 600; 
 }
 
-/* Keeps the backend **bold** text punchy but proportional */
 .clarification-highlight {
   color: #050505;
   font-weight: 900;
@@ -337,20 +316,18 @@ button:disabled { cursor: wait; }
   letter-spacing: -0.3px;
 }
 
-/* Automatically targets the backend's "While you answer: call 911..." sentence */
 .clarification-paragraph:last-child {
-  color: #d33b32; /* Turns the final warning brand red */
+  color: #d33b32; 
   font-weight: 800;
   font-size: 14px;
-  margin-top: 4px; /* Slight visual separation from the questions */
+  margin-top: 4px; 
 }
 
-/* Compressed search box */
 .clarification-screen .search-box { 
   margin-top: auto; 
   border-radius: 12px; 
   flex-shrink: 0; 
-  min-height: 76px; /* Slimmed down from 92px to guarantee screen fit */
+  min-height: 76px; 
 }
 
 /* ===== GUIDES SCREEN ===== */
@@ -360,12 +337,10 @@ button:disabled { cursor: wait; }
   max-width: 100%;
 }
 
-/* Kept for legacy support if needed elsewhere */
 .guides-header { display: flex; align-items: center; gap: 14px; padding: 48px 26px 18px; flex-shrink: 0; }
 .back-button { width: 44px; height: 48px; display: grid; place-items: center; border: 0; background: transparent; padding: 0; }
 .guides-header h1 { margin: 0; font-size: 28px; line-height: 1.02; letter-spacing: 1px; font-weight: 900; }
 
-/* Applied to the active header in GuidesScreen.tsx */
 .guides-screen > .inner-page-header {
   box-sizing: border-box;
   width: 100%;
@@ -397,7 +372,6 @@ button:disabled { cursor: wait; }
   padding: 8px 20px 24px; 
 }
 
-/* BASE CARD STYLING */
 .guide-row { 
   width: 100%; 
   max-width: 100%;
@@ -514,7 +488,7 @@ button:disabled { cursor: wait; }
   background: #fff; 
   display: flex; 
   flex-direction: column; 
-  padding: 48px 24px 24px; /* Slightly reduced side padding for more text room */
+  padding: 48px 24px 24px; 
 }
 
 .protocol-header { 
@@ -538,7 +512,7 @@ button:disabled { cursor: wait; }
   flex-direction: column; 
   justify-content: flex-start; 
   padding-top: 16px;
-  min-height: 0; /* Forces flexbox to respect constraints */
+  min-height: 0; 
 }
 
 .step-counter { 
@@ -551,20 +525,13 @@ button:disabled { cursor: wait; }
   flex-shrink: 0;
 }
 
-/* 
-  Visual Improvements: 
-  - Scaled down font size to 20px
-  - Increased line-height to 1.5 for breathing room
-  - Dropped font-weight to 600 (Semi-bold) for readable paragraphs
-  - Added internal scrolling so long API responses never push the buttons off screen
-*/
 .step-text { 
   margin: 0; 
   font-size: 20px; 
   line-height: 1.5; 
   letter-spacing: -0.2px; 
   font-weight: 600; 
-  color: #1f2937; /* Dark charcoal instead of pure black for reduced eye strain */
+  color: #1f2937; 
   white-space: pre-wrap; 
   background: #fafafa;
   padding: 24px;
@@ -572,8 +539,6 @@ button:disabled { cursor: wait; }
   border-left: 6px solid #d33b32; 
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-  
-  /* Internal Scrolling for long text */
   flex: 1 1 auto;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -587,16 +552,15 @@ button:disabled { cursor: wait; }
 
 .protocol-actions { display: flex; gap: 12px; flex-shrink: 0; margin-top: 24px; }
 
-/* VISUAL IMPROVEMENT: Rounds the navigation buttons to match the rest of the app */
 .step-nav { 
   flex: 1; 
-  height: 64px; /* Slightly slimmer buttons */
+  height: 64px; 
   display: flex; 
   align-items: center; 
   justify-content: center; 
   gap: 12px; 
   border: 2px solid #050505; 
-  border-radius: 12px; /* Matches home screen rounded buttons */
+  border-radius: 12px; 
   background: #fff; 
   font-size: 20px; 
   font-weight: 900; 
@@ -620,8 +584,6 @@ button:disabled { cursor: wait; }
 /* ==========================================================================
    DISCLAIMER BUTTON & SCREEN STYLES
    ========================================================================== */
-
-/* Disclaimer trigger link on Home Screen */
 .disclaimer-link {
   background: transparent;
   border: none;
@@ -644,7 +606,6 @@ button:disabled { cursor: wait; }
   color: #050505;
 }
 
-/* Full Disclaimer View Container */
 .disclaimer-screen {
   height: 100%;
   width: 100%;
@@ -657,7 +618,6 @@ button:disabled { cursor: wait; }
   -webkit-overflow-scrolling: touch;
 }
 
-/* Custom Webkit scrollbar for long state disclaimers */
 .disclaimer-screen ::-webkit-scrollbar {
   width: 6px;
 }
@@ -688,14 +648,13 @@ button:disabled { cursor: wait; }
 /* ==========================================================================
    RESPONSIVE EMERGENCY ELEMENTS
    ========================================================================== */
-/* Hide the desktop message by default (on mobile) */
 .desktop-emergency-message {
   display: none;
   width: 100%;
   padding: 16px 20px;
   background: #ffffff;
   border: 2px solid #e5e7eb;
-  border-left: 8px solid #d33b32; /* Bold red accent on the left */
+  border-left: 8px solid #d33b32; 
   border-radius: 6px;
   color: #4b5563;
   text-align: left;
@@ -713,7 +672,6 @@ button:disabled { cursor: wait; }
   letter-spacing: 0.5px;
 }
 
-/* On desktop: hide the dial button, show the text message */
 @media (min-width: 521px) {
   .call-button {
     display: none !important;
@@ -724,29 +682,31 @@ button:disabled { cursor: wait; }
   }
 }
 
+/* Browse First-Aid Guides Button (Primary Red) */
 .known-button { 
   width: 100%; 
-  height: 48px; /* Reduced from 54px */
+  height: 48px; 
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  border: 2px solid #050505; 
+  border: none; 
   border-radius: 8px; 
-  background: #ffffff; 
-  color: #050505; 
+  background: #d33b32; 
+  color: #ffffff; 
   font-size: 15px; 
   font-weight: 900; 
   padding: 0 22px; 
   transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(211, 59, 50, 0.2);
 }
 
 .known-button:hover { 
-  background: #f4f4f5; /* Very light gray on hover to show interactivity */
+  background: #b82d26; 
 }
 
 .known-button:active {
-  background: #e4e4e7;
+  background: #991b1b;
   transform: translateY(1px);
 }
 
@@ -773,7 +733,7 @@ button:disabled { cursor: wait; }
 .inner-brand-slogan {
   font-size: 10px;
   font-weight: 800;
-  color: #9ca3af; /* Muted gray */
+  color: #9ca3af; 
   letter-spacing: 1px;
   text-transform: uppercase;
   margin-top: 4px;
@@ -792,7 +752,7 @@ button:disabled { cursor: wait; }
 }
 
 .inner-page-header.tight-bottom {
-  margin-bottom: 16px; /* Tighter spacing for screens with tall content */
+  margin-bottom: 16px; 
 }
 
 .header-top-row {
@@ -827,7 +787,7 @@ button:disabled { cursor: wait; }
 }
 
 .nav-back-btn:hover .nav-icon-circle {
-  background: #e4e4e7; /* Darkens slightly on hover */
+  background: #e4e4e7; 
 }
 
 .header-title-row h1 {
@@ -844,4 +804,3 @@ button:disabled { cursor: wait; }
   font-size: 15px;
   font-weight: 600;
 }
-
