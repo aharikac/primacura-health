@@ -4,7 +4,7 @@
     "slug": "primacura-ios",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/PrimaCura-Icon.png",
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true,
