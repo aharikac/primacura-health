@@ -5,6 +5,7 @@ import { GuidesScreen } from './components/GuidesScreen';
 import { ProtocolScreen } from './components/ProtocolScreen';
 import { ClarificationScreen } from './components/ClarificationScreen';
 import { DisclaimerScreen } from './components/DisclaimerScreen';
+import { AboutScreen } from './components/AboutScreen'; // Make sure this path matches where you saved it
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://127.0.0.1:8000';
 const REQUEST_TIMEOUT_MS = 15_000;
@@ -16,7 +17,7 @@ const createSessionId = () =>
     : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
 export default function App() {
-  const [screen, setScreen] = useState<Screen>('home');
+  const [screen, setScreen] = useState<Screen | 'about'>('home'); // Explicitly adding 'about' to type safety
   const [query, setQuery] = useState('');
   const [selectedCondition, setSelectedCondition] = useState<Condition | null>(null);
   const [clarificationMessage, setClarificationMessage] = useState('');
@@ -286,6 +287,7 @@ export default function App() {
             query={query}
             setQuery={setQuery}
             onSearch={() => handleEmergencySearch(query)}
+            onOpenAbout={() => setScreen('about' as Screen)}
             onOpenDisclaimer={() => setScreen('disclaimer')}
             onOpenGuides={() => {
               setQuery('');
@@ -327,6 +329,9 @@ export default function App() {
         )}
         {screen === 'disclaimer' && (
           <DisclaimerScreen onBack={backToHome} />
+        )}
+        {screen === 'about' && (
+          <AboutScreen onBack={backToHome} />
         )}
       </div>
     </div>

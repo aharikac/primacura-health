@@ -1,12 +1,13 @@
 import { View, Text, TouchableOpacity, StyleSheet, Linking, TextInput, ActivityIndicator, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Mic, Phone, ShieldAlert, Square, Search, BookOpen, ChevronRight } from 'lucide-react-native';
+import { Mic, Phone, ShieldAlert, Square, Search, BookOpen, ChevronRight, User } from 'lucide-react-native';
 
 export function HomeScreen({
   query,
   setQuery,
   onSearch,
   onOpenDisclaimer,
+  onOpenAbout,
   onOpenGuides,
   loading,
   isRecording,
@@ -18,6 +19,7 @@ export function HomeScreen({
   setQuery: (value: string) => void;
   onSearch: () => void;
   onOpenDisclaimer: () => void;
+  onOpenAbout: () => void;
   onOpenGuides: () => void;
   loading: boolean;
   isRecording: boolean;
@@ -124,10 +126,19 @@ export function HomeScreen({
 
           <Text style={styles.homeNote}>Step-by-step first-aid protocols when medical staff isn't nearby.</Text>
           
-          <TouchableOpacity style={styles.disclaimerLink} onPress={onOpenDisclaimer}>
-            <ShieldAlert size={14} color="#6b7280" />
-            <Text style={styles.disclaimerText}>Legal Disclaimer & Terms</Text>
-          </TouchableOpacity>
+          <View style={styles.footerLinksRow}>
+            <TouchableOpacity style={styles.footerLink} onPress={onOpenAbout}>
+              <User size={14} color="#6b7280" />
+              <Text style={styles.footerLinkText}>About</Text>
+            </TouchableOpacity>
+
+            <Text style={styles.footerDivider}>•</Text>
+
+            <TouchableOpacity style={styles.footerLink} onPress={onOpenDisclaimer}>
+              <ShieldAlert size={14} color="#6b7280" />
+              <Text style={styles.footerLinkText}>Legal Disclaimer</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
       </ScrollView>
@@ -141,15 +152,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff' 
   },
   container: {
-    flexGrow: 1, // Allows stretching on big screens, scrolling on small
+    flexGrow: 1, 
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingTop: 4, 
-    paddingBottom: 12, 
+    paddingTop: 24, // Increased from 4 for top breathing room
+    paddingBottom: 24, // Increased from 12
   },
   topSection: {
     flexShrink: 0, 
-    marginBottom: 16,
+    marginBottom: 36, // Significantly increased from 16 to separate branding and prompt
   },
   brand: { 
     flexDirection: 'row', 
@@ -175,11 +186,11 @@ const styles = StyleSheet.create({
     letterSpacing: 1 
   },
   middleSection: {
-    gap: 16, 
-    marginBottom: 16,
+    gap: 24, // Increased from 16 to spread search and speech blocks
+    marginBottom: 24, 
   },
   introAndSearchGroup: {
-    gap: 12, 
+    gap: 16, // Increased from 12
   },
   homeIntro: { 
     marginBottom: 4,
@@ -289,8 +300,8 @@ const styles = StyleSheet.create({
   },
   bottomSection: {
     alignItems: 'center', 
-    gap: 16, 
-    marginTop: 'auto', // Pushes to bottom if flexGrow is active
+    gap: 20, // Increased from 16
+    // marginTop: 'auto' has been removed so the parent container spaces everything evenly
   },
   knownButton: { 
     width: '100%', 
@@ -362,17 +373,29 @@ const styles = StyleSheet.create({
     color: '#6b7280', 
     textAlign: 'center', 
     lineHeight: 16, 
-    paddingHorizontal: 10 
+    paddingHorizontal: 10,
+    marginBottom: 8,
   },
-  disclaimerLink: { 
+  footerLinksRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 12,
+    paddingBottom: 10,
+  },
+  footerLink: { 
     flexDirection: 'row', 
     alignItems: 'center', 
     gap: 6, 
-    padding: 2 
+    padding: 4 
   },
-  disclaimerText: { 
-    fontSize: 11, 
+  footerLinkText: { 
+    fontSize: 12, 
     color: '#6b7280', 
-    fontWeight: '600' 
+    fontWeight: '700' 
+  },
+  footerDivider: {
+    color: '#d1d5db',
+    fontSize: 14,
   },
 });

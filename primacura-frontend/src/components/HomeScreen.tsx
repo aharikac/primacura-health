@@ -1,4 +1,4 @@
-import { Mic, Phone, ShieldAlert, Square } from 'lucide-react';
+import { Mic, Phone, ShieldAlert, Square, User } from 'lucide-react';
 import { SearchBox } from './SearchBox';
 
 export function HomeScreen({
@@ -6,6 +6,7 @@ export function HomeScreen({
   setQuery,
   onSearch,
   onOpenDisclaimer,
+  onOpenAbout,
   onOpenGuides,
   loading,
   isRecording,
@@ -20,6 +21,7 @@ export function HomeScreen({
   setQuery: (value: string) => void;
   onSearch: () => void;
   onOpenDisclaimer: () => void;
+  onOpenAbout: () => void;
   onOpenGuides: () => void;
   loading: boolean;
   isRecording: boolean;
@@ -111,9 +113,16 @@ export function HomeScreen({
           If it's life-threatening, dial 911 immediately.
         </div>
         <p className="home-note">Step-by-step first-aid protocols when medical staff isn't nearby.</p>
-        <button onClick={onOpenDisclaimer} className="disclaimer-link">
-          <ShieldAlert size={14} /> Legal Disclaimer & Terms
-        </button>
+        
+        <div style={{ display: 'flex', gap: '16px', alignItems: 'center', justifyContent: 'center' }}>
+          <button onClick={onOpenAbout} className="disclaimer-link">
+            <User size={14} /> About PrimaCura
+          </button>
+          <span style={{ color: '#d1d5db' }}>•</span>
+          <button onClick={onOpenDisclaimer} className="disclaimer-link">
+            <ShieldAlert size={14} /> Legal Disclaimer & Terms
+          </button>
+        </div>
       </div>
     </main>
   );

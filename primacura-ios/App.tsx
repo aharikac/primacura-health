@@ -14,6 +14,7 @@ import { GuidesScreen } from './src/components/GuidesScreen';
 import { ProtocolScreen } from './src/components/ProtocolScreen';
 import { ClarificationScreen } from './src/components/ClarificationScreen';
 import { DisclaimerScreen } from './src/components/DisclaimerScreen';
+import { AboutScreen } from './src/components/AboutScreen';
 
 // Update to your production API URL
 const BACKEND_URL = 'https://api.primacura.health'; 
@@ -208,6 +209,7 @@ export default function App() {
           setQuery={setQuery}
           onSearch={() => handleEmergencySearch(query)}
           onOpenDisclaimer={() => setScreen('disclaimer')}
+          onOpenAbout={() => setScreen('about')}
           onOpenGuides={() => {
             setQuery('');
             setScreen('guides');
@@ -245,6 +247,9 @@ export default function App() {
       )}
       {screen === 'disclaimer' && (
         <DisclaimerScreen onBack={backToHome} />
+      )}
+      {screen === 'about' && (
+          <AboutScreen onBack={backToHome} />
       )}
     </SafeAreaProvider>
   );

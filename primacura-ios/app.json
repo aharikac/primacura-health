@@ -10,7 +10,8 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.aharikac.primacura-ios",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "CFBundleDisplayName": "PrimaCura"
       }
     },
     "android": {
