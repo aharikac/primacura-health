@@ -34,9 +34,22 @@ import uvicorn
 from fastapi import Body, FastAPI, UploadFile, File, HTTPException, Form
 from fastapi.middleware.cors import CORSMiddleware
 import whisper
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 import pchCore
 from pchCore import CONFIG, Conversation, load_dataset, load_embedding_model
+import smtplib
+from email.message import EmailMessage
+from dotenv import load_dotenv
+
+try:
+    from google.cloud import secretmanager
+    import google.auth
+    from google.auth.exceptions import DefaultCredentialsError
+except ImportError:
+    secretmanager = None
+
+# Load local .env file if it exists
+load_dotenv()
 
 
 logger = logging.getLogger("uvicorn.error")
@@ -80,8 +93,48 @@ def _conversation_for(session_id: str) -> Conversation:
         return _conversations.setdefault(key, Conversation())
 
 
+SMTP_PASSWORD_CACHE = None
+
+def fetch_smtp_password():
+    # 1. Try local environment variable first
+    pwd = os.getenv("SMTP_APP_PASSWORD")
+    if pwd:
+        logger.info("Loaded SMTP password from environment variable.")
+        return pwd
+        
+    # 2. Fall back to Google Secret Manager if running in GCP
+    if secretmanager is None:
+        logger.warning("google-cloud-secret-manager not installed. Cannot fetch from GCP.")
+        return None
+        
+    try:
+        _, project_id = google.auth.default()
+        if not project_id:
+            logger.warning("Could not determine GCP project ID.")
+            return None
+            
+        client = secretmanager.SecretManagerServiceClient()
+        secret_name = f"projects/{project_id}/secrets/SMTP_APP_PASSWORD/versions/latest"
+        response = client.access_secret_version(request={"name": secret_name})
+        pwd = response.payload.data.decode("UTF-8")
+        logger.info("Loaded SMTP password from Google Secret Manager.")
+        return pwd
+    except DefaultCredentialsError:
+        logger.warning("No Google credentials found. Skipping Secret Manager.")
+    except Exception as e:
+        logger.error(f"Failed to fetch from Secret Manager: {e}")
+        
+    return None
+
+
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
+    global SMTP_PASSWORD_CACHE
+    SMTP_PASSWORD_CACHE = fetch_smtp_password()
+    
+    if not SMTP_PASSWORD_CACHE:
+        logger.warning("SMTP_APP_PASSWORD is not set. Contact form submissions will fail.")
+
     # Warm the model and protocol vectors before accepting the first query. The
     # app may take a few seconds to become ready, but every request thereafter
     # performs only query inference + retrieval.
@@ -102,6 +155,12 @@ app.add_middleware(
 class ChatRequest(BaseModel):
     query: str
     session_id: str = "default"
+
+class ContactForm(BaseModel):
+    name: str
+    email: str
+    message: str = Field(..., max_length=1000)
+
     
 @app.post("/chat/")
 def chat_endpoint(req: ChatRequest):
@@ -166,6 +225,30 @@ async def speak_endpoint(
         # Guaranteed cleanup of the temporary video/audio chunk
         if os.path.exists(temp_filename):
            os.remove(temp_filename)
+
+@app.post("/contact/")
+async def submit_contact_form(form: ContactForm):
+    if not SMTP_PASSWORD_CACHE:
+        raise HTTPException(status_code=500, detail="Server email configuration error")
+   
+    msg = EmailMessage()
+    msg.set_content(f"Name: {form.name}\nEmail: {form.email}\n\nMessage:\n{form.message}")
+    
+    msg['Subject'] = f"PrimaCura Contact Form: Message from {form.name}"
+    msg['From'] = "contactprimacura@gmail.com"
+    msg['To'] = "contactprimacura@gmail.com"
+
+    try:
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login("contactprimacura@gmail.com", SMTP_PASSWORD_CACHE)
+        server.send_message(msg)
+        server.quit()
+        
+        return {"status": "success", "message": "Email sent successfully"}
+    except Exception as e:
+        logger.error(f"Error sending email: {e}")
+        raise HTTPException(status_code=500, detail="Failed to send email")
 
 
 def processUserQuery(userQuery: str, session_id: str = "default"):

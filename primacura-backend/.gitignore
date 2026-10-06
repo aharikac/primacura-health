@@ -20,3 +20,5 @@ __pycache__/
 backend.log
 
 models/
+whisper-env/
+primacura-backend-local-env/

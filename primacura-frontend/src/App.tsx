@@ -5,7 +5,8 @@ import { GuidesScreen } from './components/GuidesScreen';
 import { ProtocolScreen } from './components/ProtocolScreen';
 import { ClarificationScreen } from './components/ClarificationScreen';
 import { DisclaimerScreen } from './components/DisclaimerScreen';
-import { AboutScreen } from './components/AboutScreen'; // Make sure this path matches where you saved it
+import { AboutScreen } from './components/AboutScreen';
+import { ContactScreen } from './components/ContactScreen';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://127.0.0.1:8000';
 const REQUEST_TIMEOUT_MS = 15_000;
@@ -17,7 +18,7 @@ const createSessionId = () =>
     : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
 export default function App() {
-  const [screen, setScreen] = useState<Screen | 'about'>('home'); // Explicitly adding 'about' to type safety
+  const [screen, setScreen] = useState<Screen | 'about' | 'contact'>('home'); // Explicitly adding 'about' and 'contact' to type safety
   const [query, setQuery] = useState('');
   const [selectedCondition, setSelectedCondition] = useState<Condition | null>(null);
   const [clarificationMessage, setClarificationMessage] = useState('');
@@ -286,9 +287,10 @@ export default function App() {
           <HomeScreen
             query={query}
             setQuery={setQuery}
-            onSearch={() => handleEmergencySearch(query)}
+            onSearch={(overrideQuery?: string) => handleEmergencySearch(typeof overrideQuery === 'string' ? overrideQuery : query)}
             onOpenAbout={() => setScreen('about' as Screen)}
-            onOpenDisclaimer={() => setScreen('disclaimer')}
+            onOpenContact={() => setScreen('contact' as Screen)}
+            onOpenDisclaimer={() => setScreen('disclaimer' as Screen)}
             onOpenGuides={() => {
               setQuery('');
               setScreen('guides');
@@ -332,6 +334,9 @@ export default function App() {
         )}
         {screen === 'about' && (
           <AboutScreen onBack={backToHome} />
+        )}
+        {screen === 'contact' && (
+          <ContactScreen onBack={backToHome} />
         )}
       </div>
     </div>

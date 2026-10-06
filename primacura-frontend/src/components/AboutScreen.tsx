@@ -1,27 +1,34 @@
 import React from 'react';
-import { Heart, User, ShieldPlus, ArrowLeft } from 'lucide-react';
+import { User, ShieldPlus, ArrowLeft } from 'lucide-react';
 
 export function AboutScreen({ onBack }: { onBack: () => void }) {
   return (
-    <div className="max-w-3xl mx-auto px-6 py-12">
-        <button 
-        onClick={onBack}
-        className="flex items-center gap-2 font-bold text-gray-900 hover:text-[#d33b32] mb-8 transition-colors"
-        >
-        <ArrowLeft size={20} strokeWidth={2.5} />
-        Home
-      </button>
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 md:p-12">
-        <div className="flex items-center gap-4 mb-8">
-          <div className="w-16 h-16 bg-red-50 text-red-600 rounded-2xl flex items-center justify-center">
-            <Heart size={32} strokeWidth={2.5} />
-          </div>
-          <div>
-            <h1 className="text-3xl font-black text-gray-900 tracking-tight">About PrimaCura</h1>
-            <p className="text-sm font-bold text-gray-500 uppercase tracking-widest">The First Care</p>
+    <main className="about-screen">
+      
+      {/* Standardized Header using index.css classes */}
+      <header className="inner-page-header">
+        <div className="header-top-row">
+          <button className="nav-back-btn" onClick={onBack} aria-label="Back to home">
+            <div className="nav-icon-circle">
+              <ArrowLeft size={20} strokeWidth={2.8} color="#050505" />
+            </div>
+            Home
+          </button>
+          
+          <div className="inner-brand">
+            <span className="inner-brand-title">PrimaCura</span>
+            <span className="inner-brand-slogan">The First Care</span>
           </div>
         </div>
 
+        <div className="header-title-row">
+          <h1>About PrimaCura</h1>
+          <p>The First Care mission and developer.</p>
+        </div>
+      </header>
+
+      {/* Content Section */}
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 md:p-12">
         <div className="space-y-8 text-lg text-gray-600 leading-relaxed font-medium">
           <section>
             <h2 className="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
@@ -47,6 +54,7 @@ export function AboutScreen({ onBack }: { onBack: () => void }) {
           </section>
         </div>
       </div>
-    </div>
+      
+    </main>
   );
 }

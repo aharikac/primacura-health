@@ -22,14 +22,23 @@ export function SearchBox({
           onSearch?.();
         }}
       >
+        <div style={{ position: 'relative', flex: 1, display: 'flex' }}>
         <textarea
-          value={value}
-          onChange={(event) => onChange(event.target.value)}
-          placeholder={'Type the situation in detail...'}
-          aria-label={'Type the situation in detail...'}
-          rows={5}
-          disabled={loading}
-        />
+            value={value}
+            onChange={(event) => onChange(event.target.value)}
+            placeholder={'Type the situation in detail...'}
+            aria-label={'Type the situation in detail...'}
+            rows={2}
+            disabled={loading}
+            maxLength={500}
+            style={{ width: '100%', paddingBottom: '20px', resize: 'none', overflow: 'hidden' }}
+          />
+
+          <span style={{ position: 'absolute', bottom: '8px', right: '12px', fontSize: '0.75rem', color: '#9ca3af', pointerEvents: 'none' }}>
+            {value.length}/500
+          </span>
+        </div>
+
         <button className="search-submit" type="submit" aria-label="Get help" disabled={loading}>
           {loading ? (
             <Loader2 size={30} strokeWidth={2.8} className="spin" aria-hidden="true" />

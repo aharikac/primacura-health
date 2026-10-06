@@ -100,14 +100,117 @@ _AGE_FROM_SITUATION = (
 _AGE_FROM_QUERY = (
     ("infant", re.compile(
         r"\b(infant|baby|newborn|\d+[- ]month[- ]old|months old)\b", re.I)),
-    ("child", re.compile(
-        r"\b(child|kid|toddler|schoolgirl|schoolboy|my (son|daughter)|"
+        ("child", re.compile(
+        r"\b(child|kid|toddler|schoolgirl|schoolboy|girl|boy|my (son|daughter)|"
         r"([1-9]|1[0-2])[- ]year[- ]old)\b", re.I)),
     ("adult", re.compile(
         r"\b(adult|man|woman|guy|lady|husband|wife|uncle|aunt|"
         r"grandfather|grandmother|elderly|my (dad|mom|father|mother)|"
         r"colleague|co[- ]?worker|([2-9]\d|1[3-9])[- ]year[- ]old)\b", re.I)),
 )
+
+# --------------------------------------------------------------------------
+# Keyword Overrides (with Negation Protection)
+# --------------------------------------------------------------------------
+# (?<!\bnot )(?<!\bno ) ensures the keyword is ignored if preceded by "not " or "no "
+_DROWNING_KEYWORDS = re.compile(
+    r"(?<!\bnot )(?<!\bno )\b(pool|lake|water|bathtub|drowning|drown|underwater|swimmer|ocean|river|tub)\b", re.I
+)
+
+_CHOKING_KEYWORDS = re.compile(
+    r"(?<!\bnot )(?<!\bno )\b(choking|choked|choke|swallowed a toy|stuck in.*throat|windpipe|gagging on food)\b", re.I
+)
+
+# Negative lookahead/lookbehind to prevent catching severe systemic exposures involving breathing
+_CHEMICAL_EYE_KEYWORDS = re.compile(
+    r"(?<!\bnot )(?<!\bno )\b(splashed.*eye|chemical.*eye|sprayed.*face|bleach.*eye|pesticide.*face)\b(?!.*\b(breathe|breathing|airway|throat closing|cant breathe)\b)", re.I
+)
+
+
+_EXACT_CONDITION_KEYWORDS = {
+    # Added: "no pulse", "flatlined", "passed out", "dropped dead", "cpr"
+    "Cardiac Arrest": re.compile(
+        r"(?<!\bnot )(?<!\bno )\b(cardiac arrest|heart stopped|cpr|no pulse|not breathing at all|flatlined|dropped dead|unconscious and not breathing)\b", re.I
+    ),
+    
+    # Added: "pulled from", "fell in", "underwater"
+    "Cardiac Arrest (Drowning)": re.compile(
+        r"(?<!\bnot )(?<!\bno )\b(drowning|drowned|pulled from.*pool|underwater too long|fell in.*water|near drowning)\b", re.I
+    ),
+    
+    # Added: "elephant on chest", "crushing", "jaw pain", "left arm"
+    "Heart Attack": re.compile(
+        r"(?<!\bnot )(?<!\bno )\b(heart attack|myocardial infarction|clutching.*chest|chest pain|chest pressure|sweating a lot|pain in.*arm|arm hurts|elephant on.*chest|crushing.*chest|jaw pain|left arm)\b", re.I
+    ),
+    
+    # Added: "wrong pipe", "blocked", "turning blue", "can't breathe" (when paired with eating)
+    "Choking": re.compile(
+        r"(?<!\bnot )(?<!\bno )\b(choking|choke|choked|heimlich|wrong pipe|airway blocked|swallowed.*stuck|gagging|turning blue|hands around.*neck)\b", re.I
+    ),
+    
+    # Added: "throat closing", "face blowing up", "hives", "bee sting"
+    "Anaphylaxis": re.compile(
+        r"(?<!\bnot )(?<!\bno )\b(anaphylaxis|allergic reaction|allergy|epipen|walnut|walnuts|peanut|peanuts|shellfish|bee sting|tongue swelling|throat swelling|swelling.*tongue|swelling.*throat|throat.*closing|hives|face blowing up)\b", re.I
+    ),
+    
+    # Added: "blood sugar", "insulin", "hypo", "sugar crashed"
+    "Diabetic Emergency": re.compile(
+        r"(?<!\bnot )(?<!\bno )\b(diabetic|diabetes|low blood sugar|hypoglycemia|insulin|sugar crashed|sugar is low|diabetic coma)\b", re.I
+    ),
+    
+    # Added: "face drooping", "half his face", "gibberish", "one side weak", "mini stroke"
+    "Stroke": re.compile(
+        r"(?<!\bnot )(?<!\bno )\b(stroke|mini stroke|tia|slurring|face droop|face drooping|half his face|talking gibberish|one side weak|can't lift.*arm)\b", re.I
+    ),
+    
+    # Added: "took too much", "shooting up", "blue lips", "gurgling"
+    "Opioid Overdose": re.compile(
+        r"(?<!\bnot )(?<!\bno )\b(overdose|fentanyl|heroin|narcan|naloxone|took too much|shooting up|blue lips|gurgling|death rattle)\b", re.I
+    ),
+    
+    # Added: "won't stop", "gushing", "blood everywhere", "artery", "deep cut"
+    "Severe Bleeding": re.compile(
+        r"(?<!\bnot )(?<!\bno )\b(severe bleeding|bleeding heavily|tourniquet|hemorrhage|gushing blood|won't stop bleeding|blood everywhere|cut.*artery|deep cut|deep gash|stabbed|gunshot)\b", re.I
+    ),
+    
+    # Added: "pepper spray", "mace", "cleaning spray"
+    "Burns (Chemical to Eye)": re.compile(
+        r"(?<!\bnot )(?<!\bno )\b(chemical in eye|bleach in eye|acid in eye|pepper spray|mace.*eye|cleaning spray.*eye)\b", re.I
+    ),
+    
+    # Added: "on fire", "stove", "flesh melting", "third degree"
+    "Burns (Thermal)": re.compile(
+        r"(?<!\bnot )(?<!\bno )\b(burn|burned|thermal burn|scalded|scald|boiling water|hot water|hot oil|hot liquid|blister|blisters|blistering|caught on fire|grease fire|stove burn|third degree)\b", re.I
+    ),
+    
+    # Added: "pills", "tide pods", "antifreeze", "drank"
+    "Poisoning / Ingestion": re.compile(
+        r"(?<!\bnot )(?<!\bno )\b(poison|poisoning|swallowed poison|drank bleach|ingested|swallowed.*pills|tide pods|antifreeze|drank cleaning)\b", re.I
+    ),
+    
+    # Added: "shaking violently", "foaming", "grand mal", "biting tongue"
+    "Seizures": re.compile(
+        r"(?<!\bnot )(?<!\bno )\b(seizure|seizures|convulsing|epilepsy|twitching|twitch|rolled their eyes|eyes rolled|febrile|fever.*twitch|fever.*eyes|shaking violently|foaming at the mouth|grand mal|biting.*tongue)\b", re.I
+    ),
+    
+    # Added: "cracked head", "paralyzed", "whiplash", "fell off roof"
+    "Head, Neck, or Spinal Injury": re.compile(
+        r"(?<!\bnot )(?<!\bno )\b(spinal injury|neck injury|head trauma|concussion|broken neck|cracked head|skull fracture|paralyzed|can't move legs|whiplash|fell off.*roof|dove into shallow)\b", re.I
+    )
+}
+
+
+
+
+CONFLICT_QUESTIONS = {
+    frozenset(["Choking", "Cardiac Arrest"]): "Are they actively coughing, gagging, or clutching their throat (Choking), or are they completely limp and unconscious (Cardiac Arrest)?",
+    frozenset(["Cardiac Arrest", "Opioid Overdose"]): "Are they completely not breathing at all (Cardiac Arrest), or are they taking very slow, shallow breaths, possibly with pinpoint pupils (Opioid Overdose)?",
+    frozenset(["Stroke", "Diabetic Emergency"]): "Are they showing specific signs like facial droop, arm weakness, or slurred speech (Stroke), or are they a known diabetic who might be having low blood sugar?",
+    frozenset(["Anaphylaxis", "Choking"]): "Did they swallow a physical object that is stuck (Choking), or are they having an allergic reaction with hives, swelling, or throat tightness (Anaphylaxis)?",
+    frozenset(["Heart Attack", "Anaphylaxis"]): "Are they experiencing chest pressure/pain radiating to the arm or jaw (Heart Attack), or facial/tongue swelling and hives from an allergy (Anaphylaxis)?",
+    frozenset(["Cardiac Arrest", "Cardiac Arrest (Drowning)"]): "Did the person collapse normally, or was this a drowning/water-related emergency?",
+    frozenset(["Choking", "Cardiac Arrest (Drowning)"]): "Are they choking on food or a physical object (Choking), or did this happen after being submerged in water (Drowning)?"
+}
 
 
 def applicable_age_bands(situation: str) -> str:
@@ -371,6 +474,7 @@ class Turn:
     suggested_condition: str
     distance: float
     status: str
+    options: list[str] = field(default_factory=list) # Tracks contending options during conflicts
 
 
 @dataclass
@@ -451,6 +555,89 @@ def run_first_aid_chat_agent(
         if "_distance" not in ranked.columns:
             ranked["_distance"] = 0.0
 
+    # --- RULE-BASED KEYWORD OVERRIDES ---
+    current_top_condition = ranked["condition"].iloc[0]
+    all_rows_df = table.to_pandas()
+
+    # 1. Check if the user explicitly named the condition
+    for condition_name, pattern in _EXACT_CONDITION_KEYWORDS.items():
+        if pattern.search(user_input):
+            override_rows = all_rows_df[all_rows_df["condition"] == condition_name].copy()
+            if not override_rows.empty:
+                override_rows["_distance"] = 0.0
+                ranked = pd.concat([override_rows, ranked]).reset_index(drop=True)
+                break # Exit the loop once a match is forced
+
+    # Re-evaluate top condition after exact match check
+    current_top_condition = ranked["condition"].iloc[0]
+     
+    # 2. Generic Context-Aware Conflict & Negation Resolution (Smart Matcher for Affirmations & Negations)
+    if conversation.turns and conversation.turns[-1].status == "clarification_needed":
+        last_turn = conversation.turns[-1]
+        if last_turn.options:
+            for opt in last_turn.options:
+                opt_lower = opt.lower()
+                core_words = [
+                    w for w in re.findall(r'\w+', opt_lower) 
+                    if w not in {'emergency', 'burns', 'ingestion', 'injury', 'cardiac', 'arrest'}
+                ]
+                
+                if core_words:
+                    core_pattern = '|'.join(re.escape(w) for w in core_words)
+                    
+                    # Check for NEGATION (e.g., "not water", "no, it's not drowning")
+                    neg_pattern = re.compile(
+                        rf"\b(not|no|neither|isn't|wasn't)\b.*?\b({core_pattern})\b", 
+                        re.I
+                    )
+                    # Check for POSITIVE AFFIRMATION (e.g., "water-related", "yes, drowning", "it is stroke")
+                    pos_pattern = re.compile(
+                        rf"\b(yes|yeah|it is|definitely|its)?.*?\b({core_pattern})\b", 
+                        re.I
+                    )
+                    
+                    if neg_pattern.search(user_input):
+                        # User negated this option -> Force the alternative
+                        alternatives = [o for o in last_turn.options if o != opt]
+                        if alternatives:
+                            target_cond = alternatives[0]
+                            override_rows = all_rows_df[all_rows_df["condition"] == target_cond].copy()
+                            if not override_rows.empty:
+                                override_rows["_distance"] = 0.0
+                                ranked = pd.concat([override_rows, ranked]).reset_index(drop=True)
+                                break
+                    elif pos_pattern.search(user_input) and not re.search(r"\bnot\b", user_input, re.I):
+                        # User positively confirmed this option -> Force this exact option immediately!
+                        override_rows = all_rows_df[all_rows_df["condition"] == opt].copy()
+                        if not override_rows.empty:
+                            override_rows["_distance"] = 0.0
+                            ranked = pd.concat([override_rows, ranked]).reset_index(drop=True)
+                            break
+
+                    
+    # Re-evaluate top condition again before moving to existing contextual overrides
+    current_top_condition = ranked["condition"].iloc[0]
+
+    if current_top_condition == "Cardiac Arrest" and _DROWNING_KEYWORDS.search(user_input):
+        override_rows = all_rows_df[all_rows_df["condition"] == "Cardiac Arrest (Drowning)"].copy()
+        if not override_rows.empty:
+            override_rows["_distance"] = 0.0 # Force high confidence to skip clarification
+            ranked = pd.concat([override_rows, ranked]).reset_index(drop=True)
+
+    elif current_top_condition in ["Cardiac Arrest", "Seizures"] and _CHOKING_KEYWORDS.search(user_input):
+        override_rows = all_rows_df[all_rows_df["condition"] == "Choking"].copy()
+        if not override_rows.empty:
+            override_rows["_distance"] = 0.0
+            ranked = pd.concat([override_rows, ranked]).reset_index(drop=True)
+            
+    elif current_top_condition == "Poisoning / Ingestion" and _CHEMICAL_EYE_KEYWORDS.search(user_input):
+        override_rows = all_rows_df[all_rows_df["condition"] == "Burns (Chemical to Eye)"].copy()
+        if not override_rows.empty:
+            override_rows["_distance"] = 0.0
+            ranked = pd.concat([override_rows, ranked]).reset_index(drop=True)
+    # ------------------------------------
+
+
     if band is not None and "age_bands" in ranked.columns:
         keep = ranked["age_bands"].apply(lambda b: row_covers_age(b, band))
         if keep.any():
@@ -460,8 +647,56 @@ def run_first_aid_chat_agent(
     match_score = float(ranked["_distance"].iloc[0])
     exact_protocol = ranked["protocol_text"].iloc[0]
 
+    # ---------------------------------------------------------
+    # REVERSE OVERRIDE (Post-Age Filter)
+    # Catches false-positive Drowning predictions that bubble up
+    # ---------------------------------------------------------
+    if matched_condition == "Cardiac Arrest (Drowning)" and not _DROWNING_KEYWORDS.search(user_input):
+        override_rows = all_rows_df[all_rows_df["condition"] == "Cardiac Arrest"].copy()
+        
+        # Apply the same age filter to the override rows so we pull the correct Cardiac Arrest variant
+        if band is not None:
+            keep = override_rows["age_bands"].apply(lambda b: row_covers_age(b, band))
+            override_rows = override_rows[keep]
+            
+        if not override_rows.empty:
+            override_rows["_distance"] = 0.0
+            ranked = pd.concat([override_rows, ranked]).reset_index(drop=True)
+            
+            # Refresh variables to lock in the corrected condition
+            matched_condition = ranked["condition"].iloc[0]
+            match_score = float(ranked["_distance"].iloc[0])
+            exact_protocol = ranked["protocol_text"].iloc[0]
+    # ---------------------------------------------------------
+
+    # --- Dynamic Conflict Detection ---
+    distinct_ranked = ranked.drop_duplicates(subset=["condition"])
+    condition_2 = distinct_ranked["condition"].iloc[1] if len(distinct_ranked) > 1 else None
+    score_2 = float(distinct_ranked["_distance"].iloc[1]) if len(distinct_ranked) > 1 else 1.0
+
+    conflict_pair = frozenset([matched_condition, condition_2]) if condition_2 else frozenset()
+    
+    # Trigger if the margin is tight (<0.04) and the match is not exceptionally confident (>0.08)
+    is_tight_margin = (score_2 - match_score) < 0.04
+    is_ambiguous = match_score > 0.08  
+    
+    has_known_conflict = (conflict_pair in CONFLICT_QUESTIONS) and is_tight_margin and is_ambiguous
+
+    # If the vector scores are tied closely but it is not a manually mapped pair,
+    # generate a clean clarification question on the fly.
+    if is_tight_margin and is_ambiguous and not has_known_conflict and condition_2:
+        conflict_pair = frozenset([matched_condition, condition_2])
+        has_known_conflict = True
+        CONFLICT_QUESTIONS[conflict_pair] = (
+            f"Are you seeing signs of **{matched_condition}** or **{condition_2}**? "
+            "Please clarify which specific symptoms are present."
+        )
+
+    # ----------------------------------
+
     uncertain = match_score > threshold
     budget_left = conversation.clarification_count < max_clarifications
+
     needs_age = (
         CONFIG["ASK_FOR_AGE"]
         and not uncertain
@@ -478,6 +713,13 @@ def run_first_aid_chat_agent(
             "on the patient's age and they are not interchangeable.\n\n"
             "**Is this an adult, a child (1 year to puberty), or an infant "
             "(<1 year)?**\n\n"
+            "While you provide more details, call 911 now if you have not already."
+        )
+    elif has_known_conflict and budget_left:
+        status = "clarification_needed"
+        response = (
+            "I am seeing signs of two possible conditions. To give you the right protocol, please clarify:\n\n"
+            f"**{CONFLICT_QUESTIONS[conflict_pair]}**\n\n"
             "While you provide more details, call 911 now if you have not already."
         )
     elif uncertain and budget_left:
@@ -511,8 +753,10 @@ def run_first_aid_chat_agent(
             suggested_condition=matched_condition,
             distance=match_score,
             status=status,
+            options=list(conflict_pair) if has_known_conflict else [],
         )
     )
+
 
     return {
         "status": status,

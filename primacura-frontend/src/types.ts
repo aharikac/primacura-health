@@ -1,4 +1,4 @@
-export type Screen = 'home' | 'guides' | 'protocol' | 'clarification' | 'disclaimer' | 'about';
+export type Screen = 'home' | 'guides' | 'protocol' | 'clarification' | 'disclaimer' | 'about' | 'contact';
 
 export type Condition = {
   title: string;
