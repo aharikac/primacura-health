@@ -1,6 +1,14 @@
 import { View, Text, TouchableOpacity, StyleSheet, Linking, TextInput, ActivityIndicator, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Mic, Phone, ShieldAlert, Square, Search, BookOpen, ChevronRight, User } from 'lucide-react-native';
+import { Mic, Phone, ShieldAlert, Square, Search, BookOpen, ChevronRight, User, Mail } from 'lucide-react-native';
+
+// One-tap shortcuts for the two most time-critical situations. The text is
+// sent to the backend like a typed description, so the same protocol logic
+// (including the age-specific steps) applies.
+export const QUICK_ACTIONS = [
+  { label: 'Choking Relief', query: 'The child is choking' },
+  { label: 'CPR for Child', query: 'Cardiac arrest, the child is completely limp and not breathing' },
+] as const;
 
 export function HomeScreen({
   query,
@@ -9,6 +17,8 @@ export function HomeScreen({
   onOpenDisclaimer,
   onOpenAbout,
   onOpenGuides,
+  onOpenContact,
+  onQuickAction,
   loading,
   isRecording,
   onStartRecording,
@@ -21,6 +31,8 @@ export function HomeScreen({
   onOpenDisclaimer: () => void;
   onOpenAbout: () => void;
   onOpenGuides: () => void;
+  onOpenContact: () => void;
+  onQuickAction: (query: string) => void;
   loading: boolean;
   isRecording: boolean;
   onStartRecording: () => void;
@@ -98,6 +110,21 @@ export function HomeScreen({
               )}
             </View>
           </View>
+
+          <View style={styles.quickActions}>
+            {QUICK_ACTIONS.map((action) => (
+              <TouchableOpacity
+                key={action.label}
+                style={[styles.quickActionButton, (loading || isRecording) && styles.quickActionDisabled]}
+                onPress={() => onQuickAction(action.query)}
+                disabled={loading || isRecording}
+                accessibilityRole="button"
+                accessibilityLabel={action.label}
+              >
+                <Text style={styles.quickActionText}>{action.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
 
         {/* BOTTOM SECTION */}
@@ -136,7 +163,14 @@ export function HomeScreen({
 
             <TouchableOpacity style={styles.footerLink} onPress={onOpenDisclaimer}>
               <ShieldAlert size={14} color="#6b7280" />
-              <Text style={styles.footerLinkText}>Legal Disclaimer</Text>
+              <Text style={styles.footerLinkText}>Disclaimer</Text>
+            </TouchableOpacity>
+
+            <Text style={styles.footerDivider}>•</Text>
+
+            <TouchableOpacity style={styles.footerLink} onPress={onOpenContact}>
+              <Mail size={14} color="#6b7280" />
+              <Text style={styles.footerLinkText}>Contact</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -229,6 +263,7 @@ const styles = StyleSheet.create({
     fontWeight: '500', 
     color: '#050505',
     minHeight: 90, 
+    maxHeight: 140, // longer text scrolls inside the box
     borderWidth: 1,
     borderColor: '#e4e4e7',
     textAlignVertical: 'top', 
@@ -297,6 +332,28 @@ const styles = StyleSheet.create({
     fontSize: 14, 
     fontWeight: '600', 
     color: '#fee2e2' 
+  },
+  quickActions: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  quickActionButton: {
+    flex: 1,
+    minHeight: 46,
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+    borderRadius: 10,
+    backgroundColor: '#fee2e2',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  quickActionDisabled: {
+    opacity: 0.5,
+  },
+  quickActionText: {
+    color: '#b91c1c',
+    fontWeight: '800',
+    fontSize: 14,
   },
   bottomSection: {
     alignItems: 'center', 

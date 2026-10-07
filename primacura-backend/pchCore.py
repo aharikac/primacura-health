@@ -1,18 +1,22 @@
-"""Offline-first first-aid protocol retrieval.
+"""Shared building blocks for PrimaCura's first-aid engine.
 
-This is the local, portable version of the pipeline that used to live inside a
-Colab notebook. Everything here runs with no network access and no API key; the
-LightRAG comparison arm is separate and optional.
+What lives here:
+  * CONFIG and the list of conditions the app covers
+  * loading the approved protocols (data/First_Aid_Dataset_Final.csv)
+  * patient age bands (some protocols differ for infants, children and adults)
+  * the two-way clarifying questions and how typed answers to them are read
+  * the conversation record kept for each session
+  * loading the sentence-embedding model
 
-Design rule that drives the whole module: **the language model never writes the
-medical instructions.** Retrieval returns approved protocol text verbatim. A
-model, if used at all, only interprets messy wording or asks a clarifying
-question.
+The decision logic (safety question, classifier, tap-to-pick) is in
+pchTriage.py; the optional LLM second opinion is in pchLLM.py.
+
+Design rule: **no model ever writes medical instructions.** Models only pick
+which approved protocol to show; the steps are always the dataset's text.
 """
 
 from __future__ import annotations
 
-import os
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -20,38 +24,52 @@ from typing import Any
 
 import pandas as pd
 
-# --------------------------------------------------------------------------
-# Configuration
-# --------------------------------------------------------------------------
-# One dict for every knob. Change a value, re-run, record the number. This is
-# the whole experiment framework for now, and it is enough to start.
-
 REPO_ROOT = Path(__file__).resolve().parent
 
 CONFIG: dict[str, Any] = {
     "DATA_CSV": REPO_ROOT / "data" / "First_Aid_Dataset_Final.csv",
-    "VECTOR_DB_PATH": REPO_ROOT / "app_first_aid_vectordb",
-    "TABLE_NAME": "app_emergencies",
-   # "EMBED_MODEL": "pritamdeka/S-PubMedBert-MS-MARCO",
+    "TRAINING_CSV": REPO_ROOT / "data" / "master-training-examples.csv",
+    # Nonsense filter (pchGate): its junk / real examples and the emergency
+    # words that always keep a message. Retrained at startup like the classifier.
+    "GATE_CSV": REPO_ROOT / "data" / "master-gate-examples.csv",
+    "GATE_WORDS": REPO_ROOT / "data" / "emergency-words.txt",
+    # Chosen 2026-10-06 on messages the gate never trained on: C=100 with a
+    # 0.9 cut-off dropped 35 of 38 new junk messages and kept all 508 test
+    # messages (highest real p(junk): 0.58 for an emergency, 0.85 for
+    # "what time is it", which the classifier then calls Out of scope).
+    "GATE_C": 100.0,
+    "GATE_JUNK_PROB": 0.9,
+    # Cached embeddings of the training examples (a Docker volume in production).
+    "CACHE_DIR": REPO_ROOT / "app_first_aid_vectordb",
+    # How many cache files to keep. Each startup uses two (classifier and
+    # nonsense filter); older ones are deleted when a new one is written.
+    "CACHE_KEEP": 4,
     "EMBED_MODEL": "S-PubMedBert-MS-MARCO",
     "USE_QUANTIZATION": True,
-    # The confidence threshold below was chosen for cosine *distance*. Keep the
-    # metric beside the threshold so the two cannot silently drift apart.
-    "SEARCH_METRIC": "cosine",
-    "TOP_K": 5,
-    # Cosine distance above which we refuse to commit to an answer.
-    "THRESHOLD": 0.12,
-    # How many times we are willing to ask "tell me more" before giving a
-    # best-effort answer flagged as low confidence.
-    "MAX_CLARIFICATIONS": 2,
-    # Ask which age band applies when the matched condition has age-specific
-    # protocols and the user has not indicated one. See AGE_SENSITIVE below.
-    "ASK_FOR_AGE": True,
+    # Classifier: logistic regression strength, and the probability needed to
+    # show a protocol without asking. 0.5 gave ~1% wrong answers on validation.
+    "CLASSIFIER_C": 10.0,
+    "COMMIT_PROB": 0.5,
+    # Between COMMIT_PROB and CONFIRM_PROB the classifier is right most of the
+    # time but every wrong answer we had (Oct 6, 508 test queries) sat there.
+    # In that band a protocol is shown only if the LLM picks the same
+    # condition; otherwise the tap list. With no LLM answer (switched off,
+    # down or too slow) COMMIT_PROB applies as before.
+    "CONFIRM_PROB": 0.65,
+    # Tap-to-pick: how many conditions to offer, and how many times to offer.
+    # 2 since 2026-10-06: across the 508 test messages the right condition was
+    # 1st 45 times, 2nd 13 times and never 3rd; "None of these" covers the rest.
+    "PICKER_SIZE": 2,
+    "MAX_PICKERS": 2,
+    # LLM second opinion (pchLLM): when the classifier is unsure, show the
+    # LLM's choice directly only if it is among the classifier's top K
+    # conditions. K=1 (the LLM must confirm the classifier's best guess) added
+    # no wrong answers on validation; K=3 gave a few more direct answers but
+    # one more wrong one. Otherwise the LLM's pick goes first in the tap list.
+    "LLM_AGREE_TOP_K": 1,
 }
 
-# The 14 conditions the dataset covers. Used by the evaluation code as the
-# label space, so a typo in a protocol name shows up as a KeyError rather than
-# silently becoming a 15th class.
+# The 14 conditions the dataset covers.
 KNOWN_CONDITIONS = [
     "Cardiac Arrest",
     "Cardiac Arrest (Drowning)",
@@ -75,16 +93,9 @@ KNOWN_CONDITIONS = [
 # --------------------------------------------------------------------------
 # The dataset has 17 rows but only 14 condition labels: "Cardiac Arrest" has
 # adult / child / infant variants and "Choking" has adult-or-child / infant.
-# The age lives in the free-text `situation` column, so a query like "my uncle
-# collapsed" carries no signal that separates them and the nearest neighbour is
-# effectively arbitrary.
-#
-# This is not a ranking nicety. The saved evaluation runs show adult cardiac
-# arrest queries returning the INFANT protocol — two fingers, 1.5 inches — to
-# someone standing over a collapsed adult. Scoring by condition label recorded
-# those as correct matches, which is how a harmful answer passed as a hit.
-#
-# So: when the match is age-sensitive and we do not know the age, we ask.
+# The steps contradict each other (two fingers and 1.5 inches for an infant vs
+# two hands and 2 inches for an adult), so when the patient's age matters and
+# the user has not said it, the app asks.
 
 AGE_BANDS = ("infant", "child", "adult")
 
@@ -110,107 +121,126 @@ _AGE_FROM_QUERY = (
 )
 
 # --------------------------------------------------------------------------
-# Keyword Overrides (with Negation Protection)
+# Clarifying questions between two conditions
 # --------------------------------------------------------------------------
-# (?<!\bnot )(?<!\bno ) ensures the keyword is ignored if preceded by "not " or "no "
-_DROWNING_KEYWORDS = re.compile(
-    r"(?<!\bnot )(?<!\bno )\b(pool|lake|water|bathtub|drowning|drown|underwater|swimmer|ocean|river|tub)\b", re.I
-)
+# When the classifier is unsure it offers its top conditions as buttons
+# (pchTriage). The one case that gets a dedicated question instead is
+# "cardiac arrest: in water or not?", because the two CPR protocols differ
+# (drowning starts with rescue breaths).
+#
+# Each entry lists, per side, the phrases that count as choosing that side
+# when the user types or speaks an answer instead of tapping a button. Rules,
+# enforced by _validate_clarification_pairs at import time:
+#
+# * Whole phrases on word boundaries. A phrase is never a fragment of a
+#   condition's display name, and never a stopword: "to", "or", "and" and
+#   friends cannot select anything.
+# * A phrase belongs to one side only. A phrase on both sides cannot tell
+#   them apart.
+# * Negation ("not in the water") is checked within the same clause, up to
+#   three words back. See phrase_hits.
 
-_CHOKING_KEYWORDS = re.compile(
-    r"(?<!\bnot )(?<!\bno )\b(choking|choked|choke|swallowed a toy|stuck in.*throat|windpipe|gagging on food)\b", re.I
-)
-
-# Negative lookahead/lookbehind to prevent catching severe systemic exposures involving breathing
-_CHEMICAL_EYE_KEYWORDS = re.compile(
-    r"(?<!\bnot )(?<!\bno )\b(splashed.*eye|chemical.*eye|sprayed.*face|bleach.*eye|pesticide.*face)\b(?!.*\b(breathe|breathing|airway|throat closing|cant breathe)\b)", re.I
-)
-
-
-_EXACT_CONDITION_KEYWORDS = {
-    # Added: "no pulse", "flatlined", "passed out", "dropped dead", "cpr"
-    "Cardiac Arrest": re.compile(
-        r"(?<!\bnot )(?<!\bno )\b(cardiac arrest|heart stopped|cpr|no pulse|not breathing at all|flatlined|dropped dead|unconscious and not breathing)\b", re.I
-    ),
-    
-    # Added: "pulled from", "fell in", "underwater"
-    "Cardiac Arrest (Drowning)": re.compile(
-        r"(?<!\bnot )(?<!\bno )\b(drowning|drowned|pulled from.*pool|underwater too long|fell in.*water|near drowning)\b", re.I
-    ),
-    
-    # Added: "elephant on chest", "crushing", "jaw pain", "left arm"
-    "Heart Attack": re.compile(
-        r"(?<!\bnot )(?<!\bno )\b(heart attack|myocardial infarction|clutching.*chest|chest pain|chest pressure|sweating a lot|pain in.*arm|arm hurts|elephant on.*chest|crushing.*chest|jaw pain|left arm)\b", re.I
-    ),
-    
-    # Added: "wrong pipe", "blocked", "turning blue", "can't breathe" (when paired with eating)
-    "Choking": re.compile(
-        r"(?<!\bnot )(?<!\bno )\b(choking|choke|choked|heimlich|wrong pipe|airway blocked|swallowed.*stuck|gagging|turning blue|hands around.*neck)\b", re.I
-    ),
-    
-    # Added: "throat closing", "face blowing up", "hives", "bee sting"
-    "Anaphylaxis": re.compile(
-        r"(?<!\bnot )(?<!\bno )\b(anaphylaxis|allergic reaction|allergy|epipen|walnut|walnuts|peanut|peanuts|shellfish|bee sting|tongue swelling|throat swelling|swelling.*tongue|swelling.*throat|throat.*closing|hives|face blowing up)\b", re.I
-    ),
-    
-    # Added: "blood sugar", "insulin", "hypo", "sugar crashed"
-    "Diabetic Emergency": re.compile(
-        r"(?<!\bnot )(?<!\bno )\b(diabetic|diabetes|low blood sugar|hypoglycemia|insulin|sugar crashed|sugar is low|diabetic coma)\b", re.I
-    ),
-    
-    # Added: "face drooping", "half his face", "gibberish", "one side weak", "mini stroke"
-    "Stroke": re.compile(
-        r"(?<!\bnot )(?<!\bno )\b(stroke|mini stroke|tia|slurring|face droop|face drooping|half his face|talking gibberish|one side weak|can't lift.*arm)\b", re.I
-    ),
-    
-    # Added: "took too much", "shooting up", "blue lips", "gurgling"
-    "Opioid Overdose": re.compile(
-        r"(?<!\bnot )(?<!\bno )\b(overdose|fentanyl|heroin|narcan|naloxone|took too much|shooting up|blue lips|gurgling|death rattle)\b", re.I
-    ),
-    
-    # Added: "won't stop", "gushing", "blood everywhere", "artery", "deep cut"
-    "Severe Bleeding": re.compile(
-        r"(?<!\bnot )(?<!\bno )\b(severe bleeding|bleeding heavily|tourniquet|hemorrhage|gushing blood|won't stop bleeding|blood everywhere|cut.*artery|deep cut|deep gash|stabbed|gunshot)\b", re.I
-    ),
-    
-    # Added: "pepper spray", "mace", "cleaning spray"
-    "Burns (Chemical to Eye)": re.compile(
-        r"(?<!\bnot )(?<!\bno )\b(chemical in eye|bleach in eye|acid in eye|pepper spray|mace.*eye|cleaning spray.*eye)\b", re.I
-    ),
-    
-    # Added: "on fire", "stove", "flesh melting", "third degree"
-    "Burns (Thermal)": re.compile(
-        r"(?<!\bnot )(?<!\bno )\b(burn|burned|thermal burn|scalded|scald|boiling water|hot water|hot oil|hot liquid|blister|blisters|blistering|caught on fire|grease fire|stove burn|third degree)\b", re.I
-    ),
-    
-    # Added: "pills", "tide pods", "antifreeze", "drank"
-    "Poisoning / Ingestion": re.compile(
-        r"(?<!\bnot )(?<!\bno )\b(poison|poisoning|swallowed poison|drank bleach|ingested|swallowed.*pills|tide pods|antifreeze|drank cleaning)\b", re.I
-    ),
-    
-    # Added: "shaking violently", "foaming", "grand mal", "biting tongue"
-    "Seizures": re.compile(
-        r"(?<!\bnot )(?<!\bno )\b(seizure|seizures|convulsing|epilepsy|twitching|twitch|rolled their eyes|eyes rolled|febrile|fever.*twitch|fever.*eyes|shaking violently|foaming at the mouth|grand mal|biting.*tongue)\b", re.I
-    ),
-    
-    # Added: "cracked head", "paralyzed", "whiplash", "fell off roof"
-    "Head, Neck, or Spinal Injury": re.compile(
-        r"(?<!\bnot )(?<!\bno )\b(spinal injury|neck injury|head trauma|concussion|broken neck|cracked head|skull fracture|paralyzed|can't move legs|whiplash|fell off.*roof|dove into shallow)\b", re.I
-    )
+CLARIFICATION_PAIRS: dict[frozenset, dict[str, Any]] = {
+    frozenset(["Cardiac Arrest", "Cardiac Arrest (Drowning)"]): {
+        "question": "Did this happen in or after being in water (Drowning), or did the person collapse on dry land (Cardiac Arrest)?",
+        "answers": {
+            "Cardiac Arrest (Drowning)": ["drowning", "drowned", "water", "pool", "lake", "ocean", "sea", "river", "bathtub", "bath", "tub", "underwater", "submerged", "swimming", "beach"],
+            "Cardiac Arrest": ["dry land", "on land", "collapsed normally", "collapse normally", "just collapsed", "on the floor", "on the ground"],
+        },
+    },
 }
 
+AGE_OPTIONS = ["Adult", "Child (1 year to puberty)", "Infant (under 1 year)"]
+
+# Words that must never decide an answer on their own.
+_STOPWORDS = frozenset(
+    "a an and are as at be but by for from he her him his i if in into is it its "
+    "me my no not of on or our she so than that the their them they this to "
+    "was we were with you your yes yeah".split()
+)
+
+_NEGATOR = re.compile(
+    r"\b(not|no|never|isn'?t|wasn'?t|aren'?t|weren'?t|didn'?t|doesn'?t|don'?t|"
+    r"hasn'?t|haven'?t|can'?t|cannot|won'?t|without|neither|nor)\b", re.I
+)
+_CLAUSE_BREAK = re.compile(r"[.,;:!?]|\bbut\b|\bhowever\b|\bthough\b", re.I)
 
 
+def normalise_answer(text: str) -> str:
+    """Lowercase, straighten curly apostrophes, collapse whitespace."""
+    text = str(text).replace("\u2019", "'").replace("\u2018", "'").lower()
+    return re.sub(r"\s+", " ", text).strip()
 
-CONFLICT_QUESTIONS = {
-    frozenset(["Choking", "Cardiac Arrest"]): "Are they actively coughing, gagging, or clutching their throat (Choking), or are they completely limp and unconscious (Cardiac Arrest)?",
-    frozenset(["Cardiac Arrest", "Opioid Overdose"]): "Are they completely not breathing at all (Cardiac Arrest), or are they taking very slow, shallow breaths, possibly with pinpoint pupils (Opioid Overdose)?",
-    frozenset(["Stroke", "Diabetic Emergency"]): "Are they showing specific signs like facial droop, arm weakness, or slurred speech (Stroke), or are they a known diabetic who might be having low blood sugar?",
-    frozenset(["Anaphylaxis", "Choking"]): "Did they swallow a physical object that is stuck (Choking), or are they having an allergic reaction with hives, swelling, or throat tightness (Anaphylaxis)?",
-    frozenset(["Heart Attack", "Anaphylaxis"]): "Are they experiencing chest pressure/pain radiating to the arm or jaw (Heart Attack), or facial/tongue swelling and hives from an allergy (Anaphylaxis)?",
-    frozenset(["Cardiac Arrest", "Cardiac Arrest (Drowning)"]): "Did the person collapse normally, or was this a drowning/water-related emergency?",
-    frozenset(["Choking", "Cardiac Arrest (Drowning)"]): "Are they choking on food or a physical object (Choking), or did this happen after being submerged in water (Drowning)?"
-}
+
+def phrase_hits(text: str, phrase: str):
+    """Yield one bool per whole-phrase occurrence: True if it is negated.
+
+    Negation counts only inside the same clause and within three words, so in
+    "he's not choking, he's limp" the "not" negates "choking" but not "limp".
+    Phrases that start with a negator themselves ("not breathing") are never
+    treated as negated by that same word.
+    """
+    words = [re.escape(w) for w in phrase.split()]
+    pattern = re.compile(r"(?<![\w'])" + r"\s+".join(words) + r"(?![\w'])", re.I)
+    phrase_is_negative = bool(_NEGATOR.match(phrase))
+    for match in pattern.finditer(text):
+        clause = _CLAUSE_BREAK.split(text[: match.start()])[-1]
+        window = " ".join(clause.split()[-3:])
+        yield (not phrase_is_negative) and bool(_NEGATOR.search(window))
+
+
+def resolve_clarification_answer(answer: str, options: list[str]) -> str | None:
+    """Map the user's reply to a two-way question onto one option, or None.
+
+    Order of precedence:
+    1. The exact option label, which is what a tapped button sends.
+    2. Curated answer phrases (CLARIFICATION_PAIRS): exactly one option has
+       a non-negated hit and none of its hits are negated.
+    3. "Not X" with nothing else said picks the other option of a pair.
+
+    Anything else returns None and the caller searches normally. Returning
+    None is always safer than guessing from a word that happens to occur in a
+    condition's display name.
+    """
+    text = normalise_answer(answer)
+    for option in options:
+        if text == option.lower():
+            return option
+
+    pair = CLARIFICATION_PAIRS.get(frozenset(options))
+    if pair is None:
+        return None
+
+    positive: set[str] = set()
+    negative: set[str] = set()
+    for option in options:
+        for phrase in pair["answers"].get(option, []):
+            for negated in phrase_hits(text, phrase):
+                (negative if negated else positive).add(option)
+
+    chosen = positive - negative
+    if len(chosen) == 1:
+        return chosen.pop()
+    if not positive and len(negative) == 1 and len(options) == 2:
+        return (set(options) - negative).pop()
+    return None
+
+
+def _validate_clarification_pairs() -> None:
+    """Fail at import, not in front of a user, if the phrase table is unsafe."""
+    for pair, spec in CLARIFICATION_PAIRS.items():
+        assert set(spec["answers"]) == set(pair), f"answers do not cover {set(pair)}"
+        assert all(c in KNOWN_CONDITIONS for c in pair), f"unknown condition in {set(pair)}"
+        sides = list(spec["answers"].values())
+        shared = set(sides[0]) & set(sides[1])
+        assert not shared, f"phrases on both sides of {set(pair)}: {shared}"
+        for phrases in sides:
+            for phrase in phrases:
+                assert phrase == phrase.lower().strip(), f"phrase must be lowercase: {phrase!r}"
+                assert phrase not in _STOPWORDS, f"stopword used as an answer phrase: {phrase!r}"
+
+
+_validate_clarification_pairs()
 
 
 def applicable_age_bands(situation: str) -> str:
@@ -259,32 +289,14 @@ _CALL_911_STEP = (
 def format_protocol(raw_steps: str) -> str:
     """Normalise a protocol into clean, sequentially numbered steps.
 
-    The previous implementation did ``raw_steps.replace(". ", ".\\n- ")``, which
-    split on *every* period-plus-space. Three things broke:
-
-    1. Already-numbered steps were torn in half: ``1. Call 911`` became ``1.``
-       alone on one line and ``- Call 911`` on the next.
-    2. Prepending the call-911 step collided with the numbering already in the
-       data, so output ran ``1.`` ... ``2.`` ... ``1.`` ... ``2.``.
-    3. Any step containing more than one sentence was scattered across several
-       bullets, so a single instruction no longer read as a single step.
-
-    Together those make a protocol markedly harder to follow by someone acting
-    under stress, which is the whole use case.
-
-    Worth stating precisely, because an earlier review got this wrong: decimal
-    dosages were **not** affected. ``.replace(". ", ...)`` needs a period
-    followed by a space, and ``0.5 mg`` has a digit there. The test below pins
-    that behaviour down for the new implementation regardless.
-
-    The source data is already newline-separated numbered steps, so the correct
-    transform preserves that structure instead of inventing a new one. We only
-    renumber, and prepend the call-911 step when the protocol lacks one.
+    The source text is already one numbered step per line. We keep that
+    structure, renumber, fold "- sub-bullet" lines into the step above, and
+    add a "Call 911" first step when the protocol does not mention 911.
+    Lines are split on newlines only, never on sentence punctuation, so a
+    step with several sentences (or a dose like 0.5 mg) stays intact.
     """
     text = str(raw_steps).strip()
 
-    # Split on newlines only. Never on sentence punctuation — that is what
-    # corrupted the dosages.
     lines = [line.strip() for line in text.split("\n")]
 
     steps: list[str] = []
@@ -305,7 +317,7 @@ def format_protocol(raw_steps: str) -> str:
 
 
 def load_dataset(csv_path: str | Path | None = None) -> pd.DataFrame:
-    """Load the protocol CSV and add the two derived columns the index needs."""
+    """Load the protocol CSV and add the formatted steps and age coverage."""
     path = Path(csv_path or CONFIG["DATA_CSV"])
     if not path.exists():
         raise FileNotFoundError(
@@ -320,9 +332,7 @@ def load_dataset(csv_path: str | Path | None = None) -> pd.DataFrame:
     if missing:
         raise ValueError(f"Dataset is missing required columns: {sorted(missing)}")
 
-    dataset["full_scenario_context"] = (
-        dataset["situation"].astype(str) + "\n" + dataset["symptoms"].astype(str)
-    )
+    dataset["condition"] = dataset["condition"].astype(str).str.strip()
     dataset["reformatted_output"] = dataset["output"].apply(format_protocol)
     dataset["age_bands"] = dataset["situation"].apply(applicable_age_bands)
     return dataset
@@ -331,8 +341,8 @@ def load_dataset(csv_path: str | Path | None = None) -> pd.DataFrame:
 def age_sensitive_conditions(dataset: pd.DataFrame) -> set[str]:
     """Condition labels whose rows differ by age band.
 
-    For these, returning the nearest neighbour without knowing the patient's
-    age is a coin flip between protocols that contradict each other.
+    For these (Cardiac Arrest, Choking) the steps contradict each other across
+    ages, so the app must know the patient's age before showing a protocol.
     """
     return {
         condition
@@ -342,7 +352,45 @@ def age_sensitive_conditions(dataset: pd.DataFrame) -> set[str]:
 
 
 # --------------------------------------------------------------------------
-# Embedding + index
+# Conversation record
+# --------------------------------------------------------------------------
+
+
+@dataclass
+class Turn:
+    """One exchange: what the user sent and what the app replied with."""
+
+    user_text: str
+    condition: str          # the condition the app showed or was leaning towards
+    confidence: float       # classifier probability for that condition (0-1)
+    status: str             # success | clarification_needed | age_clarification_needed | unable_to_identify
+    options: list[str] = field(default_factory=list)  # buttons offered with the reply
+    # Which question the reply asked: "triage", "picker", "pair", "age",
+    # "describe", or "protocol" when a protocol was shown.
+    kind: str = ""
+    # True when user_text was a tapped button rather than a description, so it
+    # is left out of the text the classifier reads.
+    was_option: bool = False
+
+
+@dataclass
+class Conversation:
+    """What the user has told us so far. Never contains model guesses."""
+
+    turns: list[Turn] = field(default_factory=list)
+    # Sticky once known: the patient does not change age mid-emergency.
+    age_band: str | None = None
+    # Answers to the safety question: responsive = "responsive" | "unresponsive",
+    # breathing = "absent" | "present" | "slow" | "normal".
+    responsive: str | None = None
+    breathing: str | None = None
+    # Set once the LLM has picked a different condition than the classifier's
+    # best guess. From then on no protocol is shown without the LLM agreeing.
+    llm_disagreed: bool = False
+
+
+# --------------------------------------------------------------------------
+# Embedding model
 # --------------------------------------------------------------------------
 
 
@@ -363,7 +411,7 @@ def load_embedding_model(
     if use_quantization is None:
         use_quantization = CONFIG["USE_QUANTIZATION"]
 
-    model = SentenceTransformer("./models/" + model_name)
+    model = SentenceTransformer(str(REPO_ROOT / "models" / model_name))
 
     if use_quantization:
         try:
@@ -374,531 +422,3 @@ def load_embedding_model(
             print(f"[warn] dynamic quantisation unavailable, using float32: {exc}")
 
     return model
-
-
-def build_index(dataset: pd.DataFrame, model, db_path=None, table_name=None):
-    """Embed every protocol and write them to a LanceDB table.
-
-    The embedding loop is batched. At 14 rows this saves roughly 0.4 seconds
-    once, which does not matter — but noticing that it does not matter is the
-    point, and batching is the right habit for when the corpus grows.
-    """
-    import lancedb
-
-    db_path = Path(db_path or CONFIG["VECTOR_DB_PATH"])
-    table_name = table_name or CONFIG["TABLE_NAME"]
-
-    contexts = [c.strip() for c in dataset["full_scenario_context"]]
-    vectors = model.encode(contexts, batch_size=32, show_progress_bar=False)
-
-    rows = [
-        {
-            "vector": vector.tolist(),
-            "condition": condition.strip(),
-            "protocol_text": protocol,
-            "age_bands": bands,
-            "situation": situation,
-        }
-        for vector, condition, protocol, bands, situation in zip(
-            vectors,
-            dataset["condition"],
-            dataset["reformatted_output"],
-            dataset["age_bands"],
-            dataset["situation"],
-        )
-    ]
-
-    db = lancedb.connect(str(db_path))
-    return db.create_table(table_name, data=rows, mode="overwrite")
-
-
-def search(
-    table,
-    model,
-    query: str,
-    top_k: int | None = None,
-    metric: str | None = None,
-) -> pd.DataFrame:
-    """Return the top-k protocols for a query, nearest first.
-
-    Returning k rather than 1 costs nothing at this corpus size and is what
-    makes recall@k measurable alongside accuracy. If recall@5 is high but
-    accuracy is low, ranking or the threshold is the problem; if recall@5 is
-    also low, the embedding model is.
-    """
-    top_k = top_k or CONFIG["TOP_K"]
-    metric = metric or CONFIG["SEARCH_METRIC"]
-    if metric not in {"cosine", "dot", "l2", "abs_dot_l1"}:
-        raise ValueError(
-            f"Unsupported metric {metric!r}; expected cosine, dot, l2, or "
-            "abs_dot_l1"
-        )
-    query_vector = model.encode(query)
-
-    if metric == "abs_dot_l1":
-        # Experimental comparator requested for evaluation. L1-normalise first
-        # so raw vector magnitude cannot dominate, then convert absolute dot
-        # similarity to a lower-is-better distance. This intentionally treats
-        # opposite vectors as equivalent, so it must have its own calibrated
-        # threshold and is not the production default.
-        import numpy as np
-
-        rows = table.to_pandas().copy()
-        vectors = np.asarray(rows["vector"].tolist(), dtype=float)
-        query_array = np.asarray(query_vector, dtype=float)
-        vector_norms = np.abs(vectors).sum(axis=1, keepdims=True)
-        query_norm = np.abs(query_array).sum()
-        vectors = vectors / np.maximum(vector_norms, np.finfo(float).eps)
-        query_array = query_array / max(query_norm, np.finfo(float).eps)
-        rows["_distance"] = 1.0 - np.abs(vectors @ query_array)
-        return rows.nsmallest(top_k, "_distance").reset_index(drop=True)
-
-    return (
-        table.search(query_vector.tolist())
-        .metric(metric)
-        .limit(top_k)
-        .to_pandas()
-    )
-
-
-# --------------------------------------------------------------------------
-# Conversation agent
-# --------------------------------------------------------------------------
-
-
-@dataclass
-class Turn:
-    """One exchange. Recorded on every turn, not only when we abstain."""
-
-    user_text: str
-    suggested_condition: str
-    distance: float
-    status: str
-    options: list[str] = field(default_factory=list) # Tracks contending options during conflicts
-
-
-@dataclass
-class Conversation:
-    """Accumulates what the *user* said, never what the model guessed.
-
-    The old code searched using ``f"{previous_condition}: {user_input}"``, which
-    fed the model's own earlier guess back into the next query. The clarifying
-    question exists precisely to escape a wrong guess; mixing the guess into the
-    follow-up search makes repeating it more likely, not less.
-    """
-
-    turns: list[Turn] = field(default_factory=list)
-    # Sticky once established: the patient does not change age mid-emergency.
-    age_band: str | None = None
-
-    @property
-    def clarification_count(self) -> int:
-        return sum(1 for t in self.turns if t.status == "clarification_needed")
-
-    @property
-    def asked_for_age(self) -> bool:
-        return any(t.status == "age_clarification_needed" for t in self.turns)
-
-    def accumulated_query(self, new_text: str) -> str:
-        """Every symptom the user has described, in order. No model output."""
-        user_texts = [t.user_text for t in self.turns] + [new_text]
-        return " ".join(t.strip() for t in user_texts if t.strip())
-
-
-def run_first_aid_chat_agent(
-    user_input: str,
-    conversation: Conversation | None = None,
-    table=None,
-    model=None,
-    threshold: float | None = None,
-    max_clarifications: int | None = None,
-    age_sensitive: set[str] | None = None,
-) -> dict[str, Any]:
-    """Answer an emergency query, or ask for more detail when unsure.
-
-    Two bugs from the original are fixed here:
-
-    * The abstain check was ``len(conversation_history) == 0 and score > t``.
-      Turn 1 appended to the history, so on turn 2 the left half was always
-      False and the whole condition short-circuited — every follow-up returned
-      a confident protocol no matter how poor the match. The confidence check
-      now applies on every turn. After the clarification budget is exhausted,
-      the agent escalates without exposing the nearest guessed protocol.
-    * Only the clarification branch appended to the history, so the success
-      path never recorded a turn and the history was stuck at one entry. Both
-      branches record now.
-    """
-    if conversation is None:
-        conversation = Conversation()
-    if threshold is None:
-        threshold = CONFIG["THRESHOLD"]
-    if max_clarifications is None:
-        max_clarifications = CONFIG["MAX_CLARIFICATIONS"]
-
-    query = conversation.accumulated_query(user_input)
-    results = search(table, model, query)
-
-    # Age handling. Once we know the band, keep it and use it to pick between
-    # protocols that share a condition label but contradict each other.
-    detected = detect_age_band(user_input)
-    if detected and conversation.age_band is None:
-        conversation.age_band = detected
-    band = conversation.age_band
-
-    ranked = results
-
-    # FIX CONTEXT LOSS: Bypass vector search if waiting for age
-    if conversation.turns and conversation.turns[-1].status == "age_clarification_needed":
-        locked_condition = conversation.turns[-1].suggested_condition
-        all_rows = table.to_pandas()
-        ranked = all_rows[all_rows["condition"] == locked_condition].copy()
-        if "_distance" not in ranked.columns:
-            ranked["_distance"] = 0.0
-
-    # --- RULE-BASED KEYWORD OVERRIDES ---
-    current_top_condition = ranked["condition"].iloc[0]
-    all_rows_df = table.to_pandas()
-
-    # 1. Check if the user explicitly named the condition
-    for condition_name, pattern in _EXACT_CONDITION_KEYWORDS.items():
-        if pattern.search(user_input):
-            override_rows = all_rows_df[all_rows_df["condition"] == condition_name].copy()
-            if not override_rows.empty:
-                override_rows["_distance"] = 0.0
-                ranked = pd.concat([override_rows, ranked]).reset_index(drop=True)
-                break # Exit the loop once a match is forced
-
-    # Re-evaluate top condition after exact match check
-    current_top_condition = ranked["condition"].iloc[0]
-     
-    # 2. Generic Context-Aware Conflict & Negation Resolution (Smart Matcher for Affirmations & Negations)
-    if conversation.turns and conversation.turns[-1].status == "clarification_needed":
-        last_turn = conversation.turns[-1]
-        if last_turn.options:
-            for opt in last_turn.options:
-                opt_lower = opt.lower()
-                core_words = [
-                    w for w in re.findall(r'\w+', opt_lower) 
-                    if w not in {'emergency', 'burns', 'ingestion', 'injury', 'cardiac', 'arrest'}
-                ]
-                
-                if core_words:
-                    core_pattern = '|'.join(re.escape(w) for w in core_words)
-                    
-                    # Check for NEGATION (e.g., "not water", "no, it's not drowning")
-                    neg_pattern = re.compile(
-                        rf"\b(not|no|neither|isn't|wasn't)\b.*?\b({core_pattern})\b", 
-                        re.I
-                    )
-                    # Check for POSITIVE AFFIRMATION (e.g., "water-related", "yes, drowning", "it is stroke")
-                    pos_pattern = re.compile(
-                        rf"\b(yes|yeah|it is|definitely|its)?.*?\b({core_pattern})\b", 
-                        re.I
-                    )
-                    
-                    if neg_pattern.search(user_input):
-                        # User negated this option -> Force the alternative
-                        alternatives = [o for o in last_turn.options if o != opt]
-                        if alternatives:
-                            target_cond = alternatives[0]
-                            override_rows = all_rows_df[all_rows_df["condition"] == target_cond].copy()
-                            if not override_rows.empty:
-                                override_rows["_distance"] = 0.0
-                                ranked = pd.concat([override_rows, ranked]).reset_index(drop=True)
-                                break
-                    elif pos_pattern.search(user_input) and not re.search(r"\bnot\b", user_input, re.I):
-                        # User positively confirmed this option -> Force this exact option immediately!
-                        override_rows = all_rows_df[all_rows_df["condition"] == opt].copy()
-                        if not override_rows.empty:
-                            override_rows["_distance"] = 0.0
-                            ranked = pd.concat([override_rows, ranked]).reset_index(drop=True)
-                            break
-
-                    
-    # Re-evaluate top condition again before moving to existing contextual overrides
-    current_top_condition = ranked["condition"].iloc[0]
-
-    if current_top_condition == "Cardiac Arrest" and _DROWNING_KEYWORDS.search(user_input):
-        override_rows = all_rows_df[all_rows_df["condition"] == "Cardiac Arrest (Drowning)"].copy()
-        if not override_rows.empty:
-            override_rows["_distance"] = 0.0 # Force high confidence to skip clarification
-            ranked = pd.concat([override_rows, ranked]).reset_index(drop=True)
-
-    elif current_top_condition in ["Cardiac Arrest", "Seizures"] and _CHOKING_KEYWORDS.search(user_input):
-        override_rows = all_rows_df[all_rows_df["condition"] == "Choking"].copy()
-        if not override_rows.empty:
-            override_rows["_distance"] = 0.0
-            ranked = pd.concat([override_rows, ranked]).reset_index(drop=True)
-            
-    elif current_top_condition == "Poisoning / Ingestion" and _CHEMICAL_EYE_KEYWORDS.search(user_input):
-        override_rows = all_rows_df[all_rows_df["condition"] == "Burns (Chemical to Eye)"].copy()
-        if not override_rows.empty:
-            override_rows["_distance"] = 0.0
-            ranked = pd.concat([override_rows, ranked]).reset_index(drop=True)
-    # ------------------------------------
-
-
-    if band is not None and "age_bands" in ranked.columns:
-        keep = ranked["age_bands"].apply(lambda b: row_covers_age(b, band))
-        if keep.any():
-            ranked = ranked[keep]
-
-    matched_condition = ranked["condition"].iloc[0]
-    match_score = float(ranked["_distance"].iloc[0])
-    exact_protocol = ranked["protocol_text"].iloc[0]
-
-    # ---------------------------------------------------------
-    # REVERSE OVERRIDE (Post-Age Filter)
-    # Catches false-positive Drowning predictions that bubble up
-    # ---------------------------------------------------------
-    if matched_condition == "Cardiac Arrest (Drowning)" and not _DROWNING_KEYWORDS.search(user_input):
-        override_rows = all_rows_df[all_rows_df["condition"] == "Cardiac Arrest"].copy()
-        
-        # Apply the same age filter to the override rows so we pull the correct Cardiac Arrest variant
-        if band is not None:
-            keep = override_rows["age_bands"].apply(lambda b: row_covers_age(b, band))
-            override_rows = override_rows[keep]
-            
-        if not override_rows.empty:
-            override_rows["_distance"] = 0.0
-            ranked = pd.concat([override_rows, ranked]).reset_index(drop=True)
-            
-            # Refresh variables to lock in the corrected condition
-            matched_condition = ranked["condition"].iloc[0]
-            match_score = float(ranked["_distance"].iloc[0])
-            exact_protocol = ranked["protocol_text"].iloc[0]
-    # ---------------------------------------------------------
-
-    # --- Dynamic Conflict Detection ---
-    distinct_ranked = ranked.drop_duplicates(subset=["condition"])
-    condition_2 = distinct_ranked["condition"].iloc[1] if len(distinct_ranked) > 1 else None
-    score_2 = float(distinct_ranked["_distance"].iloc[1]) if len(distinct_ranked) > 1 else 1.0
-
-    conflict_pair = frozenset([matched_condition, condition_2]) if condition_2 else frozenset()
-    
-    # Trigger if the margin is tight (<0.04) and the match is not exceptionally confident (>0.08)
-    is_tight_margin = (score_2 - match_score) < 0.04
-    is_ambiguous = match_score > 0.08  
-    
-    has_known_conflict = (conflict_pair in CONFLICT_QUESTIONS) and is_tight_margin and is_ambiguous
-
-    # If the vector scores are tied closely but it is not a manually mapped pair,
-    # generate a clean clarification question on the fly.
-    if is_tight_margin and is_ambiguous and not has_known_conflict and condition_2:
-        conflict_pair = frozenset([matched_condition, condition_2])
-        has_known_conflict = True
-        CONFLICT_QUESTIONS[conflict_pair] = (
-            f"Are you seeing signs of **{matched_condition}** or **{condition_2}**? "
-            "Please clarify which specific symptoms are present."
-        )
-
-    # ----------------------------------
-
-    uncertain = match_score > threshold
-    budget_left = conversation.clarification_count < max_clarifications
-
-    needs_age = (
-        CONFIG["ASK_FOR_AGE"]
-        and not uncertain
-        and band is None
-        and age_sensitive is not None
-        and matched_condition in age_sensitive
-        and not conversation.asked_for_age
-    )
-
-    if needs_age:
-        status = "age_clarification_needed"
-        response = (
-            f"This looks like **{matched_condition}**, but the correct steps depend "
-            "on the patient's age and they are not interchangeable.\n\n"
-            "**Is this an adult, a child (1 year to puberty), or an infant "
-            "(<1 year)?**\n\n"
-            "While you provide more details, call 911 now if you have not already."
-        )
-    elif has_known_conflict and budget_left:
-        status = "clarification_needed"
-        response = (
-            "I am seeing signs of two possible conditions. To give you the right protocol, please clarify:\n\n"
-            f"**{CONFLICT_QUESTIONS[conflict_pair]}**\n\n"
-            "While you provide more details, call 911 now if you have not already."
-        )
-    elif uncertain and budget_left:
-        status = "clarification_needed"
-        response = (
-            "I do not have enough detail to identify the condition yet. \n\nIs the "
-            "person conscious? \n\nAre they breathing normally? \n\nWhat exactly are you "
-            "seeing? Provide more details, so I can help. \n\nWhile you provide more details, call 911 now if you have not already."
-        )
-    elif uncertain:
-        # A nearest neighbour is not a diagnosis. Once the clarification budget
-        # is exhausted, escalate instead of exposing a guessed protocol. The
-        # user can still add details on the next turn and recover to success.
-        status = "unable_to_identify"
-        response = (
-            "I still do not have enough detail to identify the condition. \n\n"
-            "Please provide more details, "
-            "such as whether the person is conscious, breathing "
-            "normally, or bleeding heavily etc. \n\nWhile you provide more details, call 911 now if you have not already."
-        )
-    else:
-        status = "success"
-        response = (
-            #f"🚨 **Action Plan ({matched_condition.upper()})**\n\n"
-            f"Before you start: CHECK SCENE FOR SAFETY.\n{exact_protocol}"
-        )
-
-    conversation.turns.append(
-        Turn(
-            user_text=user_input,
-            suggested_condition=matched_condition,
-            distance=match_score,
-            status=status,
-            options=list(conflict_pair) if has_known_conflict else [],
-        )
-    )
-
-
-    return {
-        "status": status,
-        "condition": matched_condition,
-        "distance": match_score,
-        "age_band": band,
-        "conversation": conversation,
-        "response": response,
-        "results": ranked,
-    }
-
-
-# --------------------------------------------------------------------------
-# LightRAG response classifier
-# --------------------------------------------------------------------------
-
-_REFERENCES_HEADING = re.compile(
-    r"\n\s*#{0,6}\s*(references|sources|citations)\b.*\Z",
-    re.IGNORECASE | re.DOTALL,
-)
-
-
-def strip_references(response: str) -> str:
-    """Remove the trailing citation list before scoring a generated answer.
-
-    This is the single most important line in the file for the reported
-    accuracy numbers. LightRAG appends the titles of every document it
-    consulted::
-
-        ### References
-        - [1] Medical Condition: Seizures
-        - [2] Medical Condition: Head, Neck, or Spinal Injury
-
-    The keyword rules scanned the whole string, so every condition LightRAG
-    *looked at* could be counted as a condition it *predicted*. That turns
-    "was your single best guess right?" into "was the right answer anywhere in
-    the retrieved set?" — a far easier question, and the likely source of most
-    of the 24-point gap over the vector-search arm.
-    """
-    return _REFERENCES_HEADING.sub("", str(response)).strip()
-
-
-def _has_word(text: str, *words: str) -> bool:
-    """Whole-word match, so 'head' does not fire on 'headache' or 'ahead'."""
-    return any(re.search(rf"\b{re.escape(w)}\b", text) for w in words)
-
-
-def classify_response(response: str) -> list[str]:
-    """Map a generated answer onto condition labels using keyword rules.
-
-    Kept because it is what the project currently uses, but with three classes
-    of bug fixed:
-
-    * References are stripped first (see :func:`strip_references`).
-    * Two original rules compared mixed-case literals such as
-      ``"Burns (Thermal)"`` against an already-lowercased string, so they could
-      never be true. All comparisons are lowercase now.
-    * The seizure rule's top-level operator was ``or``, so any answer
-      containing the word "movements" was labelled Seizures. It now requires an
-      actual seizure term.
-
-    This remains a fragile way to grade a system — the rules were written by
-    reading the answers they score, which is writing the test after seeing the
-    answer key. It is a stopgap until the pipeline returns a structured
-    condition id instead of prose.
-    """
-    text = strip_references(response).lower()
-    found: list[str] = []
-
-    if (
-        _has_word(text, "back blows", "back slaps")
-        or _has_word(text, "chest thrusts", "abdominal thrusts")
-    ) and _has_word(text, "choking"):
-        found.append("Choking")
-    if "initial rescue breaths" in text and "cardiac arrest" in text:
-        found.append("Cardiac Arrest (Drowning)")
-    if "30 compressions" in text and _has_word(text, "cpr") and "cardiac arrest" in text:
-        found.append("Cardiac Arrest")
-    if (
-        _has_word(text, "aspirin")
-        or "chest discomfort" in text
-        or "tightness" in text
-    ) and "heart attack" in text:
-        found.append("Heart Attack")
-    if (
-        _has_word(text, "fast", "droop", "hemorrhagic") or "slurred" in text
-    ) and _has_word(text, "stroke"):
-        found.append("Stroke")
-    if _has_word(text, "epipen", "epinephrine") and "anaphylaxis" in text:
-        found.append("Anaphylaxis")
-    if _has_word(text, "sugar", "glucose") and "diabetic" in text:
-        found.append("Diabetic Emergency")
-    if _has_word(text, "naloxone", "narcan") and "opioid" in text:
-        found.append("Opioid Overdose")
-    if (
-        _has_word(text, "tourniquet") or "direct, continuous pressure" in text
-    ) and _has_word(text, "bleeding"):
-        found.append("Severe Bleeding")
-    if "flushing of the affected eye" in text or (
-        _has_word(text, "eyelids", "eye") and _has_word(text, "chemical")
-    ):
-        found.append("Burns (Chemical to Eye)")
-    if "thermal burn" in text or (
-        _has_word(text, "burn", "burns") and _has_word(text, "blisters", "scald")
-    ):
-        found.append("Burns (Thermal)")
-    if _has_word(text, "ingestion") or "poison help" in text or "poison control" in text:
-        found.append("Poisoning / Ingestion")
-    # Requires a genuine seizure term. "movements" alone is not evidence.
-    if _has_word(text, "seizure", "seizures", "tonic-clonic", "postictal"):
-        found.append("Seizures")
-    if (
-        _has_word(text, "head") and _has_word(text, "neck")
-    ) and _has_word(text, "spine", "spinal"):
-        found.append("Head, Neck, or Spinal Injury")
-
-    if "Cardiac Arrest (Drowning)" in found and "Cardiac Arrest" in found:
-        found.remove("Cardiac Arrest")
-
-    return found or ["Unknown Condition"]
-
-
-# --------------------------------------------------------------------------
-# Secrets
-# --------------------------------------------------------------------------
-
-
-def get_openai_key() -> str | None:
-    """Read the OpenAI key from the environment or a local .env file.
-
-    Never hardcode a key in the notebook. Anything committed to the repo is
-    public the moment the repo is, and anything shipped inside a mobile app can
-    be extracted from the bundle — assume both are readable by strangers.
-    """
-    try:
-        from dotenv import load_dotenv
-
-        load_dotenv(REPO_ROOT / ".env")
-    except ImportError:  # pragma: no cover
-        pass
-
-    key = os.environ.get("OPENAI_API_KEY", "").strip()
-    if not key or key.startswith("sk-your-key") or key == "sk-...":
-        return None
-    return key

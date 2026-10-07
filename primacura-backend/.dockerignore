@@ -12,5 +12,4 @@ __pycache__/
 .DS_Store
 
 backend.log
-whisper-env/
 primacura-backend-local-env/

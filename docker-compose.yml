@@ -18,11 +18,35 @@ services:
       context: ./primacura-backend
       dockerfile: Dockerfile
     volumes:
-      # Persist the LanceDB vector database between container restarts
+      # Cache of the classifier's training-example embeddings (faster restarts)
       - vectordb_data:/app/app_first_aid_vectordb
     environment:
       - PYTHONUNBUFFERED=1
+      - PRIMACURA_LLM_URL=http://ollama:11434
+      - PRIMACURA_LLM_MODEL=${PRIMACURA_LLM_MODEL:-qwen3:4b}
+    depends_on:
+      - ollama
     restart: unless-stopped
+
+  # Small local LLM, consulted only when the classifier is unsure.
+  # No ports are published: only the backend can reach it, so user text never
+  # leaves the VM. The model is downloaded on first start into ollama_models.
+  ollama:
+    image: ollama/ollama:latest
+    restart: unless-stopped
+    volumes:
+      - ollama_models:/root/.ollama
+    environment:
+      - OLLAMA_KEEP_ALIVE=24h
+      - OLLAMA_NUM_PARALLEL=1
+    entrypoint:
+      - /bin/sh
+      - -c
+      - >-
+        ollama serve &
+        until ollama list >/dev/null 2>&1; do sleep 1; done;
+        ollama pull ${PRIMACURA_LLM_MODEL:-qwen3:4b};
+        wait
 
   frontend:
     build:
@@ -36,6 +60,7 @@ services:
     restart: unless-stopped
 
 volumes:
+  ollama_models:
   vectordb_data:
   caddy_data:
   caddy_config:

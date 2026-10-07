@@ -124,7 +124,7 @@ export function HomeScreen({
             disabled={loading || isRecording}
             style={{ flex: 1, padding: '8px', backgroundColor: '#fee2e2', color: '#b91c1c', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', fontSize: '0.85rem' }}
             onClick={() => {
-              const text = "Cardiac arrest, the child iscompletely limp and not breathing";
+              const text = "Cardiac arrest, the child is completely limp and not breathing";
               setQuery(text);
               onSearch(text);
             }}

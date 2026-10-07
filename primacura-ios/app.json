@@ -33,7 +33,12 @@
       }
     },
     "plugins": [
-      "expo-audio"
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "PrimaCura uses the microphone so you can describe an emergency by voice. Your speech is converted to text on your phone and the recording is not uploaded."
+        }
+      ]
     ]
   }
 }

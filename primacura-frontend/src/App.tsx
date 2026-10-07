@@ -21,7 +21,45 @@ export default function App() {
   const [screen, setScreen] = useState<Screen | 'about' | 'contact'>('home'); // Explicitly adding 'about' and 'contact' to type safety
   const [query, setQuery] = useState('');
   const [selectedCondition, setSelectedCondition] = useState<Condition | null>(null);
+  // Where the Back button on the steps screen goes: the question the person
+  // answered (so they can pick a different option), or the guides list.
+  const [protocolBack, setProtocolBack] = useState<Screen>('guides');
   const [clarificationMessage, setClarificationMessage] = useState('');
+  const [clarificationOptions, setClarificationOptions] = useState<string[]>([]);
+  const [clarificationHints, setClarificationHints] = useState<string[]>([]);
+  // Earlier questions in this conversation (oldest first), so Back on the
+  // question screen steps back one question at a time before going home.
+  const [clarificationHistory, setClarificationHistory] = useState<
+    { message: string; options: string[]; hints: string[] }[]
+  >([]);
+
+  const showClarification = (response: ChatResponse) => {
+    if (screen === 'clarification') {
+      setClarificationHistory((history) => [
+        ...history,
+        { message: clarificationMessage, options: clarificationOptions, hints: clarificationHints },
+      ]);
+    } else if (screen !== 'protocol') {
+      setClarificationHistory([]);
+    }
+    setClarificationMessage(response.message);
+    setClarificationOptions(response.options ?? []);
+    setClarificationHints(response.option_hints ?? []);
+    setQuery('');
+    setScreen('clarification');
+  };
+
+  const clarificationBack = () => {
+    const previous = clarificationHistory[clarificationHistory.length - 1];
+    if (!previous) {
+      backToHome();
+      return;
+    }
+    setClarificationHistory(clarificationHistory.slice(0, -1));
+    setClarificationMessage(previous.message);
+    setClarificationOptions(previous.options);
+    setClarificationHints(previous.hints);
+  };
   const [sessionId, setSessionId] = useState(createSessionId);
   const [loading, setLoading] = useState(false);
 
@@ -131,15 +169,14 @@ export default function App() {
           const matchingCondition = await response.json() as ChatResponse;
 
           if (matchingCondition.status === 'clarification_needed' || matchingCondition.status === 'age_clarification_needed' || matchingCondition.status === 'unable_to_identify') {
-            setClarificationMessage(matchingCondition.message);
-            setQuery('');
-            setScreen('clarification');
+            showClarification(matchingCondition);
           } else if (Array.isArray(matchingCondition.steps) && matchingCondition.steps.length > 0) {
             setSelectedCondition({
               title: matchingCondition.title,
               description: '',
               steps: matchingCondition.steps,
             });
+            setProtocolBack(screen === 'clarification' && clarificationOptions.length > 0 ? 'clarification' : 'guides');
             setQuery('');
             setScreen('protocol');
           } else {
@@ -234,15 +271,14 @@ export default function App() {
       const matchingCondition = await response.json() as ChatResponse;
 
       if (matchingCondition.status === 'clarification_needed' || matchingCondition.status === 'age_clarification_needed' || matchingCondition.status === 'unable_to_identify') {
-        setClarificationMessage(matchingCondition.message);
-        setQuery('');
-        setScreen('clarification');
+        showClarification(matchingCondition);
       } else if (Array.isArray(matchingCondition.steps) && matchingCondition.steps.length > 0) {
         setSelectedCondition({
           title: matchingCondition.title,
           description: '',
           steps: matchingCondition.steps,
         });
+        setProtocolBack(screen === 'clarification' && clarificationOptions.length > 0 ? 'clarification' : 'guides');
         setQuery('');
         setScreen('protocol');
       } else {
@@ -250,6 +286,8 @@ export default function App() {
       }
     } catch (error) {
       console.error('Error connecting to backend:', error);
+      setClarificationOptions([]);
+      setClarificationHints([]);
       setClarificationMessage(
         'The local first-aid engine did not respond. Call 911 now for a life-threatening emergency, then try again when the engine is ready.',
       );
@@ -262,6 +300,7 @@ export default function App() {
 
   const openProtocol = (condition: Condition) => {
     setSelectedCondition(condition);
+    setProtocolBack('guides');
     setScreen('protocol');
   };
 
@@ -276,6 +315,9 @@ export default function App() {
     }
     setQuery('');
     setClarificationMessage('');
+    setClarificationOptions([]);
+    setClarificationHints([]);
+    setClarificationHistory([]);
     setSessionId(createSessionId());
     setScreen('home');
   };
@@ -316,16 +358,22 @@ export default function App() {
         {screen === 'protocol' && selectedCondition && (
           <ProtocolScreen
             condition={selectedCondition}
-            onBack={() => setScreen('guides')}
+            onBack={() => setScreen(protocolBack)}
+            onDone={() => setScreen('guides')}
+            backLabel={protocolBack === 'clarification' ? 'Options' : 'First-Aid Guides'}
           />
         )}
         {screen === 'clarification' && (
           <ClarificationScreen
             message={clarificationMessage}
+            options={clarificationOptions}
+            hints={clarificationHints}
+            onSelectOption={(option: string) => handleEmergencySearch(option)}
             query={query}
             setQuery={setQuery}
             onSearch={() => handleEmergencySearch(query)}
-            onBack={backToHome}
+            onBack={clarificationBack}
+            backLabel={clarificationHistory.length > 0 ? 'Back' : 'Home'}
             loading={loading}
           />
         )}

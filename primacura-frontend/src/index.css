@@ -270,12 +270,14 @@ button:disabled { cursor: wait; }
   display: flex; 
   flex-direction: column; 
   padding: 20px 24px 20px; 
-  gap: 12px; 
-  overflow: hidden; 
+  /* Spacing between header, safety box and card grows with the screen
+     height: compact on small phones, roomier on tall ones. */
+  gap: clamp(16px, 3.5vh, 36px); 
+  overflow-y: auto; 
 } 
 
 .clarification-screen .inner-page-header.tight-bottom {
-  margin-bottom: -4px; 
+  margin-bottom: 0; 
 }
 
 .safety-reminder { 
@@ -311,9 +313,7 @@ button:disabled { cursor: wait; }
   padding: 16px 20px; 
   border: 2px solid #e4e4e7;
   border-radius: 12px;
-  flex: 1; 
-  min-height: 0; 
-  overflow-y: auto; 
+  flex-shrink: 0; 
 }
 
 .clarification-paragraph { 
@@ -331,12 +331,8 @@ button:disabled { cursor: wait; }
   letter-spacing: -0.3px;
 }
 
-.clarification-paragraph:last-child {
-  color: #d33b32; 
-  font-weight: 800;
-  font-size: 14px;
-  margin-top: 4px; 
-}
+/* The last paragraph used to be the "call 911" line, styled red. The 911
+   message now lives only in the safety box above, so no special styling. */
 
 .clarification-screen .search-box { 
   margin-top: auto; 
@@ -873,4 +869,97 @@ button:disabled { cursor: wait; }
 
 .footer-dot {
   color: #d1d5db;
+}
+/* Clarification answer buttons. The question and its buttons share one card
+   (.clarification-choice) so the question reads as the buttons' label. */
+.clarification-choice {
+  gap: clamp(14px, 2.5vh, 24px);
+  padding: clamp(16px, 2.5vh, 24px) 16px;
+}
+
+.choice-question {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0 4px;
+  text-align: center;
+}
+
+.clarification-options {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(10px, 1.8vh, 16px);
+  flex-shrink: 0;
+}
+
+.clarification-option-btn {
+  width: 100%;
+  min-height: 56px;
+  padding: 12px 16px;
+  border: 2px solid #d33b32;
+  border-radius: 14px;
+  background: #ffffff;
+  color: #050505;
+  font: inherit;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.option-icon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #f4f4f5;
+  color: #d33b32;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.option-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.option-label {
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.option-hint {
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: #52525b;
+}
+
+.clarification-option-btn:hover:not(:disabled),
+.clarification-option-btn:focus-visible {
+  background: #d33b32;
+  color: #ffffff;
+  outline: none;
+}
+
+.clarification-option-btn:hover:not(:disabled) .option-hint,
+.clarification-option-btn:focus-visible .option-hint {
+  color: #ffe4e2;
+}
+
+.clarification-option-btn:hover:not(:disabled) .option-icon,
+.clarification-option-btn:focus-visible .option-icon {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.clarification-option-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }

@@ -20,5 +20,7 @@ __pycache__/
 backend.log
 
 models/
-whisper-env/
 primacura-backend-local-env/
+
+# Embeddings exported by the dev-only /dev/embed_csv endpoint
+tests/eval/_cache/

@@ -2,7 +2,17 @@ import { useState } from 'react';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { Condition } from '../types';
 
-export function ProtocolScreen({ condition, onBack }: { condition: Condition; onBack: () => void }) {
+export function ProtocolScreen({
+  condition,
+  onBack,
+  onDone,
+  backLabel = 'First-Aid Guides',
+}: {
+  condition: Condition;
+  onBack: () => void;
+  onDone?: () => void;   // DONE on the last step; defaults to onBack
+  backLabel?: string;
+}) {
   const [stepIndex, setStepIndex] = useState(0);
   const isLast = stepIndex === condition.steps.length - 1;
 
@@ -10,11 +20,11 @@ export function ProtocolScreen({ condition, onBack }: { condition: Condition; on
     <main className="protocol-screen">
       <header className="inner-page-header tight-bottom">
         <div className="header-top-row">
-          <button className="nav-back-btn" onClick={onBack} aria-label="Back to guides">
+          <button className="nav-back-btn" onClick={onBack} aria-label={`Back to ${backLabel}`}>
             <div className="nav-icon-circle">
               <ArrowLeft size={20} strokeWidth={2.8} color="#050505" />
             </div>
-            First-Aid Guides
+            {backLabel}
           </button>
           
           <div className="inner-brand">
@@ -40,7 +50,7 @@ export function ProtocolScreen({ condition, onBack }: { condition: Condition; on
         )}
         <button
           className={`step-nav step-nav-next ${stepIndex === 0 ? 'step-nav-full' : ''}`}
-          onClick={() => (isLast ? onBack() : setStepIndex(stepIndex + 1))}
+          onClick={() => (isLast ? (onDone ?? onBack)() : setStepIndex(stepIndex + 1))}
         >
           {isLast ? 'DONE' : 'NEXT'} <ArrowRight size={24} strokeWidth={2.8} />
         </button>

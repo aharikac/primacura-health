@@ -11,6 +11,9 @@ export type ChatResponse = {
   title: string;
   steps: string[];
   message: string;
-  distance: number;
+  confidence: number;
+  options?: string[];
+  // One line per option, same order (empty for age and breathing answers).
+  option_hints?: string[];
   session_id: string;
 };

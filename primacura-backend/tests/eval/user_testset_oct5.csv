@@ -1,0 +1,61 @@
+Test_ID,Category,User_Query,Expected_Condition,Expected_Age_Band,Follow_Up_Replies,Notes
+S01,voice,"My dad just collapsed, he is completely limp and isn't breathing at all!",Cardiac Arrest,adult,,Cardiac Arrest — Adult
+S02,message,unconscious no pulse need help fast,Cardiac Arrest,adult,,Cardiac Arrest — Adult
+S03,search,how to do cpr on an adult step by step,Cardiac Arrest,adult,,Cardiac Arrest — Adult
+S04,search,chest compressions rate and depth adult,Cardiac Arrest,adult,,Cardiac Arrest — Adult
+S05,voice,"We just pulled him out of the pool, he's blue and not breathing.",Cardiac Arrest (Drowning),any,,Cardiac Arrest (Drowning)
+S06,message,drowned no pulse what do i do,Cardiac Arrest (Drowning),any,,Cardiac Arrest (Drowning)
+S07,search,cpr guidelines for drowning victim breaths first,Cardiac Arrest (Drowning),any,,Cardiac Arrest (Drowning)
+S08,voice,My 7-year-old passed out and I can't feel a heartbeat!,Cardiac Arrest,child,,Cardiac Arrest — Child
+S09,message,child not breathing cpr help,Cardiac Arrest,child,,Cardiac Arrest — Child
+S10,search,pediatric cpr compression depth,Cardiac Arrest,child,,Cardiac Arrest — Child
+S11,voice,"My baby won't wake up and isn't breathing, please help me!",Cardiac Arrest,infant,,Cardiac Arrest — Infant
+S12,message,infant unresponsive no breathing,Cardiac Arrest,infant,,Cardiac Arrest — Infant
+S13,search,how to do cpr on a 4 month old baby,Cardiac Arrest,infant,,Cardiac Arrest — Infant
+S14,voice,I put him down for a nap and now he's stiff and not breathing.,Cardiac Arrest,infant,,Cardiac Arrest — Infant
+S15,voice,He's clutching his chest and his left arm is completely numb.,Heart Attack,any,,Heart Attack
+S16,message,chest pain sweating heavy breathing,Heart Attack,any,,Heart Attack
+S17,search,signs of a heart attack vs heartburn,Heart Attack,any,,Heart Attack
+S18,voice,It feels like an elephant is sitting on my chest and I can't catch my breath.,Heart Attack,any,,Heart Attack
+S19,voice,"He's pointing at his throat and can't make a sound, he's choking on a steak!",Choking,adult,,Choking — Adult/Child
+S20,message,choking can't breathe help,Choking,adult,,Choking — Adult/Child
+S21,search,how to perform the heimlich maneuver,Choking,adult,,Choking — Adult/Child
+S22,search,what to do if someone is choking but still coughing,Choking,adult,,Choking — Adult/Child
+S23,voice,My 6 month old swallowed a coin and is turning blue!,Choking,infant,,Choking — Infant
+S24,message,infant choking no sound,Choking,infant,,Choking — Infant
+S25,search,what to do if baby is choking on milk,Choking,infant,,Choking — Infant
+S26,search,infant back blows and chest thrusts,Choking,infant,,Choking — Infant
+S27,voice,"She got stung by a bee and her throat is closing up, she can't breathe!",Anaphylaxis,any,,Anaphylaxis
+S28,message,peanut allergy face swelling fast,Anaphylaxis,any,,Anaphylaxis
+S29,search,how and where to inject an epipen,Anaphylaxis,any,,Anaphylaxis
+S30,voice,He ate shellfish and now he's breaking out in hives and wheezing loudly.,Anaphylaxis,any,,Anaphylaxis
+S31,voice,"He's diabetic and he's acting super confused and shaky, I think his sugar crashed.",Diabetic Emergency,any,,Diabetic Emergency
+S32,message,low blood sugar passing out,Diabetic Emergency,any,,Diabetic Emergency
+S33,search,what to give someone with severe hypoglycemia,Diabetic Emergency,any,,Diabetic Emergency
+S34,voice,My mom's face is drooping on the left side and her speech is totally slurred.,Stroke,any,,Stroke
+S35,message,can't lift right arm speaking gibberish,Stroke,any,,Stroke
+S36,search,FAST signs of a stroke,Stroke,any,,Stroke
+S37,voice,"I think he overdosed, his lips are blue, he's pale, and he's barely breathing.",Opioid Overdose,any,,Opioid Overdose
+S38,message,fentanyl overdose not waking up,Opioid Overdose,any,,Opioid Overdose
+S39,search,how to administer narcan nasal spray,Opioid Overdose,any,,Opioid Overdose
+S40,voice,"He slipped with the chainsaw, there's a huge gash on his leg and blood is spurting everywhere!",Severe Bleeding,any,,Severe Bleeding
+S41,message,deep cut bleeding won't stop,Severe Bleeding,any,,Severe Bleeding
+S42,search,how to make a makeshift tourniquet,Severe Bleeding,any,,Severe Bleeding
+S43,voice,"I accidentally sliced my hand deep with a kitchen knife, it's soaking through the towels.",Severe Bleeding,any,,Severe Bleeding
+S44,voice,I accidentally splashed bleach in my eye and it's burning terribly!,Burns (Chemical to Eye),any,,Burns (Chemical to Eye)
+S45,message,acid in eye what to do,Burns (Chemical to Eye),any,,Burns (Chemical to Eye)
+S46,search,how long to flush eye after chemical exposure,Burns (Chemical to Eye),any,,Burns (Chemical to Eye)
+S47,voice,"A pot of boiling water fell on her chest, the skin is blistering right away.",Burns (Thermal),any,,Burns (Thermal)
+S48,message,burned hand on stove very bad,Burns (Thermal),any,,Burns (Thermal)
+S49,search,first aid for 2nd degree burn on hand,Burns (Thermal),any,,Burns (Thermal)
+S50,voice,My toddler just drank half a bottle of toilet bowl cleaner!,Poisoning / Ingestion,any,,Poisoning / Ingestion
+S51,message,drank antifreeze by accident,Poisoning / Ingestion,any,,Poisoning / Ingestion
+S52,search,should I induce vomiting if child swallowed pills,Poisoning / Ingestion,any,,Poisoning / Ingestion
+S53,voice,My grandma accidentally took double her heart medication.,Poisoning / Ingestion,any,,Poisoning / Ingestion
+S54,voice,"She collapsed and is shaking violently, her eyes are rolled back.",Seizures,any,,Seizures
+S55,message,having a seizure on the floor,Seizures,any,,Seizures
+S56,search,what to do when someone has an epileptic fit,Seizures,any,,Seizures
+S57,search,how long do seizures last when to call 911,Seizures,any,,Seizures
+S58,voice,"He fell off the roof and says he can't feel his legs, I'm scared to move him.","Head, Neck, or Spinal Injury",any,,"Head, Neck, or Spinal Injury"
+S59,message,hit head hard neck hurts don't move,"Head, Neck, or Spinal Injury",any,,"Head, Neck, or Spinal Injury"
+S60,search,first aid for suspected spinal injury car crash,"Head, Neck, or Spinal Injury",any,,"Head, Neck, or Spinal Injury"

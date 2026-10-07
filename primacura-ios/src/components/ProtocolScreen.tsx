@@ -3,7 +3,17 @@ import { View, Text, TouchableOpacity, ScrollView, StyleSheet, SafeAreaView } fr
 import { ArrowLeft, ArrowRight } from 'lucide-react-native';
 import { Condition } from '../types';
 
-export function ProtocolScreen({ condition, onBack }: { condition: Condition; onBack: () => void }) {
+export function ProtocolScreen({
+  condition,
+  onBack,
+  onDone,
+  backLabel = 'First-Aid Guides',
+}: {
+  condition: Condition;
+  onBack: () => void;
+  onDone?: () => void; // DONE on the last step; defaults to onBack
+  backLabel?: string;
+}) {
   const [stepIndex, setStepIndex] = useState(0);
   const isLast = stepIndex === condition.steps.length - 1;
 
@@ -16,11 +26,11 @@ export function ProtocolScreen({ condition, onBack }: { condition: Condition; on
       >
         <View style={styles.header}>
           <View style={styles.headerTopRow}>
-            <TouchableOpacity style={styles.navBackBtn} onPress={onBack} accessibilityLabel="Back to guides">
+            <TouchableOpacity style={styles.navBackBtn} onPress={onBack} accessibilityLabel={`Back to ${backLabel}`}>
               <View style={styles.navIconCircle}>
                 <ArrowLeft size={18} strokeWidth={2.8} color="#050505" />
               </View>
-              <Text style={styles.navBackText}>First-Aid Guides</Text>
+              <Text style={styles.navBackText}>{backLabel}</Text>
             </TouchableOpacity>
             
             <View style={styles.innerBrand}>
@@ -53,7 +63,7 @@ export function ProtocolScreen({ condition, onBack }: { condition: Condition; on
           )}
           <TouchableOpacity
             style={[styles.stepNav, styles.stepNavNext, stepIndex === 0 && styles.stepNavFull]}
-            onPress={() => (isLast ? onBack() : setStepIndex(stepIndex + 1))}
+            onPress={() => (isLast ? (onDone ?? onBack)() : setStepIndex(stepIndex + 1))}
           >
             <Text style={styles.stepNavNextText}>{isLast ? 'DONE' : 'NEXT'}</Text>
             <ArrowRight size={20} strokeWidth={2.8} color="#fff" />

@@ -39,3 +39,6 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# On-device Whisper model: downloaded by scripts/fetch-whisper-model.sh (also run by EAS builds)
+assets/models/

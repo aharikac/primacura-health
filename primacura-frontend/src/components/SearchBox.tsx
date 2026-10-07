@@ -31,7 +31,7 @@ export function SearchBox({
             rows={2}
             disabled={loading}
             maxLength={500}
-            style={{ width: '100%', paddingBottom: '20px', resize: 'none', overflow: 'hidden' }}
+            style={{ width: '100%', paddingBottom: '20px', resize: 'none', overflowY: 'auto' }}
           />
 
           <span style={{ position: 'absolute', bottom: '8px', right: '12px', fontSize: '0.75rem', color: '#9ca3af', pointerEvents: 'none' }}>

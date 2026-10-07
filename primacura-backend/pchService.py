@@ -1,41 +1,37 @@
-#!/usr/bin/env python
-# coding: utf-8
+"""PrimaCura backend API (FastAPI).
 
-# # First-Aid App — local version
-# 
-# The offline retrieval pipeline, running on your own machine. No Colab, no Drive
-# mount, no API key required.
-# 
-# **To run this:** `pixi run lab` from the repository root, then open this file.
-# Everything below executes top to bottom with no interactive prompts.
-# 
-# The original Colab notebook is kept unchanged at `FirstAidApp_WithoutAPIKey.ipynb`
-# for reference. This one imports its logic from `firstaid.py` so the notebook, the
-# tests, and the smoke script cannot drift apart.
+Endpoints:
+  POST /chat/        a typed (or on-device transcribed) message -> protocol or question
+  POST /transcribe/  audio from the web app -> Whisper on the server -> same as /chat/
+  POST /contact/     contact form -> email to the team
 
-# In[1]:
+The decision logic lives in pchTriage.py; shared data and helpers in pchCore.py;
+the optional LLM second opinion in pchLLM.py.
 
+Run locally:  uvicorn pchService:app --host 127.0.0.1 --port 8000
+"""
 
 import re
-import sys
-import time
 import shutil
+import threading
 import os
 import uuid
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from functools import lru_cache
-from pathlib import Path
 from threading import RLock
 from typing import Any
 import logging
 import pandas as pd
 import uvicorn
-from fastapi import Body, FastAPI, UploadFile, File, HTTPException, Form
+from fastapi import FastAPI, UploadFile, File, HTTPException, Form
 from fastapi.middleware.cors import CORSMiddleware
 import whisper
 from pydantic import BaseModel, Field
 import pchCore
+import pchGate
+import pchLLM
+import pchTriage
 from pchCore import CONFIG, Conversation, load_dataset, load_embedding_model
 import smtplib
 from email.message import EmailMessage
@@ -64,24 +60,30 @@ class FirstAidRuntime:
 
     dataset: pd.DataFrame
     model: Any
-    table: Any
+    classifier: pchTriage.ConditionClassifier
     age_sensitive: set[str]
+    llm: pchLLM.LLMClassifier | None
+    gate: pchGate.NonsenseGate | None
 
 
 @lru_cache(maxsize=1)
 def get_runtime() -> FirstAidRuntime:
-    """Load MedBERT and build the tiny protocol index exactly once per process."""
+    """Load the protocols, embedding model, classifier, nonsense gate and LLM client once per process."""
 
     dataset = load_dataset()
     model = load_embedding_model()
-    table = pchCore.build_index(dataset, model)
     return FirstAidRuntime(
         dataset=dataset,
         model=model,
-        table=table,
+        classifier=pchTriage.ConditionClassifier.train(model),
         age_sensitive=pchCore.age_sensitive_conditions(dataset),
+        llm=pchLLM.load_llm(),
+        gate=pchGate.load_gate(model),
     )
 
+
+# Dev-only switch (see /dev/llm_enabled) for A/B evaluation without a restart.
+_llm_switched_off = False
 
 _conversations: dict[str, Conversation] = {}
 _conversation_lock = RLock()
@@ -135,10 +137,12 @@ async def lifespan(_app: FastAPI):
     if not SMTP_PASSWORD_CACHE:
         logger.warning("SMTP_APP_PASSWORD is not set. Contact form submissions will fail.")
 
-    # Warm the model and protocol vectors before accepting the first query. The
-    # app may take a few seconds to become ready, but every request thereafter
-    # performs only query inference + retrieval.
-    get_runtime()
+    # Load the models and train the classifier before accepting the first
+    # query. The LLM warms up in the background: until it is ready, requests
+    # simply fall back to the tap-to-pick list.
+    runtime = get_runtime()
+    if runtime.llm is not None:
+        threading.Thread(target=runtime.llm.warm_up, daemon=True).start()
     yield
 
 
@@ -166,6 +170,104 @@ class ContactForm(BaseModel):
 def chat_endpoint(req: ChatRequest):
     result = processUserQuery(req.query, session_id=req.session_id)
     return result
+
+# ---------------------------------------------------------------------------
+# Development-only endpoints. Never enabled unless PRIMACURA_DEV_ENDPOINTS=1.
+# ---------------------------------------------------------------------------
+class EmbedCsvRequest(BaseModel):
+    path: str      # CSV path relative to primacura-backend/
+    column: str    # text column to embed
+    out: str       # .npy output path relative to primacura-backend/
+
+
+if os.getenv("PRIMACURA_DEV_ENDPOINTS") == "1":
+
+    @app.post("/dev/embed_csv")
+    def dev_embed_csv(req: EmbedCsvRequest):
+        """Embed one CSV column with the production model and save it as .npy.
+
+        Used to tune the condition classifier offline with exactly the vectors
+        the server produces. Paths are confined to the backend folder.
+        """
+        import numpy as np
+
+        base = pchCore.REPO_ROOT.resolve()
+        src = (base / req.path).resolve()
+        dst = (base / req.out).resolve()
+        if base not in src.parents or base not in dst.parents or dst.suffix != ".npy":
+            raise HTTPException(status_code=400, detail="paths must stay inside the backend folder; out must be .npy")
+        texts = pd.read_csv(src)[req.column].astype(str).tolist()
+        vectors = get_runtime().model.encode(texts, batch_size=64, show_progress_bar=False, convert_to_numpy=True)
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        np.save(dst, np.asarray(vectors, dtype="float32"))
+        return {"rows": len(texts), "dim": int(vectors.shape[1]), "out": str(dst.relative_to(base))}
+
+    @app.get("/dev/master_test_set")
+    def dev_master_test_set():
+        """The master test set as JSON, so a browser-based evaluation can load it."""
+        import csv
+        path = pchCore.REPO_ROOT / "tests" / "eval" / "master-test-set.csv"
+        with path.open(encoding="utf-8") as fh:
+            return list(csv.DictReader(fh))
+
+    class GateScoresRequest(BaseModel):
+        texts: list[str]
+        C: float | None = None  # try another regularisation without a restart
+
+    @app.post("/dev/gate_scores")
+    def dev_gate_scores(req: GateScoresRequest):
+        """p(junk) and the emergency-word check for each text (to tune the nonsense filter)."""
+        gate = get_runtime().gate
+        if req.C is not None:
+            saved = CONFIG["GATE_C"]
+            CONFIG["GATE_C"] = req.C
+            try:
+                gate = pchGate.NonsenseGate.train(get_runtime().model)
+            finally:
+                CONFIG["GATE_C"] = saved
+        if gate is None:
+            raise HTTPException(status_code=503, detail="nonsense gate is off")
+        return [{"text": t, "p_junk": round(gate.p_junk(t), 4),
+                 "emergency_word": pchGate.mentions_domain(t, gate.words), "kept": gate.keep(t)}
+                for t in req.texts]
+
+    @app.post("/dev/llm_enabled")
+    def dev_llm_enabled(enabled: bool):
+        """Switch the LLM second opinion on or off for /chat/ (A/B evaluation)."""
+        global _llm_switched_off
+        _llm_switched_off = not enabled
+        return {"llm_enabled": enabled}
+
+    class LlmCsvRequest(BaseModel):
+        path: str                 # CSV path relative to primacura-backend/
+        column: str               # text column to classify
+        out: str                  # .csv output path relative to primacura-backend/
+        model: str | None = None  # Ollama model tag; default PRIMACURA_LLM_MODEL
+        options: dict | None = None  # extra Ollama options, e.g. {"num_gpu": 0, "num_thread": 4}
+        limit: int | None = None     # only the first N rows
+
+    @app.post("/dev/llm_csv")
+    def dev_llm_csv(req: LlmCsvRequest):
+        """Run the LLM classifier over one CSV column (for model benchmarking)."""
+        base = pchCore.REPO_ROOT.resolve()
+        src = (base / req.path).resolve()
+        dst = (base / req.out).resolve()
+        if base not in src.parents or base not in dst.parents or dst.suffix != ".csv":
+            raise HTTPException(status_code=400, detail="paths must stay inside the backend folder; out must be .csv")
+        llm = pchLLM.LLMClassifier(model=req.model, timeout=120, extra_options=req.options)
+        llm.classify("warm-up")  # load the model before timing
+        rows = []
+        texts = pd.read_csv(src)[req.column].astype(str).tolist()[: req.limit or None]
+        for text in texts:
+            result = llm.classify(text)
+            rows.append({"text": text, "label": result.label or "", "latency_ms": result.latency_ms,
+                         "error": result.error})
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        pd.DataFrame(rows).to_csv(dst, index=False)
+        latencies = sorted(r["latency_ms"] for r in rows)
+        return {"model": llm.model, "rows": len(rows), "errors": sum(1 for r in rows if r["error"]),
+                "median_ms": latencies[len(latencies) // 2], "out": str(dst.relative_to(base))}
+
 
 @app.post("/transcribe/")
 async def speak_endpoint(
@@ -252,25 +354,23 @@ async def submit_contact_form(form: ContactForm):
 
 
 def processUserQuery(userQuery: str, session_id: str = "default"):
-    # Repo root, so `import firstaid` works no matter where Jupyter was launched.
-    sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "notebooks" else Path.cwd()))
-
-    pd.set_option("display.max_colwidth", 70)
-
     runtime = get_runtime()
     conversation = _conversation_for(session_id)
 
     # Conversation is mutable, so keep a single local request from interleaving
     # turns with another request using the same session.
     with _conversation_lock:
-        out = pchCore.run_first_aid_chat_agent(
+        out = pchTriage.run_triage_agent(
             userQuery,
             conversation,
-            table=runtime.table,
-            model=runtime.model,
+            dataset=runtime.dataset,
+            classifier=runtime.classifier,
             age_sensitive=runtime.age_sensitive,
+            llm=None if _llm_switched_off else runtime.llm,
+            gate=runtime.gate,
         )
-    print(f"\nStatus: {out['status']}\n")
+    logger.info("status=%s condition=%s llm=%s (%s ms)%s", out["status"], out["condition"],
+                out.get("llm_label"), out.get("llm_ms"), " [discarded by gate]" if out.get("discarded") else "")
     return _serialize_agent_output(out, session_id)
 
 def _steps_from_agent_response(response: str) -> list[str]:
@@ -290,11 +390,17 @@ def _serialize_agent_output(out: dict[str, Any], session_id: str) -> dict[str, A
     is_protocol = status == "success"
     return {
         "status": status,
-        # Do not leak a nearest-neighbour guess to clients while abstaining.
+        # Only name a condition once we show its protocol.
         "title": out["condition"] if is_protocol else "",
         "steps": _steps_from_agent_response(out["response"]) if is_protocol else [],
         "message": out["response"] if not is_protocol else "",
-        "distance": out["distance"],
+        "confidence": round(float(out["confidence"]), 3),
+        # Tappable answers for clarification / age questions. Sending one back
+        # verbatim as the next query always resolves the question.
+        "options": out.get("options", []) if not is_protocol else [],
+        # One line per option, same order: what the condition looks like ("" for
+        # age and breathing answers, which need no explanation).
+        "option_hints": [pchTriage.option_hint(o) for o in out.get("options", [])] if not is_protocol else [],
         "session_id": session_id,
     }
 
