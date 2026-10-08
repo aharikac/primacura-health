@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, Pressable, ScrollView, StyleSheet, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowLeft, ArrowRight, Image as ImageIcon, MapPin, Phone, Square, Volume2, X } from 'lucide-react-native';
+import { ArrowLeft, ArrowRight, Image as ImageIcon, MapPin, Phone, Square, Speech, X } from 'lucide-react-native';
 import { Condition } from '../types';
 import { ShowMeHow, chipStyles } from './ShowMeHow';
 import { StepDiagram } from './StepDiagram';
@@ -96,15 +96,6 @@ export function ProtocolScreen({
       </View>
 
       <ScrollView style={styles.body} contentContainerStyle={styles.bodyContent} key={stepIndex}>
-        <Pressable
-          style={[styles.readAloud, readAloud && styles.readAloudOn]}
-          onPress={toggleReadAloud}
-          accessibilityRole="button"
-          accessibilityState={{ selected: readAloud }}
-        >
-          {readAloud ? <Square size={12} color="#fff" fill="#fff" /> : <Volume2 size={15} color="#3f3f46" />}
-          <Text style={[styles.readAloudText, readAloud && styles.readAloudTextOn]}>{readAloud ? 'Stop reading' : 'Read aloud'}</Text>
-        </Pressable>
         {action ? <Text style={styles.action}>{action}</Text> : null}
         {details ? <Text style={[styles.details, !action && styles.detailsOnly]}>{details}</Text> : null}
         <FactPills facts={facts} />
@@ -140,6 +131,15 @@ export function ProtocolScreen({
               <Text style={styles.navBackText}>BACK</Text>
             </TouchableOpacity>
           )}
+          <Pressable
+            style={({ pressed }) => [styles.speak, readAloud && styles.speakOn, pressed && styles.speakPressed]}
+            onPress={toggleReadAloud}
+            accessibilityRole="button"
+            accessibilityLabel={readAloud ? 'Stop reading aloud' : 'Read steps aloud'}
+            accessibilityState={{ selected: readAloud }}
+          >
+            {readAloud ? <Square size={18} color="#fff" fill="#fff" /> : <Speech size={24} strokeWidth={2.4} color="#050505" />}
+          </Pressable>
           <TouchableOpacity
             style={[styles.nav, styles.navNext]}
             onPress={() => (isLast ? (onDone ?? onBack)() : onStepChange(stepIndex + 1))}
@@ -197,10 +197,6 @@ const styles = StyleSheet.create({
   call: { flexDirection: 'row', alignItems: 'center', gap: 6, height: 34, paddingHorizontal: 12, borderRadius: 17, backgroundColor: '#fff1f0', borderWidth: 1.5, borderColor: '#f5c2bd' },
   callText: { color: RED, fontSize: 13, fontWeight: '900' },
   loc: { width: 34, height: 34, borderRadius: 17, backgroundColor: '#fff1f0', borderWidth: 1.5, borderColor: '#f5c2bd', alignItems: 'center', justifyContent: 'center' },
-  readAloud: { alignSelf: 'flex-end', flexDirection: 'row', alignItems: 'center', gap: 6, height: 32, paddingHorizontal: 12, borderRadius: 16, borderWidth: 1.5, borderColor: '#e4e4e7', backgroundColor: '#fff', marginBottom: -8 },
-  readAloudOn: { backgroundColor: '#050505', borderColor: '#050505' },
-  readAloudText: { fontSize: 13, fontWeight: '800', color: '#3f3f46' },
-  readAloudTextOn: { color: '#fff' },
   progress: { flexDirection: 'row', gap: 4 },
   seg: { flex: 1, height: 5, borderRadius: 3, backgroundColor: '#e4e4e7' },
   segDone: { backgroundColor: '#f0a39d' },
@@ -217,6 +213,9 @@ const styles = StyleSheet.create({
   nav: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', borderRadius: 14, height: 56, gap: 6 },
   navBack: { flex: 1, borderWidth: 2, borderColor: '#050505', backgroundColor: '#fff' },
   navBackText: { fontSize: 16, fontWeight: '900', color: '#050505' },
+  speak: { width: 56, height: 56, borderRadius: 28, borderWidth: 2, borderColor: '#e4e4e7', backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center' },
+  speakOn: { backgroundColor: '#050505', borderColor: '#050505' },
+  speakPressed: { borderColor: RED },
   navNext: { flex: 2, backgroundColor: RED },
   navNextText: { fontSize: 16, fontWeight: '900', color: '#fff' },
   sheetBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', justifyContent: 'flex-end' },

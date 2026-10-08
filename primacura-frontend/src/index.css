@@ -1296,7 +1296,16 @@ button:disabled { cursor: wait; }
 }
 .step-dock [hidden] { display: none; }
 .step-dock .protocol-actions { margin-top: 0; }
-.step-dock .step-nav { height: 58px; }
+.step-dock .step-nav { height: 58px; min-width: 0; }
+.step-dock .protocol-actions { gap: 10px; }
+.step-dock .step-nav-back { flex: 1 1 0; }
+.step-dock .step-nav-next { flex: 1.4 1 0; }
+.step-speak {
+  flex: 0 0 58px; height: 58px; border-radius: 50%; border: 2px solid #e4e4e7; background: #fff; color: #050505;
+  display: grid; place-items: center; cursor: pointer; transition: border-color .15s ease;
+}
+.step-speak:hover, .step-speak:focus-visible { border-color: #d33b32; outline: none; }
+.step-speak.on { background: #050505; border-color: #050505; color: #fff; }
 
 .cpr-bar {
   display: flex; align-items: center; gap: 10px; padding: 8px 8px 8px 8px;
@@ -1363,6 +1372,8 @@ button:disabled { cursor: wait; }
   .step-chips { gap: 8px; }
   .step-chip { padding: 8px; gap: 8px; }
   .step-chip-icon { width: 30px; height: 30px; }
+  .step-dock .step-nav { font-size: 17px; gap: 6px; }
+  .step-dock .step-nav svg { width: 20px; height: 20px; }
 }
 
 /* ===== LOCATION FOR 911 (stays on the device) ===== */
@@ -1405,6 +1416,5 @@ button:disabled { cursor: wait; }
 }
 .read-aloud.on { background: #050505; border-color: #050505; color: #fff; }
 .read-aloud.listen { align-self: flex-start; }
-.step-body .read-aloud { margin-bottom: -8px; }
 .howto-step.speaking .howto-step-body { background: #fff7ed; border-radius: 10px; box-shadow: 0 0 0 6px #fff7ed; }
 .howto-step.speaking .howto-step-num { box-shadow: 0 0 0 4px #fde2c4; }

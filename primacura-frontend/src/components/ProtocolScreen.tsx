@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ArrowLeft, ArrowRight, Image as ImageIcon, MapPin, Phone, Square, Volume2, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Image as ImageIcon, MapPin, Phone, Square, Speech, X } from 'lucide-react';
 import { Condition } from '../types';
 import { ShowMeHow } from './ShowMeHow';
 import { StepDiagram } from './StepDiagram';
@@ -88,12 +88,6 @@ export function ProtocolScreen({
       </header>
 
       <div className="step-body" key={stepIndex}>
-        {speechSupported && (
-          <button className={`read-aloud ${readAloud ? 'on' : ''}`} onClick={toggleReadAloud} aria-pressed={readAloud}>
-            {readAloud ? <Square size={13} fill="currentColor" /> : <Volume2 size={15} />}
-            {readAloud ? 'Stop reading' : 'Read aloud'}
-          </button>
-        )}
         {action ? <h1 className="step-action">{action}</h1> : null}
         {details && <p className={action ? 'step-details' : 'step-details step-details-only'}>{details}</p>}
         {facts.length > 0 && (
@@ -124,6 +118,17 @@ export function ProtocolScreen({
           {stepIndex > 0 && (
             <button className="step-nav step-nav-back" onClick={() => onStepChange(stepIndex - 1)}>
               <ArrowLeft size={24} strokeWidth={2.8} /> BACK
+            </button>
+          )}
+          {speechSupported && (
+            <button
+              className={`step-speak ${readAloud ? 'on' : ''}`}
+              onClick={toggleReadAloud}
+              aria-pressed={readAloud}
+              aria-label={readAloud ? 'Stop reading aloud' : 'Read steps aloud'}
+              title={readAloud ? 'Stop reading' : 'Read aloud'}
+            >
+              {readAloud ? <Square size={18} fill="currentColor" /> : <Speech size={24} strokeWidth={2.4} />}
             </button>
           )}
           <button
