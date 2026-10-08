@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowLeft, Phone, TriangleAlert } from 'lucide-react-native';
+import { ArrowLeft, Phone, Square, TriangleAlert, Volume2 } from 'lucide-react-native';
 import { howTos } from '../data/howTo';
 import { howToIcon } from './howToIcons';
 import { EmergencyDialog } from './EmergencyDialog';
 import { StepDiagram } from './StepDiagram';
 import { CprRhythm } from './CprRhythm';
 import { FactPills } from './FactPills';
+import { speakAll, stopSpeaking } from '../lib/speech';
 
 // One How-To card: what it's for, the key numbers, numbered moves and what to
 // watch out for. Cards in the same group (e.g. CPR) switch with age tabs.
@@ -25,6 +26,20 @@ export function HowToScreen({
   useEffect(() => setCurrentId(howToId), [howToId]);
 
   const card = howTos.find((h) => h.id === currentId) ?? howTos[0];
+
+  // Listen: reads the steps in order, highlighting the one being read.
+  const [speaking, setSpeaking] = useState<number | null>(null);
+  useEffect(() => { stopSpeaking(); setSpeaking(null); }, [currentId]);
+  useEffect(() => () => stopSpeaking(), []);
+  const listen = () => {
+    if (speaking !== null) { stopSpeaking(); setSpeaking(null); return; }
+    setSpeaking(-1);
+    speakAll(
+      [`${card.title}.`, ...card.steps.map((s, i) => `Step ${i + 1}. ${s.lead ? s.lead + '. ' : ''}${s.text}`)],
+      (i) => setSpeaking(i - 1),
+      () => setSpeaking(null),
+    );
+  };
   const siblings = card.group ? howTos.filter((h) => h.group === card.group) : [];
   const Icon = howToIcon(card.id);
 
@@ -54,6 +69,12 @@ export function HowToScreen({
           </View>
         </View>
         <Text style={styles.summary}>{card.summary}</Text>
+        <Pressable style={[styles.listen, speaking !== null && styles.listenOn]} onPress={listen} accessibilityRole="button">
+          {speaking !== null ? <Square size={12} color="#fff" fill="#fff" /> : <Volume2 size={15} color="#3f3f46" />}
+          <Text style={[styles.listenText, speaking !== null && styles.listenTextOn]}>
+            {speaking !== null ? 'Stop listening' : 'Listen to the steps'}
+          </Text>
+        </Pressable>
 
         {siblings.length > 1 && (
           <View style={styles.tabs} accessibilityRole="tablist">
@@ -82,7 +103,7 @@ export function HowToScreen({
           {card.steps.map((step, i) => {
             const last = i === card.steps.length - 1;
             return (
-              <View key={`${card.id}-${i}`} style={[styles.step, last && styles.stepLast]}>
+              <View key={`${card.id}-${i}`} style={[styles.step, last && styles.stepLast, speaking === i && styles.stepSpeaking]}>
                 <View style={styles.stepRail}>
                   <View style={styles.stepNum}>
                     <Text style={styles.stepNumText}>{i + 1}</Text>
@@ -155,6 +176,11 @@ const styles = StyleSheet.create({
   tabTextActive: { color: RED },
   step: { flexDirection: 'row', gap: 14, paddingBottom: 18 },
   stepLast: { paddingBottom: 0 },
+  stepSpeaking: { backgroundColor: '#fff7ed', borderRadius: 10 },
+  listen: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 6, height: 32, paddingHorizontal: 12, borderRadius: 16, borderWidth: 1.5, borderColor: '#e4e4e7', backgroundColor: '#fff' },
+  listenOn: { backgroundColor: '#050505', borderColor: '#050505' },
+  listenText: { fontSize: 13, fontWeight: '800', color: '#3f3f46' },
+  listenTextOn: { color: '#fff' },
   stepRail: { alignItems: 'center', width: 34 },
   stepNum: { width: 34, height: 34, borderRadius: 17, backgroundColor: RED, alignItems: 'center', justifyContent: 'center' },
   stepNumText: { color: '#fff', fontSize: 15, fontWeight: '900' },

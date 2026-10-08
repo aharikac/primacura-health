@@ -1,5 +1,6 @@
 import { Modal, View, Text, TouchableOpacity, StyleSheet, Linking } from 'react-native';
 import { Phone } from 'lucide-react-native'; /*[cite: 15]*/
+import { LocationPanel } from './LocationPanel';
 
 export function EmergencyDialog({ onCancel }: { onCancel: () => void }) { /*[cite: 15]*/
   return (
@@ -14,6 +15,11 @@ export function EmergencyDialog({ onCancel }: { onCancel: () => void }) { /*[cit
           <Text style={styles.paragraph}>
             This will dial <Text style={styles.boldText}>911</Text> from your phone. Only use in a real emergency.
           </Text>
+
+          {/* Your location, ready to read out to the dispatcher (stays on the phone). */}
+          <View style={styles.location}>
+            <LocationPanel compact autoStart />
+          </View>
 
           {/* Replaces the <a href="tel:911"> tag with React Native Linking[cite: 15] */}
           <TouchableOpacity 
@@ -101,6 +107,10 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '900',
     marginLeft: 12,
+  },
+  location: {
+    width: '100%',
+    marginBottom: 16,
   },
   cancelButton: {
     width: '100%',

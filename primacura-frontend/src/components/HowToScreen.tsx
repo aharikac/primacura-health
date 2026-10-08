@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
-import { ArrowLeft, Phone, TriangleAlert } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { speakAll, speechSupported, stopSpeaking } from '../lib/speech';
+import { ArrowLeft, Phone, Square, TriangleAlert, Volume2 } from 'lucide-react';
 import { howTos } from '../data/howTo';
 import { howToIcon } from './howToIcons';
 import { StepDiagram } from './StepDiagram';
@@ -20,6 +21,24 @@ export function HowToScreen({
   useEffect(() => setCurrentId(howToId), [howToId]);
 
   const card = howTos.find((h) => h.id === currentId) ?? howTos[0];
+
+  // Listen: reads the steps in order, highlighting the one being read.
+  const [speaking, setSpeaking] = useState<number | null>(null);
+  const stepRefs = useRef<(HTMLLIElement | null)[]>([]);
+  useEffect(() => { stopSpeaking(); setSpeaking(null); }, [currentId]);
+  useEffect(() => () => stopSpeaking(), []);
+  const listen = () => {
+    if (speaking !== null) { stopSpeaking(); setSpeaking(null); return; }
+    setSpeaking(-1);
+    speakAll(
+      [`${card.title}.`, ...card.steps.map((s, i) => `Step ${i + 1}. ${s.lead ? s.lead + '. ' : ''}${s.text}`)],
+      (i) => {
+        setSpeaking(i - 1);
+        stepRefs.current[i - 1]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      },
+      () => setSpeaking(null),
+    );
+  };
   const siblings = card.group ? howTos.filter((h) => h.group === card.group) : [];
   const Icon = howToIcon(card.id);
 
@@ -50,6 +69,12 @@ export function HowToScreen({
         </div>
       </section>
       <p className="howto-summary">{card.summary}</p>
+      {speechSupported && (
+        <button className={`read-aloud listen ${speaking !== null ? 'on' : ''}`} onClick={listen} aria-pressed={speaking !== null}>
+          {speaking !== null ? <Square size={13} fill="currentColor" /> : <Volume2 size={15} />}
+          {speaking !== null ? 'Stop listening' : 'Listen to the steps'}
+        </button>
+      )}
 
       {siblings.length > 1 && (
         <div className="howto-tabs" role="tablist" aria-label="Who is it for">
@@ -79,7 +104,11 @@ export function HowToScreen({
 
       <ol className="howto-steps">
         {card.steps.map((step, i) => (
-          <li key={`${card.id}-${i}`} className="howto-step">
+          <li
+            key={`${card.id}-${i}`}
+            ref={(el) => { stepRefs.current[i] = el; }}
+            className={`howto-step ${speaking === i ? 'speaking' : ''}`}
+          >
             <span className="howto-step-num" aria-hidden="true">{i + 1}</span>
             <div className="howto-step-body">
               {step.lead && <strong className="howto-step-lead">{step.lead}</strong>}

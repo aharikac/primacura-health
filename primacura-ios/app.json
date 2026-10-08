@@ -38,6 +38,12 @@
         {
           "microphonePermission": "PrimaCura uses the microphone so you can describe an emergency by voice. Your speech is converted to text on your phone and the recording is not uploaded."
         }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "PrimaCura shows your location so you can read it to 911. It stays on your phone and is never uploaded."
+        }
       ]
     ]
   }

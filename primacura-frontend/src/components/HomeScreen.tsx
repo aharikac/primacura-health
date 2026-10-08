@@ -1,5 +1,6 @@
 import { HeartPulse, Mic, Phone, ShieldAlert, Square, User, Utensils } from 'lucide-react';
 import { SearchBox } from './SearchBox';
+import { LocationPanel } from './LocationPanel';
 
 export function HomeScreen({
   query,
@@ -143,6 +144,8 @@ export function HomeScreen({
           </span>
         </a>
         
+        <LocationPanel compact />
+
         {/* Wider screens: text only (no dial link), same style as on the How-To cards. */}
         <div className="desktop-emergency-message emergency-pill" role="note">
           <Phone size={16} fill="currentColor" aria-hidden="true" /> Life-threatening? Dial 911 immediately.

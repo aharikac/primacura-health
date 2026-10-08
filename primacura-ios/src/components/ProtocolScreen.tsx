@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, Pressable, ScrollView, StyleSheet, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowLeft, ArrowRight, Image as ImageIcon, Phone, X } from 'lucide-react-native';
+import { ArrowLeft, ArrowRight, Image as ImageIcon, MapPin, Phone, Square, Volume2, X } from 'lucide-react-native';
 import { Condition } from '../types';
 import { ShowMeHow, chipStyles } from './ShowMeHow';
 import { StepDiagram } from './StepDiagram';
 import { CprRhythm } from './CprRhythm';
 import { EmergencyDialog } from './EmergencyDialog';
 import { diagrams } from '../data/diagrams';
+import { LocationPanel } from './LocationPanel';
+import { speakAll, stopSpeaking } from '../lib/speech';
 import { FactPills } from './FactPills';
 
 // One step at a time: the action in big type, details under it, key numbers as
@@ -47,7 +49,20 @@ export function ProtocolScreen({
 
   const [pictureOpen, setPictureOpen] = useState(false);
   const [confirmCall, setConfirmCall] = useState(false);
+  const [locationOpen, setLocationOpen] = useState(false);
   useEffect(() => setPictureOpen(false), [stepIndex]);
+
+  // Read aloud: once switched on, each step is read as you move to it.
+  const [readAloud, setReadAloud] = useState(false);
+  useEffect(() => {
+    if (!readAloud) return;
+    speakAll([`Step ${stepIndex + 1}. ${action ?? ''} ${details}`]);
+  }, [readAloud, stepIndex]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => () => stopSpeaking(), []);
+  const toggleReadAloud = () => {
+    if (readAloud) stopSpeaking();
+    setReadAloud(!readAloud);
+  };
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right', 'bottom']}>
@@ -60,6 +75,9 @@ export function ProtocolScreen({
             <Text style={styles.stepOf}>STEP {stepIndex + 1} OF {total}</Text>
             <Text style={styles.title} accessibilityRole="header">{condition.title}</Text>
           </View>
+          <TouchableOpacity style={styles.loc} onPress={() => setLocationOpen(true)} accessibilityRole="button" accessibilityLabel="Show my location for 911">
+            <MapPin size={17} color="#d33b32" />
+          </TouchableOpacity>
           <TouchableOpacity
             style={styles.call}
             onPress={() => setConfirmCall(true)}
@@ -78,6 +96,15 @@ export function ProtocolScreen({
       </View>
 
       <ScrollView style={styles.body} contentContainerStyle={styles.bodyContent} key={stepIndex}>
+        <Pressable
+          style={[styles.readAloud, readAloud && styles.readAloudOn]}
+          onPress={toggleReadAloud}
+          accessibilityRole="button"
+          accessibilityState={{ selected: readAloud }}
+        >
+          {readAloud ? <Square size={12} color="#fff" fill="#fff" /> : <Volume2 size={15} color="#3f3f46" />}
+          <Text style={[styles.readAloudText, readAloud && styles.readAloudTextOn]}>{readAloud ? 'Stop reading' : 'Read aloud'}</Text>
+        </Pressable>
         {action ? <Text style={styles.action}>{action}</Text> : null}
         {details ? <Text style={[styles.details, !action && styles.detailsOnly]}>{details}</Text> : null}
         <FactPills facts={facts} />
@@ -138,6 +165,21 @@ export function ProtocolScreen({
         </Pressable>
       </Modal>
 
+      <Modal visible={locationOpen} transparent animationType="slide" onRequestClose={() => setLocationOpen(false)}>
+        <Pressable style={styles.sheetBackdrop} onPress={() => setLocationOpen(false)}>
+          <Pressable style={styles.sheet} onPress={() => undefined}>
+            <View style={styles.grab} />
+            <View style={styles.sheetHead}>
+              <Text style={styles.sheetTitle}>Your location for 911</Text>
+              <TouchableOpacity style={styles.sheetClose} onPress={() => setLocationOpen(false)} accessibilityLabel="Close">
+                <X size={20} strokeWidth={2.6} color="#050505" />
+              </TouchableOpacity>
+            </View>
+            <LocationPanel autoStart />
+          </Pressable>
+        </Pressable>
+      </Modal>
+
       {confirmCall && <EmergencyDialog onCancel={() => setConfirmCall(false)} />}
     </SafeAreaView>
   );
@@ -154,6 +196,11 @@ const styles = StyleSheet.create({
   title: { fontSize: 18, lineHeight: 21, fontWeight: '900', color: '#050505' },
   call: { flexDirection: 'row', alignItems: 'center', gap: 6, height: 34, paddingHorizontal: 12, borderRadius: 17, backgroundColor: '#fff1f0', borderWidth: 1.5, borderColor: '#f5c2bd' },
   callText: { color: RED, fontSize: 13, fontWeight: '900' },
+  loc: { width: 34, height: 34, borderRadius: 17, backgroundColor: '#fff1f0', borderWidth: 1.5, borderColor: '#f5c2bd', alignItems: 'center', justifyContent: 'center' },
+  readAloud: { alignSelf: 'flex-end', flexDirection: 'row', alignItems: 'center', gap: 6, height: 32, paddingHorizontal: 12, borderRadius: 16, borderWidth: 1.5, borderColor: '#e4e4e7', backgroundColor: '#fff', marginBottom: -8 },
+  readAloudOn: { backgroundColor: '#050505', borderColor: '#050505' },
+  readAloudText: { fontSize: 13, fontWeight: '800', color: '#3f3f46' },
+  readAloudTextOn: { color: '#fff' },
   progress: { flexDirection: 'row', gap: 4 },
   seg: { flex: 1, height: 5, borderRadius: 3, backgroundColor: '#e4e4e7' },
   segDone: { backgroundColor: '#f0a39d' },

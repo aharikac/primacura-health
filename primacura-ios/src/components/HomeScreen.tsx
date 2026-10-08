@@ -1,5 +1,6 @@
 import { View, Text, TouchableOpacity, StyleSheet, Linking, TextInput, ActivityIndicator, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { LocationPanel } from './LocationPanel';
 import { Mic, Phone, ShieldAlert, Square, Search, BookOpen, ChevronRight, User, Mail, HeartPulse, Utensils } from 'lucide-react-native';
 
 // One-tap shortcuts for the two most time-critical skills: the app asks the
@@ -150,6 +151,8 @@ export function HomeScreen({
               If it's life-threatening, dial emergency services immediately.
             </Text>
           </TouchableOpacity>
+
+          <LocationPanel compact />
 
           <Text style={styles.homeNote}>Step-by-step first-aid protocols when medical staff isn't nearby.</Text>
           

@@ -1361,3 +1361,47 @@ button:disabled { cursor: wait; }
   .step-facts, .howto-facts { gap: 5px; }
   .step-facts li, .howto-fact { padding: 5px 8px; font-size: 12px; }
 }
+
+/* ===== LOCATION FOR 911 (stays on the device) ===== */
+.loc { width: 100%; display: flex; flex-direction: column; gap: 6px; }
+.loc-start {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; padding: 10px 14px; border-radius: 12px; border: 1.5px solid #f5c2bd; background: #fff1f0;
+  color: #b42318; font: inherit; font-size: 14px; font-weight: 800; cursor: pointer;
+}
+.loc-start:disabled { opacity: .7; cursor: wait; }
+.loc.compact .loc-start { padding: 8px 12px; font-size: 13px; }
+.loc-error { margin: 0; font-size: 13px; line-height: 1.35; font-weight: 600; color: #9f1d15; }
+.loc.ready {
+  padding: 12px 14px; border-radius: 12px; background: #fff; border: 2px solid #e5e7eb; border-left: 8px solid #d33b32;
+}
+.loc.compact.ready { padding: 8px 12px; gap: 4px; }
+.loc-head { display: flex; align-items: center; gap: 6px; color: #d33b32; font-size: 12px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; }
+.loc-acc { margin-left: auto; color: #71717a; font-size: 12px; font-weight: 700; letter-spacing: 0; text-transform: none; }
+.loc-coords { font-size: 19px; font-weight: 900; color: #050505; font-variant-numeric: tabular-nums; letter-spacing: -0.2px; }
+.loc.compact .loc-coords { font-size: 16px; }
+.loc-decimal { font-size: 13px; font-weight: 700; color: #52525b; font-variant-numeric: tabular-nums; }
+.loc-actions { display: flex; gap: 8px; margin-top: 4px; }
+.loc-actions button, .loc-actions a {
+  flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 34px;
+  border-radius: 9px; border: 1.5px solid #e4e4e7; background: #fff; color: #3f3f46;
+  font: inherit; font-size: 13px; font-weight: 800; text-decoration: none; cursor: pointer;
+}
+.loc.compact .loc-actions button, .loc.compact .loc-actions a { height: 30px; }
+.loc-note { margin: 2px 0 0; font-size: 12.5px; font-weight: 600; color: #71717a; }
+.step-loc {
+  flex-shrink: 0; width: 34px; height: 34px; border-radius: 50%; border: 1.5px solid #f5c2bd; background: #fff1f0;
+  color: #d33b32; display: grid; place-items: center; cursor: pointer;
+}
+
+/* ===== READ ALOUD ===== */
+.read-aloud {
+  align-self: flex-end; display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px;
+  border-radius: 16px; border: 1.5px solid #e4e4e7; background: #fff; color: #3f3f46;
+  font: inherit; font-size: 13px; font-weight: 800; cursor: pointer; flex-shrink: 0;
+}
+.read-aloud.on { background: #050505; border-color: #050505; color: #fff; }
+.read-aloud.listen { align-self: flex-start; }
+.step-body .read-aloud { margin-bottom: -8px; }
+.howto-step.speaking .howto-step-body { background: #fff7ed; border-radius: 10px; box-shadow: 0 0 0 6px #fff7ed; }
+.howto-step.speaking .howto-step-num { box-shadow: 0 0 0 4px #fde2c4; }

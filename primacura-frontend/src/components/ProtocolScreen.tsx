@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
-import { ArrowLeft, ArrowRight, Image as ImageIcon, Phone, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Image as ImageIcon, MapPin, Phone, Square, Volume2, X } from 'lucide-react';
 import { Condition } from '../types';
 import { ShowMeHow } from './ShowMeHow';
 import { StepDiagram } from './StepDiagram';
 import { CprRhythm } from './CprRhythm';
 import { diagrams } from '../data/diagrams';
+import { LocationPanel } from './LocationPanel';
+import { speakAll, speechSupported, stopSpeaking } from '../lib/speech';
 
 // One step at a time: the action in big type, details under it, key numbers as
 // pills, then small chips for the picture and "Show me how". The CPR rhythm bar
@@ -44,7 +46,20 @@ export function ProtocolScreen({
   const showRhythm = !!condition.rhythm?.[stepIndex] || rhythmRunning;
 
   const [pictureOpen, setPictureOpen] = useState(false);
+  const [locationOpen, setLocationOpen] = useState(false);
   useEffect(() => setPictureOpen(false), [stepIndex]);
+
+  // Read aloud: once switched on, each step is read as you move to it.
+  const [readAloud, setReadAloud] = useState(false);
+  useEffect(() => {
+    if (!readAloud) return;
+    speakAll([`Step ${stepIndex + 1}. ${action ?? ''} ${details}`]);
+  }, [readAloud, stepIndex]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => () => stopSpeaking(), []);
+  const toggleReadAloud = () => {
+    if (readAloud) stopSpeaking();
+    setReadAloud(!readAloud);
+  };
 
   return (
     <main className="step-screen">
@@ -57,6 +72,9 @@ export function ProtocolScreen({
             <span>Step {stepIndex + 1} of {total}</span>
             <b>{condition.title}</b>
           </div>
+          <button className="step-loc" onClick={() => setLocationOpen(true)} aria-label="Show my location for 911">
+            <MapPin size={17} strokeWidth={2.6} />
+          </button>
           {/* Web: a label only, no dial link. */}
           <div className="step-911" role="note" aria-label="Life-threatening? Call 911">
             <Phone size={14} fill="currentColor" aria-hidden="true" /> 911
@@ -70,6 +88,12 @@ export function ProtocolScreen({
       </header>
 
       <div className="step-body" key={stepIndex}>
+        {speechSupported && (
+          <button className={`read-aloud ${readAloud ? 'on' : ''}`} onClick={toggleReadAloud} aria-pressed={readAloud}>
+            {readAloud ? <Square size={13} fill="currentColor" /> : <Volume2 size={15} />}
+            {readAloud ? 'Stop reading' : 'Read aloud'}
+          </button>
+        )}
         {action ? <h1 className="step-action">{action}</h1> : null}
         {details && <p className={action ? 'step-details' : 'step-details step-details-only'}>{details}</p>}
         {facts.length > 0 && (
@@ -110,6 +134,19 @@ export function ProtocolScreen({
           </button>
         </div>
       </div>
+
+      {locationOpen && (
+        <div className="step-sheet-backdrop" onClick={() => setLocationOpen(false)}>
+          <div className="step-sheet" role="dialog" aria-label="Your location" onClick={(e) => e.stopPropagation()}>
+            <div className="step-sheet-grab" aria-hidden="true" />
+            <div className="step-sheet-head">
+              <b>Your location for 911</b>
+              <button onClick={() => setLocationOpen(false)} aria-label="Close"><X size={20} strokeWidth={2.6} /></button>
+            </div>
+            <LocationPanel autoStart />
+          </div>
+        </div>
+      )}
 
       {pictureOpen && diagramId && (
         <div className="step-sheet-backdrop" onClick={() => setPictureOpen(false)}>
