@@ -119,7 +119,7 @@ export function ProtocolScreen({
                 <View style={chipStyles.icon}>
                   <ImageIcon size={18} strokeWidth={2.4} color="#d33b32" />
                 </View>
-                <Text style={chipStyles.label}>See picture</Text>
+                <Text style={[chipStyles.label, chipStyles.text]} numberOfLines={2}>See picture</Text>
               </Pressable>
             ) : null}
             {howToId ? <ShowMeHow howToId={howToId} onOpen={onOpenHowTo} /> : null}
