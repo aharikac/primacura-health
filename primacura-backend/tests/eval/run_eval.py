@@ -72,14 +72,14 @@ def post_chat(url: str, query: str, session_id: str, timeout: float = 30.0) -> d
 
 def protocol_variant(condition: str, steps: list[str]) -> str:
     """Which age variant of the protocol was shown, from its text."""
-    text = " ".join(steps[:3]).lower()
+    text = " ".join(steps[:4]).lower()  # first step is the scene-safety reminder
     if condition not in AGE_SENSITIVE:
         return "any"
     if "infant" in text:
         return "infant"
     if condition == "Choking":
         return "adult/child"
-    if "with a child" in text or "pediatric" in text:
+    if "child" in text or "pediatric" in text:  # the adult CPR steps never mention a child
         return "child"
     return "adult"
 

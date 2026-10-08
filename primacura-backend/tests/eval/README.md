@@ -86,6 +86,13 @@ Then (same day): uninformative replies (only an age, yes/no, filler) to a questi
 | Original 508, after fixes, with LLM | 445 | 503 | 3 |
 | Original 508, after fixes, without LLM | 442 | 498 | 6 |
 
+2026-10-07: guide steps aligned with the Red Cross manual (opioid, diabetic, bleeding, choking, CPR, anaphylaxis, burns, stroke), How-To cards with "Show me how" links, and 55 new training examples from its symptom lists and skills (`source = redcross-oct7`). The scorer now reads "child" anywhere in the first three CPR steps as the child variant.
+
+| 579-case master set | Strict | Within one tap | Wrong protocol |
+|---|---|---|---|
+| With LLM | 507 | 574 | 3 |
+| Without LLM | 498 | 567 | 7 |
+
 Per set, after the first batch, with LLM (strict / within one tap / wrong): Oct-4 73/83/2, held-out 240/259/0, user's 60 52/60/0, real-world 79/100/2.
 Caveat: the contrast examples were written after seeing the failures, so the gains on the cases they fix are optimistic.
 

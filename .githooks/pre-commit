@@ -1,0 +1,24 @@
+#!/bin/sh
+# Keeps the apps' guide steps in step with the backend CSV, the only source.
+# If a commit touches either CSV, a diagram or a generated file, regenerate the
+# apps' conditions.ts, howTo.ts and diagrams.ts and include them in the same commit.
+# Enabled once per clone with:  git config core.hooksPath .githooks
+CSV="primacura-backend/data/First_Aid_Dataset_Final.csv"
+HOWTO="primacura-backend/data/how-to-guides.csv"
+WEB="primacura-frontend/src/data/conditions.ts"
+IOS="primacura-ios/src/data/conditions.ts"
+WEB_HOWTO="primacura-frontend/src/data/howTo.ts"
+IOS_HOWTO="primacura-ios/src/data/howTo.ts"
+WEB_DIAGRAMS="primacura-frontend/src/data/diagrams.ts"
+IOS_DIAGRAMS="primacura-ios/src/data/diagrams.ts"
+
+CHANGED=$(git diff --cached --name-only)
+if echo "$CHANGED" | grep -qxF -e "$CSV" -e "$HOWTO" -e "$WEB" -e "$IOS" -e "$WEB_HOWTO" -e "$IOS_HOWTO" -e "$WEB_DIAGRAMS" -e "$IOS_DIAGRAMS" \
+   || echo "$CHANGED" | grep -q "^primacura-backend/data/diagrams/"; then
+  if ! command -v node >/dev/null 2>&1; then
+    echo "pre-commit: node is needed to regenerate the guide files" >&2
+    exit 1
+  fi
+  node scripts/generate-guides.mjs || exit 1
+  git add "$WEB" "$IOS" "$WEB_HOWTO" "$IOS_HOWTO" "$WEB_DIAGRAMS" "$IOS_DIAGRAMS"
+fi

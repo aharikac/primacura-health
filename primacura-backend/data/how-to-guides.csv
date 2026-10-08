@@ -1,0 +1,99 @@
+id,title,age,group,summary,key_facts,steps,watch_out,ask_age,diagrams,rhythm
+cpr-adult,CPR — Adult,Adult,cpr,"For someone who is not responding and not breathing, or only gasping.",30 : 2|100–120/min|At least 2 in,"1. Position: Lay the person on their back on a firm, flat surface. Kneel beside their chest with your knees about shoulder-width apart.
+2. Hands: Put the heel of one hand in the center of the chest and your other hand on top. Lace your fingers and keep them off the chest.
+3. Body: Bring your shoulders straight over your hands. Lock your elbows so your arms stay straight.
+4. Push: Use your body weight to push straight down at least 2 inches, about 2 pushes every second. Let the chest come all the way back up each time. Count out loud to 30.
+5. Breathe: Tilt the head back and lift the chin. Pinch the nose, seal your mouth over theirs and blow for 1 second until the chest starts to rise. Let it fall, then give a second breath.
+6. Repeat: Keep doing 30 pushes and 2 breaths. Keep any pause under 10 seconds.
+7. Keep going until: They start breathing, an AED is ready, someone trained takes over, EMS arrives, you are too exhausted to continue, or the scene becomes unsafe.","If the chest doesn't rise, tilt the head again and give the second breath. If it still doesn't rise, something may be blocking the airway: go back to pushes and look in the mouth before the next breaths.|With two rescuers, swap about every 2 minutes so the pushes stay strong.",,2:hand-position|4:compression-depth,cpr
+cpr-child,CPR — Child,Child,cpr,"For a child from 1 year old to puberty who is not responding and not breathing, or only gasping.",30 : 2|100–120/min|About 2 in,"1. Position: Lay the child on their back on a firm, flat surface and kneel beside their chest.
+2. Hands: Use two hands in the center of the chest, like for an adult. For a small child you can use the heel of one hand, as long as you can still push deep enough.
+3. Push: Push about 2 inches deep, about 2 pushes every second. Let the chest come all the way back up. Count to 30.
+4. Breathe: Tilt the head back a little less than for an adult and lift the chin. Give 2 breaths of 1 second each, just enough to make the chest begin to rise.
+5. Repeat: Keep doing 30 pushes and 2 breaths until the child starts breathing or help takes over.
+6. Alone with no phone: Do about 2 minutes (5 rounds) first, then go call 911 and get an AED.","Use a child-size mask if you have one.|If you can't give breaths, keep pushing without stopping.",,2:hand-position|3:compression-depth,cpr
+cpr-infant,CPR — Infant,Infant,cpr,"For a baby under 1 year old who is not responding and not breathing, or only gasping.",30 : 2|100–120/min|About 1½ in,"1. Position: Lay the baby on their back on a firm, flat surface such as the floor or a table — never a bed or stroller. Stand or kneel at their side.
+2. Thumbs: Put both thumbs side by side on the center of the chest, just below the nipple line, and wrap your fingers around the back. Or use 2 fingers in the same spot with your other hand on the forehead.
+3. Push: Push about 1½ inches deep, about 2 pushes every second, and let the chest come back up. Count to 30.
+4. Breathe: Keep the head level — don't tilt it far back. Cover the baby's nose AND mouth with your mouth and give 2 gentle breaths of 1 second each, just enough to see the chest begin to rise.
+5. Repeat: Keep doing 30 pushes and 2 breaths until help arrives or the baby starts breathing.","Tilting a baby's head too far back can block the airway.|If you can't push deep enough with thumbs or fingers, use the heel of one hand.",,2:infant-chest-spot|3:compression-depth,cpr
+hands-only-cpr,Hands-Only CPR,Adult,,"If you can't or don't want to give rescue breaths, chest compressions alone can still save a life.",100–120/min|At least 2 in|No pauses,"1. Call: Call 911 first. Put the phone on speaker so your hands are free.
+2. Hands: Heel of one hand in the center of the chest, other hand on top, arms straight.
+3. Push: Push hard and fast, at least 2 inches deep and about 2 pushes every second. Let the chest come all the way back up each time.
+4. Don't stop: Keep pushing without breaks until an AED is ready, someone takes over, EMS arrives, or the person starts breathing.","For children, babies and drowning victims, breaths matter more — give them if you can.|Swap with someone every 2 minutes if you can; pushing is tiring.",,2:hand-position|3:compression-depth,hands-only
+aed,Using an AED,Any,,An AED checks the heart and talks you through each step. Use it as soon as it arrives — but don't stop CPR to go looking for one.,Turn it on|Dry chest|Stand clear,"1. Turn on: Open the AED and turn it on. Follow its voice prompts.
+2. Bare chest: Remove clothing from the chest and wipe it dry. Move the person out of any water first. No need to shave chest hair or remove jewelry.
+3. Adult or child over 8: Use adult pads: one on the upper right chest, one on the lower left side a few inches below the armpit.
+4. Child 8 or under: Use child pads if you have them (adult pads are OK if not). Same spots — or, if the pads would touch, one in the middle of the chest and one in the middle of the back.
+5. Infant: Use child pads if you have them. Always one in the middle of the chest and one in the middle of the back.
+6. Stand clear: Plug the pads in if needed. Make sure nobody touches the person while the AED checks the heart.
+7. Shock: If it advises a shock, say ""Clear!"", check that nobody is touching the person, and press the shock button.
+8. Restart CPR: Start pushes again right after the shock (or if no shock is advised) and keep following the prompts.","Pads must never touch each other.|Safe to use on someone who is pregnant, in rain or snow, or on a metal surface. Don't put a pad directly over a pacemaker bump.",,3:aed-pads-adult|4:aed-pads-child|5:aed-pads-infant,
+choking-adult-child,Choking — Adult or Child,Adult/Child,choking,"For someone who can't cough forcefully, speak or breathe, or is making high-pitched sounds.",5 back blows|5 belly thrusts,"1. Ask: ""Are you choking? Can I help?"" If they can cough forcefully, let them keep coughing.
+2. Position: Stand to the side and slightly behind them (kneel for a small child). Put one arm across their chest and bend them forward at the waist.
+3. Back blows: Give 5 firm, separate blows between the shoulder blades with the heel of your hand.
+4. Find the spot: Step behind them with one foot between their feet. Find their belly button with two fingers.
+5. Fist: Make a fist with your other hand and put the thumb side just above your fingers. Cover the fist with your other hand.
+6. Thrusts: Pull sharply in and up, 5 times, each one separate.
+7. Repeat: Keep alternating 5 back blows and 5 thrusts until they can cough, speak or breathe — or they become unresponsive.","Pregnant, too large to reach around, or in a wheelchair? Use chest thrusts instead of belly thrusts.|If they become unresponsive: lower them to the floor, call 911, start CPR, and look in the mouth before giving breaths.",,5:abdominal-thrust-spot,
+chest-thrusts,Chest Thrusts for Choking,Adult,,"Use instead of belly thrusts when the person is pregnant, too large to reach around, or in a wheelchair.",5 back blows|5 chest thrusts,"1. Position: Stand behind the person (or behind the wheelchair).
+2. Fist: Make a fist and put the thumb side on the center of the chest, on the middle of the breastbone.
+3. Grip: Grab your fist with your other hand.
+4. Thrust: Give 5 quick, separate thrusts straight back into the chest.
+5. Repeat: Alternate with 5 back blows until the object comes out or they become unresponsive.","If they become unresponsive, lower them to the floor, call 911 and start CPR.",,2:chest-thrust-spot,
+choking-infant,Choking — Infant,Infant,choking,"For a baby under 1 year old who can't cough, cry or breathe, or is making high-pitched sounds.",5 back blows|5 chest thrusts,"1. Support: Sit or kneel. Lay the baby face down along your forearm, resting your arm on your thigh. Hold the jaw with your thumb and fingers, keeping the head lower than the body.
+2. Back blows: Give 5 firm, separate blows between the shoulder blades with the heel of your hand.
+3. Turn: Sandwich the baby between your forearms, supporting the head and neck, and turn them face up on your thigh with the head lower than the chest.
+4. Chest thrusts: Put 2 fingers on the center of the chest, just below the nipple line. Give 5 quick thrusts about 1½ inches deep, letting the chest come back up each time.
+5. Repeat: Keep alternating 5 back blows and 5 chest thrusts until the baby can cough, cry or breathe — or becomes unresponsive.","Keep your fingers on the sides of the baby's head, never over the mouth or throat.|If the baby becomes unresponsive, start infant CPR. Look in the mouth before breaths and remove an object with your little finger only if you can see it.",,4:infant-chest-spot,
+recovery-position,Recovery Position — Adult or Child,Adult/Child,recovery,Use when the person is unresponsive (unconscious) but breathing normally. Lying on their side keeps the airway open and lets fluids drain.,On their side|Check breathing,"1. Straighten the legs: Kneel beside the person and make sure both of their legs are straight and side by side.
+2. Near arm: Take the arm closest to you and place it at a right angle (90 degrees) to their body, elbow bent and palm facing up.
+3. Far arm: Bring the arm furthest from you across their chest and place the back of their hand against the cheek closest to you. Hold it there.
+4. Bend the far leg: With your free hand, reach across and grab the knee furthest from you. Pull it up so the leg is bent and the foot rests flat on the ground.
+5. Roll: Pull the bent knee toward you to smoothly roll the person onto their side.
+6. Open the airway: Position the top leg so both the hip and knee are bent at right angles to keep them steady. Tilt the head back slightly and lift the chin to keep the airway open and let fluids drain.
+7. Monitor: Stay with them and keep checking their breathing until medical help arrives.","Suspected serious head, neck or spine injury? Don't use this position unless you're trained in a special technique (such as HAINES) — leave them as you found them.|If they stop breathing, roll them onto their back and start CPR immediately.",yes,,
+recovery-position-infant,Recovery Position — Infant,Infant,recovery,Use when a baby under 1 year old is unresponsive (unconscious) but breathing normally. Holding them on their side keeps the airway open and lets fluids drain.,Head low|Check breathing,"1. Check the scene and baby: Make sure the area is safe. Flick the bottom of the baby's foot and shout to check for a response. Check for normal breathing for no more than 10 seconds. Call 911 or local emergency services.
+2. Cradle the baby: Pick up the baby and hold them in your arms, cradling them along your chest.
+3. Turn onto their side: Position the baby on their side, facing outward and away from your chest.
+4. Support the head and neck: Tilt the baby's head slightly back and down. Keep the head supported and lower than their bottom so fluids such as vomit can drain freely from the mouth and the airway stays open.
+5. Monitor: Hold the baby in this position and keep checking their breathing and responsiveness until emergency medical services arrive.","If the baby stops breathing, lay them on a firm, flat surface and start infant CPR immediately.",yes,,
+direct-pressure,Applying Direct Pressure,Any,,"Firm, continuous pressure is the first step for any bleeding.",Press hard|Don't lift|5+ minutes,"1. Protect: Put on gloves if you have them.
+2. Find it: Find where the bleeding is coming from. If there is more than one wound, deal with the worst one first.
+3. Dressing: Put gauze (hemostatic gauze is best) or a clean cloth, such as a T-shirt, right on the wound.
+4. Press: Put one hand on the dressing and the other on top. Bring your shoulders over your hands, lock your elbows and press as hard as you can. It may hurt them — that's OK.
+5. Hold: Keep pressing without lifting until the bleeding stops. This can take 5 minutes or much longer.
+6. Need your hands? Kneel on the dressing to keep the pressure on.
+7. Bandage: Once the bleeding stops, wrap a roller bandage over the dressing. Check that fingers or toes stay warm and pink; loosen it if they tingle or go numb.","If blood comes through, don't stack more dressings: keep the first dressing on, remove anything on top, and press hard again.|Arm or leg bleeding that won't stop? Use a tourniquet as soon as you have one.",,,
+tourniquet,Using a Tourniquet,Any,,For life-threatening bleeding from an arm or leg. Keep pressing on the wound until the tourniquet is on.,2–3 in above|No joints|Never loosen,"1. Place: Put the tourniquet 2–3 inches above the wound, on the side nearer the heart — not on the wound and not on a joint.
+2. Pull: Pull the strap as tight as you can around the limb and fasten it.
+3. Twist: Windlass type — twist the rod until the bleeding stops or it won't turn any more, then clip the rod in place. Ratchet type — keep lifting the buckle until the bleeding stops.
+4. Time: Note the time it went on and tell EMS.
+5. Still bleeding? Put a second tourniquet just above the first, closer to the heart.","Warn the person that it will hurt, but it's needed.|Once it's on, never loosen or remove it.|Not for children under about 2 — use direct pressure instead.",,1:tourniquet-placement,
+epipen,Using an EpiPen,Any,,Epinephrine is the main treatment for a severe allergic reaction. Help the person use their own prescribed auto-injector.,Outer thigh|2nd dose after 5–10 min,"1. Check: Make sure it is their auto-injector and follow the instructions printed on it.
+2. Cap off: Remove the safety cap.
+3. Hold the leg: Hold their leg firmly so it doesn't move.
+4. Inject: Press the tip hard against the outer middle of the thigh (it can go through clothes) until it clicks, and hold it there for as long as the label says.
+5. Massage: Remove it and massage the spot for 10 seconds.
+6. Second dose: If they still have symptoms after 5–10 minutes and help hasn't arrived, give a second dose if there is one.","Call 911 even if they feel better.|Alone? Give the epinephrine first, then call 911.",,4:epipen-site,
+naloxone,Giving Naloxone (Narcan),Any,,Naloxone can temporarily reverse an opioid overdose.,CPR first if needed|Repeat in 2–3 min,"1. Breathing first: If they aren't breathing or are only gasping, call 911 and start CPR. Give naloxone as soon as it's in your hand.
+2. Position: Lay them on their back and support the neck so the head tilts back slightly.
+3. Spray: Hold the device with your thumb on the plunger, put the tip in one nostril, and press the plunger firmly.
+4. Watch: If they don't respond in 2–3 minutes, give another dose in the other nostril with a new device.
+5. Recovery: If they are breathing, turn them into the recovery position.
+6. Stay: Stay with them — naloxone can wear off before the opioid does.",Call 911 even if they wake up.,,,
+aspirin,Giving Aspirin for a Heart Attack,Adult,,Aspirin can help during a heart attack. Only give it to someone who is awake and can swallow.,2–4 × 81 mg or 1 × 325 mg|Chew it,"1. Check: They must be awake, able to follow simple instructions, and able to chew and swallow.
+2. Ask: Make sure they are not allergic to aspirin and haven't been told by a doctor not to take it.
+3. Dose: 2 to 4 low-dose (81 mg) tablets, or 1 regular-strength (325 mg) tablet.
+4. Chew: Have them chew it completely — it works faster than swallowing it whole.
+5. Their medicine: If they have prescribed nitroglycerin for chest pain, help them take it.",Call 911 first.|Never give aspirin for a suspected stroke.,,,
+sugar,Giving Sugar for Low Blood Sugar,Any,,"For a person with diabetes who is shaky, sweaty or confused but still awake and able to swallow.",Adult 20 g|Child 15 g|Recheck 15 min,"1. Check: Only give sugar if they are awake, can follow simple instructions, and can chew and swallow.
+2. Best: Glucose tablets, gel or liquid — check the package for 20 grams (adult) or 15 grams (child).
+3. Or: About 7 oz (¾ cup) of orange juice, 14 oz of milk, 20–25 Skittles, 10–20 jelly beans, or 2 fruit-roll strips.
+4. Wait: Have them rest for about 15 minutes.
+5. Not better? Call 911.",Diet or sugar-free drinks won't help.|Never put food or drink in the mouth of someone who isn't fully awake.,,,
+cool-burn,Cooling a Burn,Any,,Cooling a burn quickly limits the damage and eases the pain.,Running water|10–20 min|No ice,"1. Stop the burning: Move away from the heat. If clothing is on fire: stop, drop and roll.
+2. Cool: Hold the burn under clean, cool running water as soon as possible.
+3. Time: Keep cooling for at least 10 minutes, ideally 20.
+4. Remove: Take off rings, watches and tight clothing near the burn before it swells — but leave anything stuck to the skin.
+5. Cover only if needed: Leave the burn uncovered. If help is delayed or far away, cover it loosely with a sterile, non-stick dressing.","Never use ice, ice water, butter or creams.|Don't pop blisters.|Call 911 for large or deep burns; burns on the face, hands, feet, groin or joints; electrical or chemical burns; and burns on young children or older adults.",,,

@@ -1,13 +1,12 @@
 import { View, Text, TouchableOpacity, StyleSheet, Linking, TextInput, ActivityIndicator, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Mic, Phone, ShieldAlert, Square, Search, BookOpen, ChevronRight, User, Mail } from 'lucide-react-native';
+import { Mic, Phone, ShieldAlert, Square, Search, BookOpen, ChevronRight, User, Mail, HeartPulse, Utensils } from 'lucide-react-native';
 
-// One-tap shortcuts for the two most time-critical situations. The text is
-// sent to the backend like a typed description, so the same protocol logic
-// (including the age-specific steps) applies.
+// One-tap shortcuts for the two most time-critical skills: the app asks the
+// person's age, then opens the matching How-To card.
 export const QUICK_ACTIONS = [
-  { label: 'Choking Relief', query: 'The child is choking' },
-  { label: 'CPR for Child', query: 'Cardiac arrest, the child is completely limp and not breathing' },
+  { label: 'Choking Relief', kind: 'choking', Icon: Utensils },
+  { label: 'CPR', kind: 'cpr', Icon: HeartPulse },
 ] as const;
 
 export function HomeScreen({
@@ -32,7 +31,7 @@ export function HomeScreen({
   onOpenAbout: () => void;
   onOpenGuides: () => void;
   onOpenContact: () => void;
-  onQuickAction: (query: string) => void;
+  onQuickAction: (kind: 'choking' | 'cpr') => void;
   loading: boolean;
   isRecording: boolean;
   onStartRecording: () => void;
@@ -116,11 +115,12 @@ export function HomeScreen({
               <TouchableOpacity
                 key={action.label}
                 style={[styles.quickActionButton, (loading || isRecording) && styles.quickActionDisabled]}
-                onPress={() => onQuickAction(action.query)}
+                onPress={() => onQuickAction(action.kind)}
                 disabled={loading || isRecording}
                 accessibilityRole="button"
                 accessibilityLabel={action.label}
               >
+                <action.Icon size={16} strokeWidth={2.6} color="#b91c1c" />
                 <Text style={styles.quickActionText}>{action.label}</Text>
               </TouchableOpacity>
             ))}
@@ -344,6 +344,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     borderRadius: 10,
     backgroundColor: '#fee2e2',
+    flexDirection: 'row',
+    gap: 6,
     alignItems: 'center',
     justifyContent: 'center',
   },

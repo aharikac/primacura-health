@@ -1,20 +1,35 @@
 import { useMemo } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet, SafeAreaView, TextInput } from 'react-native';
+import { View, Text, TouchableOpacity, Pressable, ScrollView, StyleSheet, SafeAreaView, TextInput } from 'react-native';
 import { ArrowLeft, ArrowRight, Search } from 'lucide-react-native';
 import { Condition } from '../types';
 import { conditions } from '../data/conditions';
+import { howTos } from '../data/howTo';
+import { howToIcon } from './howToIcons';
+
+export type GuidesTab = 'guides' | 'howto';
 
 export function GuidesScreen({
   query,
   setQuery,
+  tab,
+  onTabChange,
   onBack,
   onOpenProtocol,
+  onOpenHowTo,
 }: {
   query: string;
   setQuery: (value: string) => void;
+  tab: GuidesTab;
+  onTabChange: (tab: GuidesTab) => void;
   onBack: () => void;
   onOpenProtocol: (condition: Condition) => void;
+  onOpenHowTo: (howToId: string) => void;
 }) {
+  const filteredHowTos = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
+    if (!normalizedQuery) return howTos;
+    return howTos.filter(({ title, summary, age }) => `${title} ${summary} ${age}`.toLowerCase().includes(normalizedQuery));
+  }, [query]);
   const filteredConditions = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
     if (!normalizedQuery) return conditions;
@@ -42,8 +57,24 @@ export function GuidesScreen({
 
         <View style={styles.headerTitleRow}>
           <Text style={styles.title}>First-Aid Guides</Text>
-          <Text style={styles.subtitle}>Select a condition to view its protocol.</Text>
+          <Text style={styles.subtitle}>
+            {tab === 'guides' ? 'Select a condition to view its protocol.' : 'Learn each skill, move by move.'}
+          </Text>
         </View>
+      </View>
+
+      <View style={styles.tabs} accessibilityRole="tablist">
+        {(['guides', 'howto'] as const).map((t) => (
+          <Pressable
+            key={t}
+            onPress={() => onTabChange(t)}
+            style={[styles.tab, tab === t && styles.tabActive]}
+            accessibilityRole="tab"
+            accessibilityState={{ selected: tab === t }}
+          >
+            <Text style={[styles.tabText, tab === t && styles.tabTextActive]}>{t === 'guides' ? 'Emergencies' : 'How-To'}</Text>
+          </Pressable>
+        ))}
       </View>
 
       <View style={styles.searchContainer}>
@@ -59,7 +90,33 @@ export function GuidesScreen({
       </View>
 
       <ScrollView style={styles.guideList} showsVerticalScrollIndicator={false}>
-        {filteredConditions.length > 0 ? (
+        {tab === 'howto' ? (
+          filteredHowTos.length > 0 ? (
+            <View style={styles.howToGrid}>
+              {filteredHowTos.map((card) => {
+                const Icon = howToIcon(card.id);
+                return (
+                  <TouchableOpacity key={card.id} style={styles.howToTile} onPress={() => onOpenHowTo(card.id)}>
+                    <View style={styles.howToTileIcon}>
+                      <Icon size={22} strokeWidth={2.4} color="#d33b32" />
+                    </View>
+                    <Text style={styles.howToTileTitle}>{card.title}</Text>
+                    {card.age !== 'Any' && (
+                      <View style={styles.howToTileAge}>
+                        <Text style={styles.howToTileAgeText}>{card.age}</Text>
+                      </View>
+                    )}
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          ) : (
+            <View style={styles.emptyState}>
+              <Text style={styles.emptyStateTitle}>NO GUIDES{"\n"}FOUND</Text>
+              <Text style={styles.emptyStateText}>Try a different search{"\n"}term.</Text>
+            </View>
+          )
+        ) : filteredConditions.length > 0 ? (
           filteredConditions.map((condition) => (
             <TouchableOpacity 
               key={condition.title} 
@@ -85,6 +142,34 @@ export function GuidesScreen({
 }
 
 const styles = StyleSheet.create({
+  tabs: {
+    flexDirection: 'row',
+    gap: 4,
+    padding: 4,
+    marginHorizontal: 20,
+    marginBottom: 14,
+    backgroundColor: '#f4f4f5',
+    borderRadius: 12,
+  },
+  tab: { flex: 1, paddingVertical: 10, borderRadius: 9, alignItems: 'center' },
+  tabActive: { backgroundColor: '#fff', shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 4, shadowOffset: { width: 0, height: 2 } },
+  tabText: { fontSize: 15, fontWeight: '800', color: '#52525b' },
+  tabTextActive: { color: '#d33b32' },
+  howToGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 12, paddingBottom: 24 },
+  howToTile: {
+    width: '48.5%',
+    minHeight: 124,
+    padding: 14,
+    gap: 10,
+    borderRadius: 14,
+    borderWidth: 2,
+    borderColor: '#e4e4e7',
+    backgroundColor: '#fff',
+  },
+  howToTileIcon: { width: 42, height: 42, borderRadius: 12, backgroundColor: '#fff1f0', alignItems: 'center', justifyContent: 'center' },
+  howToTileTitle: { fontSize: 15, lineHeight: 19, fontWeight: '900', color: '#050505' },
+  howToTileAge: { marginTop: 'auto', alignSelf: 'flex-start', paddingVertical: 3, paddingHorizontal: 9, borderRadius: 999, backgroundColor: '#f4f4f5' },
+  howToTileAgeText: { fontSize: 12, fontWeight: '800', color: '#52525b' },
   safeArea: {
     flex: 1,
     backgroundColor: '#fff',

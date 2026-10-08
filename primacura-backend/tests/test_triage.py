@@ -86,11 +86,11 @@ def test_unresponsive_breathing_never_gets_conscious_choking(ds):
     assert out["condition"] == "Opioid Overdose"
 
 
-def test_low_confidence_offers_top_three_plus_none(ds):
+def test_low_confidence_offers_top_two_plus_none(ds):
     probs = {"Stroke": 0.35, "Diabetic Emergency": 0.3, "Seizures": 0.2}
     out, conv = say(ds, "my grandpa is acting strange", probs)
     assert out["status"] == "clarification_needed"
-    assert out["options"] == ["Stroke", "Diabetic Emergency", "Seizures", T.NONE_OPTION]
+    assert out["options"] == ["Stroke", "Diabetic Emergency", T.NONE_OPTION]  # PICKER_SIZE = 2
 
 
 def test_tapping_an_option_commits_it(ds):
@@ -154,9 +154,15 @@ def test_llm_not_called_when_classifier_is_confident(ds):
     assert llm.calls == 0
 
 
-def test_llm_agreeing_with_a_top_candidate_shows_protocol(ds):
+def test_llm_agreeing_with_the_top_guess_shows_protocol(ds):
+    out, _ = say_llm(ds, "grandpa is acting strange", UNSURE_PROBS, StubLLM("Stroke"))
+    assert out["status"] == "success" and out["condition"] == "Stroke"
+
+
+def test_llm_picking_the_second_guess_still_asks(ds):
+    # The LLM must agree with the classifier's top guess before a protocol is shown.
     out, _ = say_llm(ds, "grandpa is acting strange", UNSURE_PROBS, StubLLM("Diabetic Emergency"))
-    assert out["status"] == "success" and out["condition"] == "Diabetic Emergency"
+    assert out["status"] == "clarification_needed" and "Diabetic Emergency" in out["options"]
 
 
 def test_llm_outside_top_candidates_goes_first_in_the_list(ds):
@@ -169,7 +175,7 @@ def test_llm_unsure_or_down_falls_back_to_the_list(ds):
     for label in ("Unsure", None):
         out, _ = say_llm(ds, "grandpa is acting strange", UNSURE_PROBS, StubLLM(label))
         assert out["status"] == "clarification_needed"
-        assert out["options"] == ["Stroke", "Diabetic Emergency", "Seizures", T.NONE_OPTION]
+        assert out["options"] == ["Stroke", "Diabetic Emergency", T.NONE_OPTION]  # PICKER_SIZE = 2
 
 
 def test_llm_cannot_override_the_safety_answer(ds):
@@ -259,7 +265,7 @@ class FixedLLM:
         return LLMResult(self.label, 5)
 
 
-def say_llm(ds, text, probs, label):
+def say_fixed_llm(ds, text, probs, label):
     dataset, age = ds
     conv = pchCore.Conversation()
     return T.run_triage_agent(text, conv, dataset, StubClassifier(probs), age, llm=FixedLLM(label))
@@ -267,14 +273,14 @@ def say_llm(ds, text, probs, label):
 
 def test_tie_break_band_needs_llm_agreement(ds):
     probs = {"Stroke": 0.55, "Heart Attack": 0.35}
-    out = say_llm(ds, "chest pain and his arm is numb", probs, "Heart Attack")
+    out = say_fixed_llm(ds, "chest pain and his arm is numb", probs, "Heart Attack")
     assert out["status"] == "clarification_needed" and out["options"][0] == "Heart Attack"
-    out = say_llm(ds, "chest pain and his arm is numb", probs, "Stroke")
+    out = say_fixed_llm(ds, "chest pain and his arm is numb", probs, "Stroke")
     assert out["status"] == "success" and out["condition"] == "Stroke"
 
 
 def test_without_llm_answer_the_old_threshold_applies(ds):
-    out = say_llm(ds, "chest pain and his arm is numb", {"Stroke": 0.55, "Heart Attack": 0.35}, None)
+    out = say_fixed_llm(ds, "chest pain and his arm is numb", {"Stroke": 0.55, "Heart Attack": 0.35}, None)
     assert out["status"] == "success"
 
 

@@ -285,6 +285,49 @@ _CALL_911_STEP = (
     "Call 911 (or local emergency services) immediately. CHECK SCENE FOR SAFETY."
 )
 
+# Guide steps are written "Action | details" and may end in markers the apps
+# use: "[how-to: <id>]" (a "Show me how" link, data/how-to-guides.csv),
+# "[diagram: <id>]" (data/diagrams/<id>.svg), "[rhythm]" (CPR rhythm guide) and
+# "[facts: a; b]" (pills). The protocol text keeps "Action details" without
+# markers; these maps record the rest by that exact step text.
+_STEP_MARK = re.compile(r"\s*\[(how-to|diagram):\s*([a-z0-9-]+)\]|\s*\[rhythm\]|\s*\[facts:\s*([^\]]+)\]")
+STEP_HOWTO: dict[str, str] = {}
+STEP_DIAGRAM: dict[str, str] = {}
+STEP_RHYTHM: set[str] = set()
+STEP_ACTION: dict[str, str] = {}
+STEP_FACTS: dict[str, list[str]] = {}
+
+# Shown first in every protocol reached by typing or speaking.
+SAFETY_ACTION = "Make sure the scene is safe."
+SAFETY_STEP = f"{SAFETY_ACTION} Look for traffic, fire, water, electricity or other dangers before you go near."
+STEP_ACTION[SAFETY_STEP] = SAFETY_ACTION
+
+
+def strip_howto(raw_steps: str) -> str:
+    """The protocol text without markers or "|", recording each step's action and links."""
+    out = []
+    for line in str(raw_steps).split("\n"):
+        number = _LEADING_NUMBER.match(line)
+        clean = _STEP_MARK.sub("", line).strip()
+        if not number:
+            out.append(clean)
+            continue
+        action, _, details = _LEADING_NUMBER.sub("", clean).partition(" | ")
+        action, details = action.strip(), details.strip()
+        text = f"{action} {details}" if details else action
+        STEP_ACTION[text] = action
+        for m in _STEP_MARK.finditer(line):
+            if m.group(1) == "how-to":
+                STEP_HOWTO[text] = m.group(2)
+            elif m.group(1) == "diagram":
+                STEP_DIAGRAM[text] = m.group(2)
+            elif m.group(3):
+                STEP_FACTS[text] = [f.strip() for f in m.group(3).split(";") if f.strip()]
+            else:
+                STEP_RHYTHM.add(text)
+        out.append(f"{number.group(0).strip()} {text}")
+    return "\n".join(out)
+
 
 def format_protocol(raw_steps: str) -> str:
     """Normalise a protocol into clean, sequentially numbered steps.
@@ -333,6 +376,7 @@ def load_dataset(csv_path: str | Path | None = None) -> pd.DataFrame:
         raise ValueError(f"Dataset is missing required columns: {sorted(missing)}")
 
     dataset["condition"] = dataset["condition"].astype(str).str.strip()
+    dataset["output"] = dataset["output"].apply(strip_howto)
     dataset["reformatted_output"] = dataset["output"].apply(format_protocol)
     dataset["age_bands"] = dataset["situation"].apply(applicable_age_bands)
     return dataset

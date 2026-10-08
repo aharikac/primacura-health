@@ -1,60 +1,128 @@
-import { useState } from 'react';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { ArrowLeft, ArrowRight, Image as ImageIcon, Phone, X } from 'lucide-react';
 import { Condition } from '../types';
+import { ShowMeHow } from './ShowMeHow';
+import { StepDiagram } from './StepDiagram';
+import { CprRhythm } from './CprRhythm';
+import { diagrams } from '../data/diagrams';
 
+// One step at a time: the action in big type, details under it, key numbers as
+// pills, then small chips for the picture and "Show me how". The CPR rhythm bar
+// and Back/Next are docked at the bottom, so nothing ever covers the step.
 export function ProtocolScreen({
   condition,
+  stepIndex,
+  onStepChange,
+  onOpenHowTo,
   onBack,
   onDone,
   backLabel = 'First-Aid Guides',
 }: {
   condition: Condition;
+  // The current step lives in App so "Show me how" -> Back returns to the same step.
+  stepIndex: number;
+  onStepChange: (index: number) => void;
+  onOpenHowTo: (howToId: string) => void;
   onBack: () => void;
-  onDone?: () => void;   // DONE on the last step; defaults to onBack
+  onDone?: () => void; // DONE on the last step; defaults to onBack
   backLabel?: string;
 }) {
-  const [stepIndex, setStepIndex] = useState(0);
-  const isLast = stepIndex === condition.steps.length - 1;
+  const total = condition.steps.length;
+  const isLast = stepIndex === total - 1;
+  const text = condition.steps[stepIndex];
+  const rawAction = condition.actions?.[stepIndex] ?? null;
+  const action = rawAction && text.startsWith(rawAction) ? rawAction : null;
+  const details = action ? text.slice(action.length).trim() : text;
+  const facts = condition.facts?.[stepIndex] ?? [];
+  const howToId = condition.howTo?.[stepIndex] ?? null;
+  const diagramId = condition.diagram?.[stepIndex] ?? null;
+
+  // The rhythm bar shows on CPR steps; once started it stays (keeping the beat)
+  // on every step until Stop.
+  const hasRhythm = !!condition.rhythm?.some(Boolean);
+  const [rhythmRunning, setRhythmRunning] = useState(false);
+  const showRhythm = !!condition.rhythm?.[stepIndex] || rhythmRunning;
+
+  const [pictureOpen, setPictureOpen] = useState(false);
+  useEffect(() => setPictureOpen(false), [stepIndex]);
 
   return (
-    <main className="protocol-screen">
-      <header className="inner-page-header tight-bottom">
-        <div className="header-top-row">
-          <button className="nav-back-btn" onClick={onBack} aria-label={`Back to ${backLabel}`}>
-            <div className="nav-icon-circle">
-              <ArrowLeft size={20} strokeWidth={2.8} color="#050505" />
-            </div>
-            {backLabel}
+    <main className="step-screen">
+      <header className="step-header">
+        <div className="step-header-row">
+          <button className="step-back" onClick={onBack} aria-label={`Back to ${backLabel}`}>
+            <ArrowLeft size={20} strokeWidth={2.8} />
           </button>
-          
-          <div className="inner-brand">
-            <span className="inner-brand-title">PrimaCura</span>
-            <span className="inner-brand-slogan">The First Care</span>
+          <div className="step-title">
+            <span>Step {stepIndex + 1} of {total}</span>
+            <b>{condition.title}</b>
+          </div>
+          {/* Web: a label only, no dial link. */}
+          <div className="step-911" role="note" aria-label="Life-threatening? Call 911">
+            <Phone size={14} fill="currentColor" aria-hidden="true" /> 911
           </div>
         </div>
-
-        <div className="header-title-row">
-          <h1>{condition.title}</h1>
-          <p>Follow these steps carefully.</p>
+        <div className="step-progress" aria-hidden="true">
+          {condition.steps.map((_, i) => (
+            <i key={i} className={i < stepIndex ? 'done' : i === stepIndex ? 'now' : ''} />
+          ))}
         </div>
       </header>
-      <div className="protocol-body">
-        <div className="step-counter">STEP {stepIndex + 1} OF {condition.steps.length}</div>
-        <p key={stepIndex} className="step-text">{condition.steps[stepIndex].replace(/([.!?])\s+/g, '$1\n\n')}</p>
-      </div>
-      <div className="protocol-actions">
-        {stepIndex > 0 && (
-          <button className="step-nav step-nav-back" onClick={() => setStepIndex(stepIndex - 1)}>
-            <ArrowLeft size={24} strokeWidth={2.8} /> BACK
-          </button>
+
+      <div className="step-body" key={stepIndex}>
+        {action ? <h1 className="step-action">{action}</h1> : null}
+        {details && <p className={action ? 'step-details' : 'step-details step-details-only'}>{details}</p>}
+        {facts.length > 0 && (
+          <ul className="step-facts" aria-label="Key numbers">
+            {facts.map((f) => <li key={f}>{f}</li>)}
+          </ul>
         )}
-        <button
-          className={`step-nav step-nav-next ${stepIndex === 0 ? 'step-nav-full' : ''}`}
-          onClick={() => (isLast ? (onDone ?? onBack)() : setStepIndex(stepIndex + 1))}
-        >
-          {isLast ? 'DONE' : 'NEXT'} <ArrowRight size={24} strokeWidth={2.8} />
-        </button>
+        {(diagramId || howToId) && (
+          <div className="step-chips">
+            {diagramId && diagrams[diagramId] && (
+              <button type="button" className="step-chip" onClick={() => setPictureOpen(true)}>
+                <span className="step-chip-icon" aria-hidden="true"><ImageIcon size={18} strokeWidth={2.4} /></span>
+                <span className="step-chip-text">See picture</span>
+              </button>
+            )}
+            {howToId && <ShowMeHow howToId={howToId} onOpen={onOpenHowTo} />}
+          </div>
+        )}
       </div>
+
+      <div className="step-dock">
+        {hasRhythm && (
+          <div hidden={!showRhythm}>
+            <CprRhythm variant="bar" onRunningChange={setRhythmRunning} />
+          </div>
+        )}
+        <div className="protocol-actions">
+          {stepIndex > 0 && (
+            <button className="step-nav step-nav-back" onClick={() => onStepChange(stepIndex - 1)}>
+              <ArrowLeft size={24} strokeWidth={2.8} /> BACK
+            </button>
+          )}
+          <button
+            className={`step-nav step-nav-next ${stepIndex === 0 ? 'step-nav-full' : ''}`}
+            onClick={() => (isLast ? (onDone ?? onBack)() : onStepChange(stepIndex + 1))}
+          >
+            {isLast ? 'DONE' : 'NEXT'} <ArrowRight size={24} strokeWidth={2.8} />
+          </button>
+        </div>
+      </div>
+
+      {pictureOpen && diagramId && (
+        <div className="step-sheet-backdrop" onClick={() => setPictureOpen(false)}>
+          <div className="step-sheet" role="dialog" aria-label="Picture" onClick={(e) => e.stopPropagation()}>
+            <div className="step-sheet-grab" aria-hidden="true" />
+            <div className="step-sheet-head">
+              <b>{action ?? condition.title}</b>
+              <button onClick={() => setPictureOpen(false)} aria-label="Close picture"><X size={20} strokeWidth={2.6} /></button>
+            </div>
+            <StepDiagram id={diagramId} />
+          </div>
+        </div>
+      )}
     </main>
   );
 }

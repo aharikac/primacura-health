@@ -1,4 +1,4 @@
-import { Mic, Phone, ShieldAlert, Square, User } from 'lucide-react';
+import { HeartPulse, Mic, Phone, ShieldAlert, Square, User, Utensils } from 'lucide-react';
 import { SearchBox } from './SearchBox';
 
 export function HomeScreen({
@@ -9,6 +9,7 @@ export function HomeScreen({
   onOpenAbout,
   onOpenGuides,
   onOpenContact,
+  onQuickAction,
   loading,
   isRecording,
   onStartRecording,
@@ -25,6 +26,8 @@ export function HomeScreen({
   onOpenAbout: () => void;
   onOpenGuides: () => void;
   onOpenContact: () => void;
+  // Quick actions ask who needs help (age), then open the matching How-To card.
+  onQuickAction: (kind: 'choking' | 'cpr') => void;
   loading: boolean;
   isRecording: boolean;
   onStartRecording: () => void;
@@ -106,30 +109,22 @@ export function HomeScreen({
           </div>
         </div>
 
-        <div className="quick-actions" style={{ display: 'flex', gap: '8px', marginTop: '8px', marginBottom: '0px' }}>
-          <button 
+        <div className="quick-actions">
+          <button
             type="button"
+            className="quick-action-btn"
             disabled={loading || isRecording}
-            style={{ flex: 1, padding: '8px', backgroundColor: '#fee2e2', color: '#b91c1c', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', fontSize: '0.85rem' }}
-            onClick={() => {
-              const text = "The child is choking";
-              setQuery(text);
-              onSearch(text);
-            }}
+            onClick={() => onQuickAction('choking')}
           >
-            Choking Relief
+            <Utensils size={16} strokeWidth={2.6} aria-hidden="true" /> Choking Relief
           </button>
-          <button 
+          <button
             type="button"
+            className="quick-action-btn"
             disabled={loading || isRecording}
-            style={{ flex: 1, padding: '8px', backgroundColor: '#fee2e2', color: '#b91c1c', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', fontSize: '0.85rem' }}
-            onClick={() => {
-              const text = "Cardiac arrest, the child is completely limp and not breathing";
-              setQuery(text);
-              onSearch(text);
-            }}
+            onClick={() => onQuickAction('cpr')}
           >
-            CPR for Child
+            <HeartPulse size={16} strokeWidth={2.6} aria-hidden="true" /> CPR
           </button>
         </div>
       </div>
@@ -148,9 +143,9 @@ export function HomeScreen({
           </span>
         </a>
         
-        <div className="desktop-emergency-message" style={{ padding: '10px 16px' }}>
-          <strong>EMERGENCY?</strong>
-          If it's life-threatening, dial 911 immediately.
+        {/* Wider screens: text only (no dial link), same style as on the How-To cards. */}
+        <div className="desktop-emergency-message emergency-pill" role="note">
+          <Phone size={16} fill="currentColor" aria-hidden="true" /> Life-threatening? Dial 911 immediately.
         </div>
         
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center', justifyContent: 'center', whiteSpace: 'nowrap' }}>

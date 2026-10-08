@@ -963,3 +963,401 @@ button:disabled { cursor: wait; }
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* ===== HOME QUICK ACTIONS (open the age picker, then a How-To card) ===== */
+.home-top .quick-actions { gap: 8px; margin-top: 8px; margin-bottom: 0; }
+.home-top .quick-action-btn { padding: 9px 8px; font-size: 0.9rem; border-radius: 10px; }
+
+/* ===== HOW-TO CARD SCREEN ===== */
+.howto-screen {
+  height: 100%;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(12px, 2.2vh, 20px);
+  padding: 20px 24px 28px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.howto-screen .inner-page-header.tight-bottom { margin-bottom: 0; }
+.howto-hero { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
+.howto-hero-icon {
+  flex-shrink: 0;
+  width: 60px;
+  height: 60px;
+  border-radius: 18px;
+  background: linear-gradient(145deg, #e04a40 0%, #b82d26 100%);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 8px 18px rgba(211, 59, 50, 0.28);
+}
+.howto-hero-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.howto-eyebrow { color: #d33b32; font-size: 12px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; }
+.howto-hero h1 { margin: 0; font-size: 26px; line-height: 1.1; letter-spacing: -0.6px; font-weight: 900; color: #050505; }
+.howto-summary { margin: 0; font-size: 16px; line-height: 1.4; font-weight: 600; color: #52525b; flex-shrink: 0; }
+
+.howto-tabs {
+  flex-shrink: 0;
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: #f4f4f5;
+  border-radius: 12px;
+}
+.howto-tab {
+  flex: 1;
+  padding: 10px 8px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #52525b;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.howto-tab.active { background: #fff; color: #d33b32; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08); }
+
+.howto-fact {
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #fff1f0;
+  border: 1.5px solid #f5c2bd;
+  color: #9f1d15;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.howto-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; flex-shrink: 0; }
+.howto-step { position: relative; display: flex; gap: 14px; padding-bottom: 18px; }
+.howto-step:last-child { padding-bottom: 0; }
+.howto-step:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: 17px;
+  top: 38px;
+  bottom: 2px;
+  width: 2px;
+  background: #f5c2bd;
+}
+.howto-step-num {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #d33b32;
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+  font-weight: 900;
+  box-shadow: 0 3px 8px rgba(211, 59, 50, 0.3);
+}
+.howto-step-body { flex: 1; min-width: 0; padding-top: 6px; }
+.howto-step-lead { display: block; font-size: 17px; font-weight: 900; color: #050505; margin-bottom: 2px; }
+.howto-step-body p { margin: 0; font-size: 16px; line-height: 1.45; font-weight: 600; color: #3f3f46; }
+
+.howto-watch {
+  flex-shrink: 0;
+  padding: 14px 16px;
+  border: 2px solid #fcd34d;
+  border-left: 6px solid #f59e0b;
+  border-radius: 12px;
+  background: #fffbeb;
+}
+.howto-watch-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #b45309;
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.howto-watch ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
+.howto-watch li { font-size: 15px; line-height: 1.4; font-weight: 600; color: #78350f; }
+
+/* 911 reminder on the web: a label (not a link), icon + text on one line,
+   styled like the page's other notes: white, grey border, red left bar. */
+.emergency-pill {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: #ffffff;
+  border: 2px solid #e5e7eb;
+  border-left: 8px solid #d33b32;
+  border-radius: 6px;
+  color: #4b5563;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.3;
+  text-align: left;
+  white-space: nowrap;
+  cursor: default;
+}
+.emergency-pill svg { flex-shrink: 0; color: #d33b32; }
+/* The home-page copy stays hidden on phone widths, where the CALL 911 button shows. */
+.emergency-pill.desktop-emergency-message { display: none; width: 100%; box-sizing: border-box; }
+@media (min-width: 521px) {
+  .emergency-pill.desktop-emergency-message { display: flex; }
+}
+
+/* ===== GUIDES: Emergencies / How-To tabs and How-To tiles ===== */
+.guides-tabs {
+  flex-shrink: 0;
+  display: flex;
+  gap: 4px;
+  margin: 0 20px 14px;
+  padding: 4px;
+  background: #f4f4f5;
+  border-radius: 12px;
+}
+.guides-tab {
+  flex: 1;
+  padding: 10px 8px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #52525b;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.guides-tab.active { background: #fff; color: #d33b32; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08); }
+
+.howto-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.howto-tile {
+  position: relative;
+  min-height: 128px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px;
+  border: 2px solid #e4e4e7;
+  border-radius: 14px;
+  background: #fff;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.howto-tile:hover, .howto-tile:focus-visible {
+  border-color: #d33b32;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(211, 59, 50, 0.1);
+  outline: none;
+}
+.howto-tile-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: #fff1f0;
+  color: #d33b32;
+  display: grid;
+  place-items: center;
+}
+.howto-tile-title { font-size: 15px; line-height: 1.25; font-weight: 900; color: #050505; }
+.howto-tile-age {
+  margin-top: auto;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: #f4f4f5;
+  color: #52525b;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+/* ===== STEP DIAGRAMS ===== */
+.step-diagram {
+  margin: 10px 0 0;
+  padding: 8px;
+  background: #fff;
+  border: 2px solid #e4e4e7;
+  border-radius: 12px;
+}
+.step-diagram svg { display: block; width: 100%; height: auto; font-family: inherit; }
+
+/* ===== CPR RHYTHM GUIDE ===== */
+.cpr-rhythm {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+  border: 2px solid #f5c2bd;
+  border-radius: 16px;
+  background: #fffafa;
+}
+.cpr-rhythm-title { color: #d33b32; font-size: 12px; font-weight: 900; letter-spacing: 1.5px; text-transform: uppercase; }
+.cpr-rhythm-modes { display: flex; gap: 4px; padding: 4px; background: #f4f4f5; border-radius: 10px; }
+.cpr-rhythm-modes button {
+  flex: 1; padding: 8px 6px; border: 0; border-radius: 8px; background: transparent;
+  font: inherit; font-size: 13px; font-weight: 800; color: #52525b; cursor: pointer;
+}
+.cpr-rhythm-modes button[aria-pressed="true"] { background: #fff; color: #d33b32; box-shadow: 0 2px 6px rgba(0,0,0,.08); }
+.cpr-rhythm-main { display: flex; align-items: center; gap: 16px; }
+.cpr-rhythm-pulse {
+  flex-shrink: 0;
+  width: 112px; height: 112px; border-radius: 50%;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  color: #fff;
+  background: radial-gradient(circle at 35% 30%, #e85a50, #d33b32 55%, #b82d26);
+  box-shadow: 0 8px 20px rgba(211, 59, 50, 0.3);
+  transition: transform 90ms ease-out;
+}
+.cpr-rhythm-pulse.push { transform: scale(0.84); transition-duration: 60ms; }
+.cpr-rhythm-pulse.breathe {
+  background: radial-gradient(circle at 35% 30%, #4b8bd8, #2563eb 55%, #1d4ed8);
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+}
+.cpr-rhythm-count { font-size: 40px; font-weight: 900; line-height: 1; font-variant-numeric: tabular-nums; }
+.cpr-rhythm-label { font-size: 11px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; margin-top: 2px; }
+.cpr-rhythm-side { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.cpr-rhythm-prompt { font-size: 16px; font-weight: 900; color: #050505; line-height: 1.25; min-height: 40px; }
+.cpr-rhythm-controls { display: flex; gap: 8px; }
+.cpr-rhythm-start {
+  flex: 1; height: 48px; border: 0; border-radius: 12px; background: #d33b32; color: #fff;
+  font: inherit; font-size: 16px; font-weight: 900; letter-spacing: .5px; cursor: pointer;
+}
+.cpr-rhythm-start.stop { background: #050505; }
+.cpr-rhythm-sound {
+  width: 48px; height: 48px; border-radius: 12px; border: 2px solid #e4e4e7; background: #fff;
+  display: grid; place-items: center; color: #3f3f46; cursor: pointer;
+}
+.cpr-rhythm-sound[aria-pressed="false"] { color: #a1a1aa; }
+
+/* ===== GUIDE STEP SCREEN ===== */
+.step-screen { height: 100%; background: #fff; display: flex; flex-direction: column; position: relative; }
+.step-header { flex-shrink: 0; padding: 18px 20px 10px; display: flex; flex-direction: column; gap: 10px; }
+.step-header-row { display: flex; align-items: center; gap: 10px; }
+.step-back {
+  flex-shrink: 0; width: 38px; height: 38px; border-radius: 50%; border: 0; background: #f4f4f5;
+  display: grid; place-items: center; color: #050505; cursor: pointer;
+}
+.step-title { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.step-title span { color: #d33b32; font-size: 12px; font-weight: 900; letter-spacing: 1.2px; text-transform: uppercase; }
+.step-title b { font-size: 18px; line-height: 1.15; font-weight: 900; letter-spacing: -0.3px; color: #050505; }
+.step-911 {
+  flex-shrink: 0; height: 34px; padding: 0 12px; border-radius: 17px;
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #fff1f0; border: 1.5px solid #f5c2bd; color: #d33b32;
+  font-size: 13px; font-weight: 900; cursor: default;
+}
+.step-progress { display: flex; gap: 4px; }
+.step-progress i { flex: 1; height: 5px; border-radius: 3px; background: #e4e4e7; }
+.step-progress i.done { background: #f0a39d; }
+.step-progress i.now { background: #d33b32; }
+
+.step-body {
+  flex: 1 1 auto; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch;
+  padding: 6px 20px 16px; display: flex; flex-direction: column; gap: 14px;
+  animation: step-in 160ms ease-out;
+}
+@keyframes step-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.step-action { margin: 4px 0 0; font-size: clamp(24px, 6.6vw, 28px); line-height: 1.15; font-weight: 900; letter-spacing: -0.6px; color: #050505; }
+.step-details { margin: 0; font-size: 17px; line-height: 1.45; font-weight: 600; color: #3f3f46; white-space: pre-line; }
+.step-details-only { font-size: 20px; color: #1f2937; }
+.step-facts li {
+  padding: 6px 10px; border-radius: 999px; background: #fff1f0; border: 1.5px solid #f5c2bd;
+  color: #9f1d15; font-size: 13px; font-weight: 800;
+}
+.step-facts li::first-letter { text-transform: uppercase; }
+.step-chips { display: flex; gap: 10px; }
+.step-chip {
+  flex: 1 1 0; min-width: 0; display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+  border: 2px solid #e4e4e7; border-radius: 14px; background: #fff; color: #050505;
+  font: inherit; font-size: 14px; font-weight: 800; text-align: left; cursor: pointer;
+  transition: border-color .15s ease, transform .15s ease;
+}
+.step-chip:hover, .step-chip:focus-visible { border-color: #d33b32; transform: translateY(-1px); outline: none; }
+.step-chip-icon {
+  flex-shrink: 0; width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center;
+  background: #fff1f0; color: #d33b32;
+}
+.step-chip-text { min-width: 0; display: flex; flex-direction: column; line-height: 1.2; }
+.step-chip-text small {
+  display: inline-flex; align-items: center; gap: 4px; color: #b42318;
+  font-size: 10.5px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase;
+}
+.step-chip-howto { border-color: #f5c2bd; background: linear-gradient(135deg, #fff6f5, #ffe8e5); }
+.step-chip-howto .step-chip-icon { background: #d33b32; color: #fff; }
+
+.step-dock {
+  flex-shrink: 0; padding: 10px 20px 18px; border-top: 1.5px solid #e4e4e7; background: #fff;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.step-dock [hidden] { display: none; }
+.step-dock .protocol-actions { margin-top: 0; }
+.step-dock .step-nav { height: 58px; }
+
+.cpr-bar {
+  display: flex; align-items: center; gap: 10px; padding: 8px 8px 8px 8px;
+  border-radius: 16px; background: #fff1f0; border: 1.5px solid #f5c2bd;
+}
+.cpr-bar-dot {
+  flex-shrink: 0; width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center;
+  color: #fff; font-weight: 900; font-size: 18px; font-variant-numeric: tabular-nums;
+  background: radial-gradient(circle at 35% 30%, #e85a50, #d33b32 60%, #b82d26);
+  transition: transform 90ms ease-out;
+}
+.cpr-bar:not(.running) .cpr-bar-dot { font-size: 13px; }
+.cpr-bar-dot.push { transform: scale(0.82); transition-duration: 60ms; }
+.cpr-bar-dot.breathe { background: radial-gradient(circle at 35% 30%, #4b8bd8, #2563eb 60%, #1d4ed8); }
+.cpr-bar-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.cpr-bar-text b { font-size: 15px; font-weight: 900; color: #050505; }
+.cpr-bar-text span { font-size: 12px; font-weight: 700; color: #9f1d15; }
+.cpr-bar-mode {
+  padding: 0; border: 0; background: none; font: inherit; font-size: 12px; font-weight: 700;
+  color: #9f1d15; text-align: left; text-decoration: underline; text-underline-offset: 2px; cursor: pointer;
+}
+.cpr-bar-sound {
+  flex-shrink: 0; width: 38px; height: 38px; border-radius: 10px; border: 1.5px solid #f5c2bd; background: #fff;
+  display: grid; place-items: center; color: #3f3f46; cursor: pointer;
+}
+.cpr-bar-sound[aria-pressed="false"] { color: #a1a1aa; }
+.cpr-bar-start {
+  flex-shrink: 0; height: 40px; padding: 0 16px; border: 0; border-radius: 10px; background: #d33b32; color: #fff;
+  font: inherit; font-size: 15px; font-weight: 900; cursor: pointer;
+}
+.cpr-bar-start.stop { background: #050505; }
+
+.step-sheet-backdrop {
+  position: absolute; inset: 0; z-index: 20; background: rgba(0, 0, 0, 0.45);
+  display: flex; align-items: flex-end; animation: fade-in 150ms ease-out;
+}
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+.step-sheet {
+  width: 100%; max-height: 88%; overflow-y: auto; background: #fff; border-radius: 22px 22px 0 0;
+  padding: 12px 16px 22px; display: flex; flex-direction: column; gap: 8px;
+  animation: sheet-up 200ms ease-out;
+}
+@keyframes sheet-up { from { transform: translateY(40px); } to { transform: none; } }
+.step-sheet-grab { width: 40px; height: 5px; border-radius: 3px; background: #d4d4d8; align-self: center; }
+.step-sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.step-sheet-head b { font-size: 17px; font-weight: 900; color: #050505; }
+.step-sheet-head button { border: 0; background: #f4f4f5; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; }
+.step-sheet .step-diagram { margin: 0; }
+
+/* Pills stay on one line; on a very narrow phone the row scrolls sideways instead of wrapping. */
+.step-facts, .howto-facts {
+  list-style: none; margin: 0; padding: 0; flex-shrink: 0;
+  display: flex; flex-wrap: nowrap; gap: 6px;
+  overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+}
+.step-facts::-webkit-scrollbar, .howto-facts::-webkit-scrollbar { display: none; }
+.step-facts li, .howto-fact { flex-shrink: 0; white-space: nowrap; }
+/* Centered; auto margins (not justify-content) so a row that is ever too wide still scrolls from its first pill. */
+.step-facts li:first-child, .howto-fact:first-child { margin-left: auto; }
+.step-facts li:last-child, .howto-fact:last-child { margin-right: auto; }
+@media (max-width: 359px) {
+  .step-facts, .howto-facts { gap: 5px; }
+  .step-facts li, .howto-fact { padding: 5px 8px; font-size: 12px; }
+}

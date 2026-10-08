@@ -7,6 +7,7 @@
     "expo-audio": "~57.0.5",
     "expo-dev-client": "~57.0.19",
     "expo-file-system": "~57.0.7",
+    "expo-keep-awake": "~57.0.2",
     "expo-status-bar": "~57.0.1",
     "lucide-react-native": "^1.49.0",
     "react": "19.2.3",
@@ -20,8 +21,11 @@
     "typescript": "~6.0.3"
   },
   "scripts": {
+    "prestart": "node scripts/sync-guides.mjs",
     "start": "expo start",
+    "preandroid": "node scripts/sync-guides.mjs",
     "android": "expo start --android",
+    "preios": "node scripts/sync-guides.mjs",
     "ios": "expo start --ios",
     "web": "expo start --web",
     "fetch-whisper-model": "sh scripts/fetch-whisper-model.sh",

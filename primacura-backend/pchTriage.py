@@ -44,6 +44,7 @@ import numpy as np
 import pandas as pd
 
 from pchCore import (
+    SAFETY_STEP,
     _STOPWORDS,
     AGE_OPTIONS,
     CLARIFICATION_PAIRS,
@@ -334,7 +335,7 @@ class _Reply:
                 f"(under 1 year)?**",
                 "age", AGE_OPTIONS, was_option, confidence)
         steps = pick_protocol(self.dataset, condition, conv.age_band)
-        return self.finish("success", condition, f"Before you start: CHECK SCENE FOR SAFETY.\n{steps}",
+        return self.finish("success", condition, f"{SAFETY_STEP}\n{steps}",
                            "protocol", None, was_option, confidence)
 
 

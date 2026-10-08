@@ -381,6 +381,10 @@ def _steps_from_agent_response(response: str) -> list[str]:
         line = line.strip()
         if not line:
             continue
+        # "- F (Face): ..." sub-bullets belong to the step above (as in the apps' guides).
+        if line.startswith("-") and steps:
+            steps[-1] += "\n   " + line
+            continue
         steps.append(re.sub(r"^\d+\.\s*", "", line))
     return steps
 
@@ -388,11 +392,19 @@ def _steps_from_agent_response(response: str) -> list[str]:
 def _serialize_agent_output(out: dict[str, Any], session_id: str) -> dict[str, Any]:
     status = out["status"]
     is_protocol = status == "success"
+    steps = _steps_from_agent_response(out["response"]) if is_protocol else []
     return {
         "status": status,
         # Only name a condition once we show its protocol.
         "title": out["condition"] if is_protocol else "",
-        "steps": _steps_from_agent_response(out["response"]) if is_protocol else [],
+        "steps": steps,
+        # Same length as steps: the How-To card id to link from each step, or None.
+        "step_howto": [pchCore.STEP_HOWTO.get(step) for step in steps],
+        "step_diagram": [pchCore.STEP_DIAGRAM.get(step) for step in steps],
+        "step_rhythm": [step in pchCore.STEP_RHYTHM for step in steps],
+        # The short action to show in big type (the step text starts with it), and fact pills.
+        "step_action": [pchCore.STEP_ACTION.get(step) for step in steps],
+        "step_facts": [pchCore.STEP_FACTS.get(step, []) for step in steps],
         "message": out["response"] if not is_protocol else "",
         "confidence": round(float(out["confidence"]), 3),
         # Tappable answers for clarification / age questions. Sending one back
