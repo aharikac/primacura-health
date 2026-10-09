@@ -1,21 +1,19 @@
-import { CirclePlay } from 'lucide-react';
+import { Play } from 'lucide-react';
 import { howTos } from '../data/howTo';
-import { howToIcon } from './howToIcons';
 import { linkTitle } from './howToAge';
 
-// "Show me how" chip under a guide step: opens the matching How-To card.
+// "Show me how" under a guide step: one clear, full-width button that opens the
+// matching How-To card. The card's name sits under the label.
 export function ShowMeHow({ howToId, onOpen }: { howToId: string; onOpen: (id: string) => void }) {
   const card = howTos.find((h) => h.id === howToId);
   if (!card) return null;
-  const Icon = howToIcon(card.id);
+  const title = linkTitle(card);
   return (
-    <button type="button" className="step-chip step-chip-howto" onClick={() => onOpen(card.id)}>
-      <span className="step-chip-icon" aria-hidden="true">
-        <Icon size={18} strokeWidth={2.4} />
-      </span>
-      <span className="step-chip-text">
-        <small><CirclePlay size={11} strokeWidth={3} aria-hidden="true" /> Show me how</small>
-        {linkTitle(card)}
+    <button type="button" className="step-howto" onClick={() => onOpen(card.id)} aria-label={`Show me how: ${title}`}>
+      <span className="step-howto-play" aria-hidden="true"><Play size={13} fill="currentColor" /></span>
+      <span className="step-howto-text">
+        <b>Show me how</b>
+        <small>{title}</small>
       </span>
     </button>
   );

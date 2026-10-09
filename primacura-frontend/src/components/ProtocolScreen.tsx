@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { ArrowLeft, ArrowRight, Image as ImageIcon, MapPin, Phone, Square, Speech, X } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { ArrowLeft, ChevronLeft, ChevronRight, Maximize2, MapPin, Phone, Square, Speech, X } from 'lucide-react';
 import { Condition } from '../types';
 import { ShowMeHow } from './ShowMeHow';
 import { StepDiagram } from './StepDiagram';
@@ -7,10 +7,14 @@ import { CprRhythm } from './CprRhythm';
 import { diagrams } from '../data/diagrams';
 import { LocationPanel } from './LocationPanel';
 import { speakAll, speechSupported, stopSpeaking } from '../lib/speech';
+import { factsLine, splitSentences } from '../lib/stepText';
+import { MoreBelow, useMoreBelow } from './MoreBelow';
 
-// One step at a time: the action in big type, details under it, key numbers as
-// pills, then small chips for the picture and "Show me how". The CPR rhythm bar
-// and Back/Next are docked at the bottom, so nothing ever covers the step.
+// One step at a time, and the step is the page: the action in big type, the
+// picture right in the page (tap to enlarge), the details one sentence per line
+// with the key numbers last in bold red, then one clear "Show me how" button.
+// Helpers stay small and docked at the bottom: the CPR beat (slim bar, CPR steps
+// only), then Back (quiet text), read-aloud and Next (the one big button).
 export function ProtocolScreen({
   condition,
   stepIndex,
@@ -35,7 +39,8 @@ export function ProtocolScreen({
   const rawAction = condition.actions?.[stepIndex] ?? null;
   const action = rawAction && text.startsWith(rawAction) ? rawAction : null;
   const details = action ? text.slice(action.length).trim() : text;
-  const facts = condition.facts?.[stepIndex] ?? [];
+  const lines = splitSentences(details);
+  const keyLine = factsLine(condition.facts?.[stepIndex] ?? []);
   const howToId = condition.howTo?.[stepIndex] ?? null;
   const diagramId = condition.diagram?.[stepIndex] ?? null;
 
@@ -49,11 +54,15 @@ export function ProtocolScreen({
   const [locationOpen, setLocationOpen] = useState(false);
   useEffect(() => setPictureOpen(false), [stepIndex]);
 
+  // "More below" hint: shown while the step has content under the fold.
+  const bodyRef = useRef<HTMLDivElement>(null);
+  const { more, check: checkMore, scrollDown } = useMoreBelow(bodyRef, stepIndex);
+
   // Read aloud: once switched on, each step is read as you move to it.
   const [readAloud, setReadAloud] = useState(false);
   useEffect(() => {
     if (!readAloud) return;
-    speakAll([`Step ${stepIndex + 1}. ${action ?? ''} ${details}`]);
+    speakAll([`Step ${stepIndex + 1}. ${action ?? ''} ${details} ${keyLine}`]);
   }, [readAloud, stepIndex]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => () => stopSpeaking(), []);
   const toggleReadAloud = () => {
@@ -87,25 +96,24 @@ export function ProtocolScreen({
         </div>
       </header>
 
-      <div className="step-body" key={stepIndex}>
+      <div className="step-scroll">
+      <div className="step-body" key={stepIndex} ref={bodyRef} onScroll={checkMore}>
         {action ? <h1 className="step-action">{action}</h1> : null}
-        {details && <p className={action ? 'step-details' : 'step-details step-details-only'}>{details}</p>}
-        {facts.length > 0 && (
-          <ul className="step-facts" aria-label="Key numbers">
-            {facts.map((f) => <li key={f}>{f}</li>)}
+        {diagramId && diagrams[diagramId] && (
+          <button type="button" className="step-picture" onClick={() => setPictureOpen(true)} aria-label={`${diagrams[diagramId].alt} Tap to enlarge.`}>
+            <span aria-hidden="true" dangerouslySetInnerHTML={{ __html: diagrams[diagramId].svg }} />
+            <span className="step-picture-zoom" aria-hidden="true"><Maximize2 size={12} strokeWidth={2.6} /> Tap to enlarge</span>
+          </button>
+        )}
+        {(lines.length > 0 || keyLine) && (
+          <ul className={`step-lines ${action ? '' : 'large'}`}>
+            {lines.map((line, i) => <li key={i}>{line}</li>)}
+            {keyLine && <li className="key">{keyLine}</li>}
           </ul>
         )}
-        {(diagramId || howToId) && (
-          <div className="step-chips">
-            {diagramId && diagrams[diagramId] && (
-              <button type="button" className="step-chip" onClick={() => setPictureOpen(true)}>
-                <span className="step-chip-icon" aria-hidden="true"><ImageIcon size={18} strokeWidth={2.4} /></span>
-                <span className="step-chip-text">See picture</span>
-              </button>
-            )}
-            {howToId && <ShowMeHow howToId={howToId} onOpen={onOpenHowTo} />}
-          </div>
-        )}
+        {howToId && <ShowMeHow howToId={howToId} onOpen={onOpenHowTo} />}
+      </div>
+      <MoreBelow show={more} onClick={scrollDown} />
       </div>
 
       <div className="step-dock">
@@ -114,12 +122,13 @@ export function ProtocolScreen({
             <CprRhythm variant="bar" onRunningChange={setRhythmRunning} />
           </div>
         )}
-        <div className="protocol-actions">
+        <div className="step-navrow">
           {stepIndex > 0 && (
-            <button className="step-nav step-nav-back" onClick={() => onStepChange(stepIndex - 1)}>
-              <ArrowLeft size={24} strokeWidth={2.8} /> BACK
+            <button className="step-prev" onClick={() => onStepChange(stepIndex - 1)} aria-label="Previous step">
+              <ChevronLeft size={22} strokeWidth={2.6} /> Back
             </button>
           )}
+          <span className="step-navrow-spacer" />
           {speechSupported && (
             <button
               className={`step-speak ${readAloud ? 'on' : ''}`}
@@ -128,14 +137,11 @@ export function ProtocolScreen({
               aria-label={readAloud ? 'Stop reading aloud' : 'Read steps aloud'}
               title={readAloud ? 'Stop reading' : 'Read aloud'}
             >
-              {readAloud ? <Square size={18} fill="currentColor" /> : <Speech size={24} strokeWidth={2.4} />}
+              {readAloud ? <Square size={16} fill="currentColor" /> : <Speech size={22} strokeWidth={2.4} />}
             </button>
           )}
-          <button
-            className={`step-nav step-nav-next ${stepIndex === 0 ? 'step-nav-full' : ''}`}
-            onClick={() => (isLast ? (onDone ?? onBack)() : onStepChange(stepIndex + 1))}
-          >
-            {isLast ? 'DONE' : 'NEXT'} <ArrowRight size={24} strokeWidth={2.8} />
+          <button className="step-next" onClick={() => (isLast ? (onDone ?? onBack)() : onStepChange(stepIndex + 1))}>
+            {isLast ? 'Done' : <>Next <ChevronRight size={22} strokeWidth={2.8} /></>}
           </button>
         </div>
       </div>

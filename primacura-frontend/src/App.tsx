@@ -15,13 +15,8 @@ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://127.0.0.1:8000';
 const REQUEST_TIMEOUT_MS = 15_000;
 const RECORDING_TIMEOUT_MS = 20_000;
 
-// Before a How-To card whose steps differ by age, ask who needs help:
-// home quick actions (CPR, choking) and "Show me how" links to ask_age cards.
-type QuickAction = 'choking' | 'cpr';
-const QUICK_MESSAGES: Record<QuickAction, string> = {
-  cpr: '**Who needs CPR?** Tap their age to see how to do it.',
-  choking: '**Who is choking?** Tap their age to see what to do.',
-};
+// Before a How-To card whose steps differ by age, ask who needs help
+// ("Show me how" links to ask_age cards).
 const LINK_AGE_MESSAGE = '**Who needs help?** Tap their age to see the right steps.';
 // Where the age question came from, so Back from it returns there.
 type ClarificationState = { message: string; options: string[]; hints: string[]; history: { message: string; options: string[]; hints: string[] }[] };
@@ -67,8 +62,6 @@ export default function App() {
     setScreen('clarification');
   };
 
-  const startQuickAction = (kind: QuickAction) =>
-    askAge({ group: kind, back: 'home', backLabel: 'Home' }, QUICK_MESSAGES[kind]);
 
   // "Show me how" on a guide step: cards marked ask_age ask who needs help first.
   const openStepHowTo = (id: string) => {
@@ -420,7 +413,6 @@ export default function App() {
               setQuery('');
               setScreen('guides');
             }}
-            onQuickAction={startQuickAction}
             loading={loading}
             isRecording={isRecording}
             onStartRecording={startRecording}

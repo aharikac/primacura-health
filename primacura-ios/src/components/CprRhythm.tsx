@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { View, Text, Pressable, StyleSheet, Animated } from 'react-native';
 import { useAudioPlayer, setAudioModeAsync } from 'expo-audio';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
-import { Volume2, VolumeX } from 'lucide-react-native';
+import { Music, Volume2, VolumeX } from 'lucide-react-native';
 
 // CPR rhythm guide: a beat at 110 pushes a minute with a count to 30, then a
 // "Give 2 breaths" pause (or non-stop in hands-only mode). Keeps the screen awake
@@ -35,14 +35,28 @@ export function CprRhythm({
   const soundRef = useRef(sound);
   soundRef.current = sound;
 
-  const beat = useAudioPlayer(require('../../assets/sounds/cpr-beat.wav'));
-  const beat5 = useAudioPlayer(require('../../assets/sounds/cpr-beat-5.wav'));
-  const breaths = useAudioPlayer(require('../../assets/sounds/cpr-breaths.wav'));
+  // Several players per sound, used in turn. A player that just finished sits at
+  // its end, and play() right after an un-awaited seekTo(0) can be silently
+  // skipped, so beats went missing and the count ran ahead of the sound. Each
+  // beat now uses a rested player and starts only after its seek completes.
+  const beatPool = [
+    useAudioPlayer(require('../../assets/sounds/cpr-beat.wav')),
+    useAudioPlayer(require('../../assets/sounds/cpr-beat.wav')),
+    useAudioPlayer(require('../../assets/sounds/cpr-beat.wav')),
+  ];
+  const beat5Pool = [
+    useAudioPlayer(require('../../assets/sounds/cpr-beat-5.wav')),
+    useAudioPlayer(require('../../assets/sounds/cpr-beat-5.wav')),
+  ];
+  const breathsPool = [useAudioPlayer(require('../../assets/sounds/cpr-breaths.wav'))];
+  const turn = useRef({ beat: 0, beat5: 0, breaths: 0 });
 
-  const play = (player: typeof beat) => {
+  const play = (kind: 'beat' | 'beat5' | 'breaths') => {
     if (!soundRef.current) return;
-    player.seekTo(0).catch(() => undefined);
-    player.play();
+    const pool = kind === 'beat' ? beatPool : kind === 'beat5' ? beat5Pool : breathsPool;
+    const player = pool[turn.current[kind] % pool.length];
+    turn.current[kind] += 1;
+    player.seekTo(0).then(() => player.play()).catch(() => player.play());
   };
 
   const clearTimers = () => {
@@ -50,9 +64,13 @@ export function CprRhythm({
     timers.current = [];
   };
 
+  // Beats are timed against the clock (start + n × beat length), not by
+  // chaining intervals, so the tempo stays at 110 a minute and the count, the
+  // pulse and the sound always change on the same tick.
   const run = (m: Mode) => {
     clearTimers();
     let n = 0;
+    const t0 = Date.now();
     setBreathLeft(0);
     const push = () => {
       n += 1;
@@ -61,18 +79,19 @@ export function CprRhythm({
         Animated.timing(scale, { toValue: 0.84, duration: 60, useNativeDriver: true }),
         Animated.timing(scale, { toValue: 1, duration: 140, useNativeDriver: true }),
       ]).start();
-      play(n % 5 === 0 ? beat5 : beat);
+      play(n % 5 === 0 ? 'beat5' : 'beat');
       if (m === 'cpr' && n === 30) {
-        clearTimers();
         let left = BREATH_MS / 1000;
         setBreathLeft(left);
-        play(breaths);
+        timers.current.push(setTimeout(() => play('breaths'), BEAT_MS));
         timers.current.push(setInterval(() => { left -= 1; setBreathLeft(Math.max(left, 0)); }, 1000));
-        timers.current.push(setTimeout(() => run(m), BREATH_MS));
+        timers.current.push(setTimeout(() => run(m), BEAT_MS + BREATH_MS));
+        return;
       }
+      const next = t0 + n * BEAT_MS - Date.now();
+      timers.current.push(setTimeout(push, Math.max(0, next)));
     };
     push();
-    timers.current.push(setInterval(push, BEAT_MS));
   };
 
   const start = async () => {
@@ -112,36 +131,33 @@ export function CprRhythm({
   const size = compact ? 84 : 112;
 
   if (variant === 'bar') {
-    const title = !running
-      ? 'Push with the beat'
-      : breathing
-        ? `Give 2 breaths · ${breathLeft}s`
-        : mode === 'cpr' ? `${count} of 30` : `Push · ${count}`;
+    // Slim helper bar on guide steps. Idle: one quiet line + Start. Running: a
+    // pulsing dot, the count, a small mode switch and Stop.
+    const title = breathing
+      ? `Give 2 breaths · ${breathLeft}s`
+      : mode === 'cpr' ? `${count} of 30 · push` : `Push · ${count}`;
     return (
-      <View style={styles.bar} accessibilityLabel="CPR rhythm guide">
-        <Animated.View style={[styles.barDot, { transform: [{ scale }] }, breathing && styles.pulseBreathe]}>
-          <Text style={[styles.barDotText, !running && styles.barDotIdle]}>{!running ? '110' : breathing ? '2' : count}</Text>
-        </Animated.View>
-        <View style={styles.barText}>
-          <Text style={styles.barTitle} accessibilityLiveRegion="polite">{title}</Text>
-          {running ? (
-            <Text style={styles.barSub}>{breathing ? 'Then back to pushes' : prompt}</Text>
-          ) : (
-            <Pressable onPress={() => changeMode(mode === 'cpr' ? 'hands-only' : 'cpr')} accessibilityRole="button">
-              <Text style={[styles.barSub, styles.barLink]}>{mode === 'cpr' ? 'Switch to hands-only' : 'Switch to 30 : 2'}</Text>
-            </Pressable>
-          )}
-        </View>
-        <Pressable
-          onPress={() => setSound(!sound)}
-          style={styles.barSound}
-          accessibilityRole="button"
-          accessibilityLabel={sound ? 'Turn beep off' : 'Turn beep on'}
-        >
-          {sound ? <Volume2 size={18} color="#3f3f46" /> : <VolumeX size={18} color="#a1a1aa" />}
-        </Pressable>
-        <Pressable onPress={running ? stop : start} style={[styles.barStart, running && styles.stop]} accessibilityRole="button">
-          <Text style={styles.barStartText}>{running ? 'Stop' : 'Start'}</Text>
+      <View style={[styles.bar, running && styles.barOn, breathing && styles.barBreathe]} accessibilityLabel="CPR rhythm guide">
+        {running ? (
+          <Animated.View style={[styles.barDot, { transform: [{ scale }] }, breathing && styles.pulseBreathe]} />
+        ) : (
+          <Music size={17} color="#52525b" strokeWidth={2.4} />
+        )}
+        {running ? (
+          <Text style={[styles.barTitle, breathing && styles.barTitleBreathe]} accessibilityLiveRegion="polite" numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>{title}</Text>
+        ) : (
+          <View style={styles.barIdleBox}>
+            <Text style={styles.barIdle} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>Push to the beat</Text>
+            <Text style={styles.barMuted} numberOfLines={1}>110 pushes a minute</Text>
+          </View>
+        )}
+        {running && !breathing ? (
+          <Pressable onPress={() => changeMode(mode === 'cpr' ? 'hands-only' : 'cpr')} accessibilityRole="button" hitSlop={8}>
+            <Text style={styles.barMode}>{mode === 'cpr' ? 'Hands-only' : '30 : 2'}</Text>
+          </Pressable>
+        ) : null}
+        <Pressable onPress={running ? stop : start} style={[styles.barStart, running && styles.barStop]} accessibilityRole="button" accessibilityLabel={running ? 'Stop the beat' : 'Start the beat'}>
+          <Text style={[styles.barStartText, running && styles.barStopText]}>{running ? 'Stop' : 'Start'}</Text>
         </Pressable>
       </View>
     );
@@ -221,15 +237,18 @@ const styles = StyleSheet.create({
   startText: { color: '#fff', fontSize: 16, fontWeight: '900', letterSpacing: 0.5 },
   sound: { width: 48, height: 48, borderRadius: 12, borderWidth: 2, borderColor: '#e4e4e7', backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center' },
   soundCompact: { width: 42, height: 42 },
-  bar: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 8, borderRadius: 16, backgroundColor: '#fff1f0', borderWidth: 1.5, borderColor: '#f5c2bd' },
-  barDot: { width: 46, height: 46, borderRadius: 23, backgroundColor: RED, alignItems: 'center', justifyContent: 'center' },
-  barDotText: { color: '#fff', fontSize: 18, fontWeight: '900' },
-  barDotIdle: { fontSize: 13 },
-  barText: { flex: 1, gap: 1 },
-  barTitle: { fontSize: 15, fontWeight: '900', color: '#050505' },
-  barSub: { fontSize: 12, fontWeight: '700', color: '#9f1d15' },
-  barLink: { textDecorationLine: 'underline' },
-  barSound: { width: 38, height: 38, borderRadius: 10, borderWidth: 1.5, borderColor: '#f5c2bd', backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center' },
-  barStart: { height: 40, paddingHorizontal: 16, borderRadius: 10, backgroundColor: RED, alignItems: 'center', justifyContent: 'center' },
-  barStartText: { color: '#fff', fontSize: 15, fontWeight: '900' },
+  bar: { height: 46, flexDirection: 'row', alignItems: 'center', gap: 10, paddingLeft: 12, paddingRight: 6, borderRadius: 12, backgroundColor: '#f4f4f5' },
+  barOn: { backgroundColor: '#fff1f0' },
+  barBreathe: { backgroundColor: '#eff6ff' },
+  barDot: { width: 22, height: 22, borderRadius: 11, backgroundColor: RED },
+  barIdleBox: { flex: 1, minWidth: 0 },
+  barIdle: { fontSize: 15, fontWeight: '800', color: '#3f3f46' },
+  barMuted: { fontSize: 12, fontWeight: '600', color: '#71717a' },
+  barTitle: { flex: 1, fontSize: 15, fontWeight: '900', color: '#991b1b' },
+  barTitleBreathe: { color: '#1d4ed8' },
+  barMode: { fontSize: 13, fontWeight: '700', color: '#71717a', textDecorationLine: 'underline' },
+  barStart: { height: 34, paddingHorizontal: 14, borderRadius: 9, borderWidth: 1.5, borderColor: '#d4d4d8', backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center' },
+  barStartText: { fontSize: 14, fontWeight: '800', color: '#050505' },
+  barStop: { backgroundColor: '#050505', borderColor: '#050505' },
+  barStopText: { color: '#fff' },
 });

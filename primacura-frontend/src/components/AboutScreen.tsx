@@ -1,5 +1,5 @@
 import React from 'react';
-import { User, ShieldPlus, ArrowLeft } from 'lucide-react';
+import { User, ShieldPlus, ArrowLeft, ListChecks, Mic, Speech, MapPin, Quote } from 'lucide-react';
 
 export function AboutScreen({ onBack }: { onBack: () => void }) {
   return (
@@ -27,34 +27,45 @@ export function AboutScreen({ onBack }: { onBack: () => void }) {
         </div>
       </header>
 
-      {/* Content Section */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 md:p-12">
-        <div className="space-y-8 text-lg text-gray-600 leading-relaxed font-medium">
-          <section>
-            <h2 className="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
-              <ShieldPlus size={20} className="text-red-500" />
-              The Mission
-            </h2>
-            <p>
-              When a medical emergency strikes, panic often follows. PrimaCura Health was built to bridge the critical gap between an incident occurring and professional medical help arriving. By providing clear, step-by-step, voice-enabled first-aid protocols, this platform ensures that anyone can take immediate, life-saving action when seconds matter most.
-            </p>
-          </section>
+      <div className="about-body">
+        <section className="about-card">
+          <div className="about-card-head">
+            <span className="about-icon"><ShieldPlus size={20} strokeWidth={2.4} /></span>
+            <h2>The Mission</h2>
+          </div>
+          <p>
+            When a medical emergency strikes, panic often follows. PrimaCura Health was built to bridge the critical gap between an incident occurring and professional medical help arriving. By providing clear, step-by-step, voice-enabled first-aid protocols, this platform ensures that anyone can take immediate, life-saving action when seconds matter most.
+          </p>
+          <ul className="about-features">
+            <li><ListChecks size={18} strokeWidth={2.4} />Step-by-step guides</li>
+            <li><Mic size={18} strokeWidth={2.4} />Speak or type</li>
+            <li><Speech size={18} strokeWidth={2.4} />Reads steps aloud</li>
+            <li><MapPin size={18} strokeWidth={2.4} />Location for 911</li>
+          </ul>
+        </section>
 
-          <section className="bg-gray-50 rounded-xl p-6 border border-gray-100">
-            <h2 className="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
-              <User size={20} className="text-red-500" />
-              The Developer
-            </h2>
-            <p className="mb-4">
-              PrimaCura Health was designed and engineered entirely by Harika Appalla, a 14-year-old 9th grader with a passion for using technology to make a tangible difference in people's lives. 
-            </p>
-            <p className="italic text-gray-700 border-l-4 border-red-500 pl-4">
-              "I built this app hoping it will help someone in a moment of desperate need. Even if PrimaCura helps just one single person manage an emergency safely, my entire goal has been achieved."
-            </p>
-          </section>
-        </div>
+        <section className="about-card about-card-dev">
+          <div className="about-card-head">
+            <span className="about-icon"><User size={20} strokeWidth={2.4} /></span>
+            <h2>The Developer</h2>
+          </div>
+          <div className="about-dev-id">
+            <span className="about-avatar" aria-hidden="true">HA</span>
+            <div>
+              <strong className="about-dev-name">Harika Appalla</strong>
+              <span>Designer &amp; developer</span>
+            </div>
+          </div>
+          <p>
+            PrimaCura Health was designed and engineered by <strong className="about-dev-name">Harika Appalla</strong>, a 14-year-old 9th grader with a passion for using technology to make a tangible difference in people's lives.
+          </p>
+          <blockquote className="about-quote">
+            <Quote size={22} strokeWidth={2.6} aria-hidden="true" />
+            <p>I built this app hoping it will help someone in a moment of desperate need. Even if PrimaCura helps just one single person manage an emergency safely, my entire goal has been achieved.</p>
+          </blockquote>
+        </section>
       </div>
-      
+
     </main>
   );
 }

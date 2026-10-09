@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "primacura-ios",
+    "name": "PrimaCura",
     "slug": "primacura-ios",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -9,6 +9,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.aharikac.primacura-ios",
+      "appleTeamId": "WQ3564R6J9",
       "buildNumber": "1",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,

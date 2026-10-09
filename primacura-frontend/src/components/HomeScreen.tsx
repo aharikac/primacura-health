@@ -1,6 +1,7 @@
-import { HeartPulse, Mic, Phone, ShieldAlert, Square, User, Utensils } from 'lucide-react';
+import { useState } from 'react';
+import { BookOpen, ChevronDown, ChevronRight, MapPin, Mic, Phone, ShieldAlert, Square, User } from 'lucide-react';
 import { SearchBox } from './SearchBox';
-import { LocationPanel } from './LocationPanel';
+import { LocationCard, useLocationFix } from './LocationPanel';
 
 export function HomeScreen({
   query,
@@ -10,7 +11,6 @@ export function HomeScreen({
   onOpenAbout,
   onOpenGuides,
   onOpenContact,
-  onQuickAction,
   loading,
   isRecording,
   onStartRecording,
@@ -27,8 +27,6 @@ export function HomeScreen({
   onOpenAbout: () => void;
   onOpenGuides: () => void;
   onOpenContact: () => void;
-  // Quick actions ask who needs help (age), then open the matching How-To card.
-  onQuickAction: (kind: 'choking' | 'cpr') => void;
   loading: boolean;
   isRecording: boolean;
   onStartRecording: () => void;
@@ -38,32 +36,39 @@ export function HomeScreen({
   setSelectedMic: (value: string) => void;
   recordingTimeLeft: number;
 }) {
-  return (
-    <main className="home-screen">
-      <div className="home-top">
-        <div className="brand" style={{ marginBottom: '8px' }}>
-          <div className="brand-mark">+</div>
-          <div className="brand-text">
-            <span className="brand-title">PrimaCura</span>
-            <span className="brand-slogan">The First Care</span>
-          </div>
-        </div>
-        
-        <section className="home-intro" style={{ marginBottom: '8px' }}>
-          <h1 style={{ fontSize: '28px', lineHeight: '1.1', margin: 0 }}>Describe what's<br />happening.</h1>
-        </section>
+  // Location stays on this device. "My location" toggles the details open and shut.
+  const location = useLocationFix();
+  const [locOpen, setLocOpen] = useState(false);
+  const toggleLocation = () => {
+    if (locOpen) { setLocOpen(false); return; }
+    setLocOpen(true);
+    if (location.status !== 'ready' && location.status !== 'locating') location.locate();
+  };
 
-        <SearchBox value={query} onChange={setQuery} home onSearch={() => onSearch()} loading={loading} />   
-        
-        <div className="speech-section" style={{ marginTop: '8px', marginBottom: '4px' }}>
-          <p className="speech-label" style={{ marginBottom: '6px', fontSize: '12px' }}>OR Speak using your Microphone:</p>  
-          <div className="speech-controls">
-            {mics.length > 0 && (
-              <select 
-                value={selectedMic} 
+  return (
+    <main className="home-screen hp">
+      <header className="hp-brand">
+        <div className="brand-mark">+</div>
+        <div className="brand-text">
+          <span className="brand-title">PrimaCura</span>
+          <span className="brand-slogan">The First Care</span>
+        </div>
+      </header>
+
+      {/* 1 · Describe it: heading, search box and the speak alternative sit together. */}
+      <section className="hp-ask" aria-label="Describe the emergency">
+        <h1 className="hp-heading">Describe what's<br />happening.</h1>
+        <SearchBox value={query} onChange={setQuery} home onSearch={() => onSearch()} loading={loading} />
+        <div className="hp-speak">
+          <span className="hp-speak-label">Or speak using microphone</span>
+          <div className="hp-speak-controls">
+            {mics.length > 1 && (
+              <select
+                value={selectedMic}
                 onChange={(e) => setSelectedMic(e.target.value)}
                 disabled={isRecording || loading}
-                className="mic-selector"
+                className="mic-selector hp-mic"
+                aria-label="Microphone"
               >
                 {mics.map((mic) => (
                   <option key={mic.deviceId} value={mic.deviceId}>
@@ -72,99 +77,72 @@ export function HomeScreen({
                 ))}
               </select>
             )}
-            <>
-              {loading ? (
-                <button 
-                  type="button" 
-                  className="record-button" 
-                  disabled
-                  style={{ opacity: 0.7, cursor: 'wait' }}
-                  aria-label="Processing audio description"
-                >
-                  <span className="spin">⏳</span>
-                  <span>Processing...</span>
-                </button>
-              ) : !isRecording ? (
-                <button 
-                  type="button" 
-                  className="record-button" 
-                  onClick={onStartRecording} 
-                  aria-label="Start talking to describe the situation"
-                >
-                  <Mic size={18} />
-                  Speak
-                </button>
-              ) : (
-                <button 
-                  type="button" 
-                  className="record-button" 
-                  onClick={onStopRecording} 
-                  aria-label="Stop talking and process the description of the situation"
-                >
-                  <Square size={14} fill="currentColor" />
-                  <span>Stop</span>
-                  <span className="record-timer">(0:{recordingTimeLeft < 10 ? `0${recordingTimeLeft}` : recordingTimeLeft})</span>
-                </button>
-              )}
-            </>
+            {loading ? (
+              <button type="button" className="hp-speak-btn" disabled aria-label="Processing audio description">
+                <span className="spin">⏳</span> Processing…
+              </button>
+            ) : !isRecording ? (
+              <button type="button" className="hp-speak-btn" onClick={onStartRecording} aria-label="Start talking to describe the situation">
+                <Mic size={18} strokeWidth={2.6} /> Speak
+              </button>
+            ) : (
+              <button type="button" className="hp-speak-btn recording" onClick={onStopRecording} aria-label="Stop talking and process the description of the situation">
+                <Square size={13} fill="currentColor" /> Stop
+                <span className="record-timer">0:{recordingTimeLeft < 10 ? `0${recordingTimeLeft}` : recordingTimeLeft}</span>
+              </button>
+            )}
           </div>
         </div>
+      </section>
 
-        <div className="quick-actions">
-          <button
-            type="button"
-            className="quick-action-btn"
-            disabled={loading || isRecording}
-            onClick={() => onQuickAction('choking')}
-          >
-            <Utensils size={16} strokeWidth={2.6} aria-hidden="true" /> Choking Relief
-          </button>
-          <button
-            type="button"
-            className="quick-action-btn"
-            disabled={loading || isRecording}
-            onClick={() => onQuickAction('cpr')}
-          >
-            <HeartPulse size={16} strokeWidth={2.6} aria-hidden="true" /> CPR
-          </button>
-        </div>
-      </div>
-      
-      <div className="home-actions" style={{ gap: '10px', marginTop: '10px' }}>
-        <button className="known-button" style={{ height: '44px' }} onClick={onOpenGuides}>Browse First-Aid Guides</button>
-        
-        {/* Adjusted to fit on a single line */}
-        <p className="home-note" style={{ fontSize: '11px', letterSpacing: '-0.2px', whiteSpace: 'nowrap', margin: '0 0 4px 0' }}>Step-by-step first-aid protocols when medical staff isn't nearby.</p>
-        
-        <a href="tel:911" className="call-button" style={{ minHeight: '64px', padding: '8px 20px' }}>
-          <span className="call-icon" style={{ width: '50px', height: '50px', flex: '0 0 50px' }}><Phone size={24} fill="currentColor" aria-hidden="true" /></span>
-          <span className="call-copy">
-            <strong style={{ fontSize: '22px' }}>CALL 911</strong>
-            <small style={{ fontSize: '13px' }}>Dial emergency services</small>
+      {/* 2 · Or browse: the guides button with its one-line explanation. */}
+      <section className="hp-browse">
+        <button className="hp-guides" onClick={onOpenGuides}>
+          <BookOpen size={22} strokeWidth={2.4} aria-hidden="true" />
+          <span>Pick a First-Aid Guide</span>
+          <ChevronRight size={20} strokeWidth={2.8} aria-hidden="true" />
+        </button>
+        <p className="hp-note">Step-by-step first aid for when medical help isn't nearby.</p>
+      </section>
+
+      {/* 3 · Utilities: quiet, grouped tightly. */}
+      <footer className="hp-utility">
+        <div className="hp-pair">
+          <a href="tel:911" className="hp-pair-btn hp-call" aria-label="Call 911">
+            <Phone size={16} fill="currentColor" aria-hidden="true" /> Call 911
+          </a>
+          <span className="hp-pair-btn hp-call-note" role="note">
+            <Phone size={15} fill="currentColor" aria-hidden="true" /> Emergency? Dial 911
           </span>
-        </a>
-        
-        <LocationPanel compact />
+          <button
+            type="button"
+            className={`hp-pair-btn hp-loc ${locOpen ? 'open' : ''}`}
+            onClick={toggleLocation}
+            aria-expanded={locOpen}
+            aria-controls="hp-loc-panel"
+            aria-label={locOpen ? 'Hide my location' : 'Show my location for 911'}
+          >
+            <MapPin size={16} strokeWidth={2.6} aria-hidden="true" />
+            {location.status === 'locating' ? 'Finding…' : 'My location'}
+            <ChevronDown size={16} strokeWidth={2.6} className="hp-chev" aria-hidden="true" />
+          </button>
+        </div>
 
-        {/* Wider screens: text only (no dial link), same style as on the How-To cards. */}
-        <div className="desktop-emergency-message emergency-pill" role="note">
-          <Phone size={16} fill="currentColor" aria-hidden="true" /> Life-threatening? Dial 911 immediately.
-        </div>
-        
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', justifyContent: 'center', whiteSpace: 'nowrap' }}>
-          <button onClick={onOpenAbout} className="disclaimer-link">
-            <User size={14} /> About
-          </button>
-          <span style={{ color: '#d1d5db' }}>•</span>
-          <button onClick={onOpenDisclaimer} className="disclaimer-link">
-            <ShieldAlert size={14} /> Disclaimer
-          </button>
-          <span style={{ color: '#d1d5db' }}>•</span>
-          <button onClick={onOpenContact} className="disclaimer-link">
-            Contact
-          </button>
-        </div>
-      </div>
+        {locOpen && (
+          <div id="hp-loc-panel" className="hp-loc-panel">
+            {location.status === 'error' && <p className="loc-error" role="alert">{location.error}</p>}
+            {location.status === 'ready' && location.fix && <LocationCard fix={location.fix} onUpdate={location.locate} compact />}
+          </div>
+        )}
+
+        <nav className="hp-links" aria-label="More">
+          <button onClick={onOpenAbout} className="hp-link"><User size={13} /> About</button>
+          <span aria-hidden="true">·</span>
+          <button onClick={onOpenDisclaimer} className="hp-link"><ShieldAlert size={13} /> Disclaimer</button>
+          <span aria-hidden="true">·</span>
+          <button onClick={onOpenContact} className="hp-link">Contact</button>
+        </nav>
+      </footer>
     </main>
   );
 }

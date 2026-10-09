@@ -8,7 +8,10 @@ import { LocateFixed, MapPin, RefreshCw, Share2 } from 'lucide-react-native';
 type Fix = { lat: number; lng: number; acc: number };
 const hemi = (v: number, pos: string, neg: string) => `${Math.abs(v).toFixed(5)}° ${v >= 0 ? pos : neg}`;
 
-export function LocationPanel({ compact = false, autoStart = false }: { compact?: boolean; autoStart?: boolean }) {
+export type LocationStatus = 'idle' | 'locating' | 'ready' | 'error';
+
+/** Asks for the GPS position. Shared by the panel and the home-screen button. */
+export function useLocationFix(autoStart = false) {
   const [status, setStatus] = useState<'idle' | 'locating' | 'ready' | 'error'>('idle');
   const [fix, setFix] = useState<Fix | null>(null);
   const [error, setError] = useState('');
@@ -33,18 +36,11 @@ export function LocationPanel({ compact = false, autoStart = false }: { compact?
 
   useEffect(() => { if (autoStart) locate(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (status !== 'ready' || !fix) {
-    return (
-      <View style={styles.box}>
-        <Pressable style={[styles.start, compact && styles.startCompact]} onPress={locate} disabled={status === 'locating'} accessibilityRole="button">
-          {status === 'locating' ? <ActivityIndicator color="#b42318" /> : <MapPin size={16} color="#b42318" />}
-          <Text style={styles.startText}>{status === 'locating' ? 'Finding your location…' : 'Show my location for 911'}</Text>
-        </Pressable>
-        {status === 'error' ? <Text style={styles.error} accessibilityRole="alert">{error}</Text> : null}
-      </View>
-    );
-  }
+  return { status, fix, error, locate };
+}
 
+/** The coordinates card, with Share / Map / Update. */
+export function LocationCard({ fix, onUpdate, compact = false }: { fix: Fix; onUpdate: () => void; compact?: boolean }) {
   const decimal = `${fix.lat.toFixed(5)}, ${fix.lng.toFixed(5)}`;
   return (
     <View style={[styles.box, styles.ready, compact && styles.readyCompact]} accessibilityLiveRegion="polite">
@@ -62,13 +58,31 @@ export function LocationPanel({ compact = false, autoStart = false }: { compact?
         <Pressable style={styles.action} onPress={() => Linking.openURL(`https://maps.apple.com/?ll=${fix.lat},${fix.lng}&q=My%20location`)}>
           <MapPin size={15} color="#3f3f46" /><Text style={styles.actionText}>Map</Text>
         </Pressable>
-        <Pressable style={styles.action} onPress={locate} accessibilityLabel="Update location">
+        <Pressable style={styles.action} onPress={onUpdate} accessibilityLabel="Update location">
           <RefreshCw size={15} color="#3f3f46" /><Text style={styles.actionText}>Update</Text>
         </Pressable>
       </View>
       {!compact ? <Text style={styles.note}>Read these numbers to the 911 dispatcher. Your location stays on this phone.</Text> : null}
     </View>
   );
+}
+
+export function LocationPanel({ compact = false, autoStart = false }: { compact?: boolean; autoStart?: boolean }) {
+  const { status, fix, error, locate } = useLocationFix(autoStart);
+
+  if (status !== 'ready' || !fix) {
+    return (
+      <View style={styles.box}>
+        <Pressable style={[styles.start, compact && styles.startCompact]} onPress={locate} disabled={status === 'locating'} accessibilityRole="button">
+          {status === 'locating' ? <ActivityIndicator color="#b42318" /> : <MapPin size={16} color="#b42318" />}
+          <Text style={styles.startText}>{status === 'locating' ? 'Finding your location…' : 'Show my location for 911'}</Text>
+        </Pressable>
+        {status === 'error' ? <Text style={styles.error} accessibilityRole="alert">{error}</Text> : null}
+      </View>
+    );
+  }
+
+  return <LocationCard fix={fix} onUpdate={locate} compact={compact} />;
 }
 
 const styles = StyleSheet.create({

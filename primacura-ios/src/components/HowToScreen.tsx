@@ -7,11 +7,14 @@ import { howToIcon } from './howToIcons';
 import { EmergencyDialog } from './EmergencyDialog';
 import { StepDiagram } from './StepDiagram';
 import { CprRhythm } from './CprRhythm';
-import { FactPills } from './FactPills';
+import { MoreBelow, useMoreBelow } from './MoreBelow';
+import { factsLine } from '../lib/stepText';
 import { speakAll, stopSpeaking } from '../lib/speech';
 
-// One How-To card: what it's for, the key numbers, numbered moves and what to
-// watch out for. Cards in the same group (e.g. CPR) switch with age tabs.
+// One How-To card. The numbered steps and their pictures are the page; the key
+// numbers are one bold line of text, and the CPR beat is a slim bar docked at
+// the bottom (CPR cards only). A "More below" hint shows while there is more
+// to scroll. Cards in the same group (e.g. CPR) switch with age tabs.
 export function HowToScreen({
   howToId,
   onBack,
@@ -40,12 +43,15 @@ export function HowToScreen({
       () => setSpeaking(null),
     );
   };
+  const { more, scrollProps, scrollDown } = useMoreBelow(currentId);
+  const keyLine = factsLine(card.keyFacts);
   const siblings = card.group ? howTos.filter((h) => h.group === card.group) : [];
   const Icon = howToIcon(card.id);
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+    <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right', 'bottom']}>
+      <View style={styles.scrollArea}>
+      <ScrollView {...scrollProps} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.headerTopRow}>
           <TouchableOpacity style={styles.navBackBtn} onPress={onBack} accessibilityLabel={`Back to ${backLabel}`}>
             <View style={styles.navIconCircle}>
@@ -61,7 +67,7 @@ export function HowToScreen({
 
         <View style={styles.hero}>
           <View style={styles.heroIcon}>
-            <Icon size={30} strokeWidth={2.4} color="#fff" />
+            <Icon size={24} strokeWidth={2.4} color="#fff" />
           </View>
           <View style={styles.heroText}>
             <Text style={styles.eyebrow}>HOW-TO</Text>
@@ -95,9 +101,12 @@ export function HowToScreen({
           </View>
         )}
 
-        <FactPills facts={card.keyFacts} />
-
-        {card.rhythm ? <CprRhythm key={card.id} initialMode={card.rhythm} /> : null}
+        {keyLine ? (
+          <View style={styles.keyRow}>
+            <View style={styles.keyDot} />
+            <Text style={styles.keyText}>{keyLine}</Text>
+          </View>
+        ) : null}
 
         <View>
           {card.steps.map((step, i) => {
@@ -138,10 +147,18 @@ export function HowToScreen({
           accessibilityRole="button"
           accessibilityLabel="Life-threatening? Call 911 first."
         >
-          <Phone size={16} color="#fff" fill="#fff" />
+          <Phone size={16} color={RED} fill={RED} />
           <Text style={styles.callText}>Life-threatening? Call 911 first.</Text>
         </TouchableOpacity>
       </ScrollView>
+      <MoreBelow show={more} onPress={scrollDown} />
+      </View>
+
+      {card.rhythm ? (
+        <View style={styles.dock}>
+          <CprRhythm key={card.id} variant="bar" initialMode={card.rhythm} />
+        </View>
+      ) : null}
       {/* Asks before dialing: Yes, call 911 / Cancel */}
       {confirmCall && <EmergencyDialog onCancel={() => setConfirmCall(false)} />}
     </SafeAreaView>
@@ -152,6 +169,11 @@ const RED = '#d33b32';
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: '#fff' },
+  scrollArea: { flex: 1 },
+  dock: { paddingHorizontal: 20, paddingTop: 10, paddingBottom: 10, borderTopWidth: 1, borderTopColor: '#e4e4e7', backgroundColor: '#fff' },
+  keyRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
+  keyDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: RED, marginTop: 9 },
+  keyText: { flex: 1, fontSize: 17, lineHeight: 24, fontWeight: '800', color: '#991b1b' },
   content: { paddingHorizontal: 20, paddingTop: 8, paddingBottom: 28, gap: 16 },
   headerTopRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   navBackBtn: { flexDirection: 'row', alignItems: 'center', gap: 6 },
@@ -160,15 +182,14 @@ const styles = StyleSheet.create({
   innerBrand: { alignItems: 'flex-end' },
   innerBrandTitle: { fontSize: 15, fontWeight: '900', color: '#050505', letterSpacing: -0.5 },
   innerBrandSlogan: { fontSize: 9, fontWeight: '600', color: '#6b7280', textTransform: 'uppercase', letterSpacing: 1 },
-  hero: { flexDirection: 'row', alignItems: 'center', gap: 14 },
+  hero: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   heroIcon: {
-    width: 60, height: 60, borderRadius: 18, backgroundColor: RED, alignItems: 'center', justifyContent: 'center',
-    shadowColor: RED, shadowOpacity: 0.3, shadowRadius: 10, shadowOffset: { width: 0, height: 5 },
+    width: 46, height: 46, borderRadius: 13, backgroundColor: RED, alignItems: 'center', justifyContent: 'center',
   },
   heroText: { flex: 1, gap: 2 },
   eyebrow: { color: RED, fontSize: 11, fontWeight: '900', letterSpacing: 2 },
   title: { fontSize: 24, lineHeight: 28, fontWeight: '900', color: '#050505' },
-  summary: { fontSize: 15, lineHeight: 21, fontWeight: '600', color: '#52525b' },
+  summary: { fontSize: 17, lineHeight: 24, fontWeight: '500', color: '#3f3f46' },
   tabs: { flexDirection: 'row', gap: 4, padding: 4, backgroundColor: '#f4f4f5', borderRadius: 12 },
   tab: { flex: 1, paddingVertical: 10, borderRadius: 9, alignItems: 'center' },
   tabActive: { backgroundColor: '#fff', shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 4, shadowOffset: { width: 0, height: 2 } },
@@ -186,12 +207,12 @@ const styles = StyleSheet.create({
   stepNumText: { color: '#fff', fontSize: 15, fontWeight: '900' },
   stepLine: { flex: 1, width: 2, backgroundColor: '#f5c2bd', marginTop: 4, marginBottom: -16 },
   stepBody: { flex: 1, paddingTop: 5 },
-  stepLead: { fontSize: 16, fontWeight: '900', color: '#050505', marginBottom: 2 },
-  stepText: { fontSize: 15, lineHeight: 21, fontWeight: '600', color: '#3f3f46' },
-  watch: { padding: 14, borderRadius: 12, borderWidth: 2, borderColor: '#fcd34d', borderLeftWidth: 6, borderLeftColor: '#f59e0b', backgroundColor: '#fffbeb', gap: 6 },
+  stepLead: { fontSize: 18, fontWeight: '900', color: '#050505', marginBottom: 2 },
+  stepText: { fontSize: 17, lineHeight: 24, fontWeight: '500', color: '#3f3f46' },
+  watch: { padding: 14, borderRadius: 10, borderLeftWidth: 4, borderLeftColor: '#f59e0b', backgroundColor: '#fffbeb', gap: 6 },
   watchTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   watchTitle: { color: '#b45309', fontSize: 13, fontWeight: '900', letterSpacing: 0.5 },
-  watchItem: { fontSize: 14, lineHeight: 20, fontWeight: '600', color: '#78350f' },
-  call: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 13, borderRadius: 12, backgroundColor: '#050505' },
-  callText: { color: '#fff', fontSize: 15, fontWeight: '800' },
+  watchItem: { fontSize: 15, lineHeight: 21, fontWeight: '500', color: '#78350f' },
+  call: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, height: 48, borderRadius: 12, backgroundColor: '#fff', borderWidth: 1.5, borderColor: '#f5c2bd', borderLeftWidth: 6, borderLeftColor: RED },
+  callText: { color: '#991b1b', fontSize: 15, fontWeight: '800' },
 });

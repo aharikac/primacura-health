@@ -30,13 +30,8 @@ const RECORDING_TIMEOUT_MS = 20_000;
 // the recording to the backend's /transcribe/ endpoint.
 const ON_DEVICE_SPEECH = Platform.OS === 'ios';
 
-// Before a How-To card whose steps differ by age, ask who needs help:
-// home quick actions (CPR, choking) and "Show me how" links to ask_age cards.
-type QuickAction = 'choking' | 'cpr';
-const QUICK_MESSAGES: Record<QuickAction, string> = {
-  cpr: '**Who needs CPR?** Tap their age to see how to do it.',
-  choking: '**Who is choking?** Tap their age to see what to do.',
-};
+// Before a How-To card whose steps differ by age, ask who needs help
+// ("Show me how" links to ask_age cards).
 const LINK_AGE_MESSAGE = '**Who needs help?** Tap their age to see the right steps.';
 type ClarificationState = { message: string; options: string[]; hints: string[]; history: { message: string; options: string[]; hints: string[] }[] };
 // Where the age question came from (Back returns there), and the conversation's
@@ -113,8 +108,6 @@ export default function App() {
     setScreen('clarification');
   };
 
-  const startQuickAction = (kind: QuickAction) =>
-    askAge({ group: kind, back: 'home', backLabel: 'Home' }, QUICK_MESSAGES[kind]);
 
   // "Show me how" on a guide step: cards marked ask_age ask who needs help first.
   const openStepHowTo = (id: string) => {
@@ -169,7 +162,7 @@ export default function App() {
     setLoading(true);
     try {
       await audioRecorder.stop();
-      await setAudioModeAsync({ allowsRecording: false });
+      await setAudioModeAsync({ allowsRecording: false, playsInSilentMode: true });
 
       const uri = audioRecorder.uri;
       if (!uri) {
@@ -337,7 +330,6 @@ export default function App() {
             setQuery('');
             setScreen('guides');
           }}
-          onQuickAction={startQuickAction}
           loading={loading}
           isRecording={isRecording}
           onStartRecording={startRecording}

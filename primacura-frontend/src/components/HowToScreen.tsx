@@ -5,9 +5,13 @@ import { howTos } from '../data/howTo';
 import { howToIcon } from './howToIcons';
 import { StepDiagram } from './StepDiagram';
 import { CprRhythm } from './CprRhythm';
+import { MoreBelow, useMoreBelow } from './MoreBelow';
+import { factsLine } from '../lib/stepText';
 
-// One How-To card: what it's for, the key numbers, numbered moves and what to
-// watch out for. Cards in the same group (e.g. CPR) switch with age tabs.
+// One How-To card. The numbered steps and their pictures are the page; the key
+// numbers are one bold line of text, and the CPR beat is a slim bar docked at
+// the bottom (CPR cards only). A "More below" hint shows while there is more
+// to scroll. Cards in the same group (e.g. CPR) switch with age tabs.
 export function HowToScreen({
   howToId,
   onBack,
@@ -39,11 +43,16 @@ export function HowToScreen({
       () => setSpeaking(null),
     );
   };
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const { more, check, scrollDown } = useMoreBelow(scrollRef, currentId);
+  const keyLine = factsLine(card.keyFacts);
   const siblings = card.group ? howTos.filter((h) => h.group === card.group) : [];
   const Icon = howToIcon(card.id);
 
   return (
     <main className="howto-screen">
+      <div className="howto-scrollwrap">
+      <div className="howto-scroll" ref={scrollRef} onScroll={check}>
       <header className="inner-page-header tight-bottom">
         <div className="header-top-row">
           <button className="nav-back-btn" onClick={onBack} aria-label={`Back to ${backLabel}`}>
@@ -92,15 +101,7 @@ export function HowToScreen({
         </div>
       )}
 
-      {card.keyFacts.length > 0 && (
-        <ul className="howto-facts" aria-label="Key facts">
-          {card.keyFacts.map((fact) => (
-            <li key={fact} className="howto-fact">{fact}</li>
-          ))}
-        </ul>
-      )}
-
-      {card.rhythm && <CprRhythm key={card.id} initialMode={card.rhythm} />}
+      {keyLine && <p className="howto-key"><span aria-hidden="true" />{keyLine}</p>}
 
       <ol className="howto-steps">
         {card.steps.map((step, i) => (
@@ -136,6 +137,15 @@ export function HowToScreen({
       <div className="emergency-pill" role="note">
         <Phone size={16} fill="currentColor" aria-hidden="true" /> Life-threatening? Call 911 first.
       </div>
+      </div>
+      <MoreBelow show={more} onClick={scrollDown} />
+      </div>
+
+      {card.rhythm && (
+        <div className="howto-dock">
+          <CprRhythm key={card.id} variant="bar" initialMode={card.rhythm} />
+        </div>
+      )}
     </main>
   );
 }
