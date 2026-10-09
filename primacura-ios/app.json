@@ -7,7 +7,7 @@
     "icon": "./assets/TheFirstCare-Icon.png",
     "userInterfaceStyle": "light",
     "ios": {
-      "supportsTablet": true,
+      "supportsTablet": false,
       "bundleIdentifier": "com.aharikac.primacura-ios",
       "appleTeamId": "WQ3564R6J9",
       "buildNumber": "1",
