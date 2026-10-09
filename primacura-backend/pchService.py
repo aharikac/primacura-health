@@ -27,13 +27,14 @@ import uvicorn
 from fastapi import FastAPI, UploadFile, File, HTTPException, Form
 from fastapi.middleware.cors import CORSMiddleware
 import whisper
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 import pchCore
 import pchGate
 import pchLLM
 import pchTriage
 from pchCore import CONFIG, Conversation, load_dataset, load_embedding_model
 import smtplib
+from email.utils import formataddr
 from email.message import EmailMessage
 from dotenv import load_dotenv
 
@@ -161,9 +162,17 @@ class ChatRequest(BaseModel):
     session_id: str = "default"
 
 class ContactForm(BaseModel):
-    name: str
-    email: str
-    message: str = Field(..., max_length=1000)
+    # Same limits as the web and iOS contact forms (lib/limits.ts).
+    name: str = Field(..., min_length=1, max_length=50)
+    email: str = Field(..., min_length=3, max_length=60)
+    message: str = Field(..., min_length=1, max_length=2500)
+
+    @field_validator("message")
+    @classmethod
+    def at_most_300_words(cls, v: str) -> str:
+        if len(v.split()) > 300:
+            raise ValueError("Message must be 300 words or fewer.")
+        return v
 
     
 @app.post("/chat/")
@@ -339,6 +348,9 @@ async def submit_contact_form(form: ContactForm):
     msg['Subject'] = f"PrimaCura Contact Form: Message from {form.name}"
     msg['From'] = "contactprimacura@gmail.com"
     msg['To'] = "contactprimacura@gmail.com"
+    # Reply goes straight to the person who filled in the form.
+    clean_name = " ".join(form.name.split())
+    msg['Reply-To'] = formataddr((clean_name, form.email.strip()))
 
     try:
         server = smtplib.SMTP('smtp.gmail.com', 587)

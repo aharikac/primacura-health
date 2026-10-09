@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Send, Loader2, Mail } from 'lucide-react';
+import { MAX_EMAIL_CHARS, MAX_MESSAGE_CHARS, MAX_MESSAGE_WORDS, MAX_NAME_CHARS, countWords, limitWords } from '../lib/limits';
 
 export function ContactScreen({ onBack }: { onBack: () => void }) {
   const [name, setName] = useState('');
@@ -96,7 +97,8 @@ export function ContactScreen({ onBack }: { onBack: () => void }) {
             type="text"
             required
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            maxLength={MAX_NAME_CHARS}
+            onChange={(e) => setName(e.target.value.slice(0, MAX_NAME_CHARS))}
             style={inputStyle}
             placeholder="Your Name"
           />
@@ -109,7 +111,8 @@ export function ContactScreen({ onBack }: { onBack: () => void }) {
             type="email"
             required
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            maxLength={MAX_EMAIL_CHARS}
+            onChange={(e) => setEmail(e.target.value.slice(0, MAX_EMAIL_CHARS))}
             style={inputStyle}
             placeholder="your.email@example.com"
           />
@@ -118,17 +121,17 @@ export function ContactScreen({ onBack }: { onBack: () => void }) {
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '6px' }}>
             <label htmlFor="message" style={{ ...labelStyle, marginBottom: 0 }}>Message</label>
-            <span style={{ fontSize: '0.75rem', fontWeight: 600, color: message.length >= 1000 ? '#e63946' : '#6b7280' }}>
-              {message.length} / 1000
+            <span style={{ fontSize: '0.75rem', fontWeight: 600, color: countWords(message) >= MAX_MESSAGE_WORDS ? '#e63946' : '#6b7280' }}>
+              {countWords(message)} / {MAX_MESSAGE_WORDS} words
             </span>
           </div>
           <textarea
             id="message"
             required
-            maxLength={1000}
+            maxLength={MAX_MESSAGE_CHARS}
             rows={6}
             value={message}
-            onChange={(e) => setMessage(e.target.value)}
+            onChange={(e) => setMessage(limitWords(e.target.value))}
             style={{ ...inputStyle, resize: 'none' }}
             placeholder="How can we help you?"
           />

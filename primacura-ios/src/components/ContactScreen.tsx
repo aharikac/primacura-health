@@ -14,8 +14,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, Mail, Send } from 'lucide-react-native';
 import { BACKEND_URL, CONTACT_EMAIL, REQUEST_TIMEOUT_MS } from '../config';
+import { MAX_EMAIL_CHARS, MAX_MESSAGE_CHARS, MAX_MESSAGE_WORDS, MAX_NAME_CHARS, countWords, limitWords } from '../lib/limits';
 
-const MAX_MESSAGE = 1000;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 type Status = 'idle' | 'submitting' | 'success' | 'error';
@@ -95,7 +95,8 @@ export function ContactScreen({ onBack }: { onBack: () => void }) {
           <TextInput
             style={styles.input}
             value={name}
-            onChangeText={setName}
+            onChangeText={(t) => setName(t.slice(0, MAX_NAME_CHARS))}
+            maxLength={MAX_NAME_CHARS}
             placeholder="Your Name"
             placeholderTextColor="#9ca3af"
             autoComplete="name"
@@ -108,7 +109,8 @@ export function ContactScreen({ onBack }: { onBack: () => void }) {
           <TextInput
             style={styles.input}
             value={email}
-            onChangeText={setEmail}
+            onChangeText={(t) => setEmail(t.slice(0, MAX_EMAIL_CHARS))}
+            maxLength={MAX_EMAIL_CHARS}
             placeholder="your.email@example.com"
             placeholderTextColor="#9ca3af"
             keyboardType="email-address"
@@ -122,18 +124,18 @@ export function ContactScreen({ onBack }: { onBack: () => void }) {
 
           <View style={styles.messageLabelRow}>
             <Text style={[styles.label, styles.labelNoMargin]}>Message</Text>
-            <Text style={[styles.counter, message.length >= MAX_MESSAGE && styles.counterFull]}>
-              {message.length} / {MAX_MESSAGE}
+            <Text style={[styles.counter, countWords(message) >= MAX_MESSAGE_WORDS && styles.counterFull]}>
+              {countWords(message)} / {MAX_MESSAGE_WORDS} words
             </Text>
           </View>
           <TextInput
             style={[styles.input, styles.messageInput]}
             value={message}
-            onChangeText={setMessage}
+            onChangeText={(t) => setMessage(limitWords(t))}
             placeholder="How can we help you?"
             placeholderTextColor="#9ca3af"
             multiline
-            maxLength={MAX_MESSAGE}
+            maxLength={MAX_MESSAGE_CHARS}
             textAlignVertical="top"
             editable={status !== 'submitting'}
           />
