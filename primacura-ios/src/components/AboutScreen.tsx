@@ -74,7 +74,7 @@ export function AboutScreen({ onBack }: { onBack: () => void }) {
           <View style={styles.quoteBlock}>
             <Quote size={22} strokeWidth={2.6} color="#d33b32" />
             <Text style={styles.quoteText}>
-              I built this app hoping it will help someone in a moment of desperate need. Even if PrimaCura helps just one single person manage an emergency safely, my entire goal has been achieved.
+              I built this app hoping it will help someone in a moment of desperate need. Even if PrimaCura helps just one single person manage an emergency safely, I've achieved my goal.
             </Text>
           </View>
         </View>

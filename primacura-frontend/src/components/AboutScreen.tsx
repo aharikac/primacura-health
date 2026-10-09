@@ -61,7 +61,7 @@ export function AboutScreen({ onBack }: { onBack: () => void }) {
           </p>
           <blockquote className="about-quote">
             <Quote size={22} strokeWidth={2.6} aria-hidden="true" />
-            <p>I built this app hoping it will help someone in a moment of desperate need. Even if PrimaCura helps just one single person manage an emergency safely, my entire goal has been achieved.</p>
+            <p>I built this app hoping it will help someone in a moment of desperate need. Even if PrimaCura helps just one single person manage an emergency safely, I've achieved my goal.</p>
           </blockquote>
         </section>
       </div>
