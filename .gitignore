@@ -11,3 +11,5 @@ dist/
 .DS_Store
 
 docker-compose.override.yml
+# voice samples from scripts/generate-speech.py --sample
+scripts/speech-samples/

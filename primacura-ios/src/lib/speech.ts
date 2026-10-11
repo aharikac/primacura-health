@@ -1,9 +1,14 @@
 import * as Speech from 'expo-speech';
-import { setAudioModeAsync } from 'expo-audio';
+import { createAudioPlayer, setAudioModeAsync, type AudioPlayer } from 'expo-audio';
 import { speakable } from './speakable';
+import { clipId } from './clipId';
+import { AUDIO } from '../data/speechAudio';
 
-// Read-aloud with the phone's built-in voice (on-device, nothing uploaded).
+// Read-aloud. Every guide and How-To sentence is pre-recorded with a natural
+// voice (assets/audio, see scripts/generate-speech.py); anything without a
+// recording falls back to the phone's built-in voice. Nothing is uploaded.
 let run = 0; // bumps on every new request so a stopped queue never continues
+let current: AudioPlayer | null = null;
 
 // iOS mutes app audio when the ring/silent switch is on, unless the audio
 // session is set to play in silent mode. Someone following first-aid steps
@@ -18,26 +23,61 @@ function ensurePlaybackSession() {
   return sessionReady;
 }
 
+// "Step 3. Push hard…" is said as two clips, "Step 3." and the step itself,
+// so one recording of each step works whatever number it has.
+function units(piece: string): string[] {
+  const m = piece.match(/^\s*(Step \d+\.)\s+([\s\S]+)$/);
+  return (m ? [m[1], m[2]] : [piece]).map(speakable).filter(Boolean);
+}
+
+function releaseCurrent() {
+  const p = current;
+  current = null;
+  if (p) { try { p.pause(); p.remove(); } catch { /* already released */ } }
+}
+
+function sayOne(text: string, mine: number, done: () => void) {
+  if (mine !== run) return;
+  const source = AUDIO[clipId(text)];
+  if (source !== undefined) {
+    try {
+      const player = createAudioPlayer(source);
+      current = player;
+      let finished = false;
+      const finish = () => {
+        if (finished) return;
+        finished = true;
+        sub.remove();
+        if (current === player) releaseCurrent();
+        done();
+      };
+      const sub = player.addListener('playbackStatusUpdate', (s) => { if (s.didJustFinish) finish(); });
+      player.play();
+      return;
+    } catch {
+      releaseCurrent(); // fall through to the device voice
+    }
+  }
+  Speech.speak(text, { language: 'en-US', rate: 0.95, useApplicationAudioSession: true, onDone: done, onError: done });
+}
+
 // Speak several pieces in order; onIndex(i) fires as piece i starts, onEnd when all are done.
 export function speakAll(pieces: string[], onIndex?: (i: number) => void, onEnd?: () => void) {
-  const mine = ++run;
-  Speech.stop();
-  const next = (i: number) => {
+  stopSpeaking();
+  const mine = run;
+  const queue = pieces.flatMap((p, i) => units(p).map((text, k) => ({ text, piece: i, first: k === 0 })));
+  const next = (j: number) => {
     if (mine !== run) return;
-    if (i >= pieces.length) { onEnd?.(); return; }
-    Speech.speak(speakable(pieces[i]), {
-      language: 'en-US',
-      rate: 0.95,
-      useApplicationAudioSession: true,
-      onStart: () => { if (mine === run) onIndex?.(i); },
-      onDone: () => next(i + 1),
-      onError: () => next(i + 1),
-    });
+    if (j >= queue.length) { onEnd?.(); return; }
+    const item = queue[j];
+    if (item.first) onIndex?.(item.piece);
+    sayOne(item.text, mine, () => next(j + 1));
   };
   void ensurePlaybackSession().then(() => next(0));
 }
 
 export function stopSpeaking() {
   run++;
+  releaseCurrent();
   Speech.stop();
 }

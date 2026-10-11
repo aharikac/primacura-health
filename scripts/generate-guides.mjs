@@ -17,6 +17,7 @@
 import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { audioMaps, collectSpeech, manifestContent, readSafetyStep, syncIosAudio } from './speech-clips.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DATA = path.join(ROOT, 'primacura-backend', 'data');
@@ -24,6 +25,10 @@ const CSV = path.join(DATA, 'First_Aid_Dataset_Final.csv');
 const HOWTO_CSV = path.join(DATA, 'how-to-guides.csv');
 const DIAGRAM_DIR = path.join(DATA, 'diagrams');
 const APPS = ['primacura-frontend', 'primacura-ios'].map((app) => path.join(ROOT, app, 'src', 'data'));
+const PCH_CORE = path.join(ROOT, 'primacura-backend', 'pchCore.py');
+const SPEECH_MANIFEST = path.join(ROOT, 'scripts', 'speech-manifest.json');
+const AUDIO_DIR = path.join(ROOT, 'primacura-frontend', 'public', 'audio');
+const IOS_AUDIO_DIR = path.join(ROOT, 'primacura-ios', 'assets', 'audio');
 const REQUIRED = ['guide_title', 'situation', 'output'];
 const HOWTO_REQUIRED = ['id', 'title', 'age', 'group', 'summary', 'key_facts', 'steps', 'watch_out'];
 const MARK = /\s*\[(how-to|diagram):\s*([a-z0-9-]+)\]|\s*\[rhythm\]|\s*\[facts:\s*([^\]]+)\]/g;
@@ -149,9 +154,18 @@ export function renderHowTo(csvText, diagramIds = null) {
   ].join('\n')).join('\n');
   return {
     ids: new Set(cards.map((c) => c.id)),
+    cards,
     content: [...HEADER('how-to-guides.csv'), "import { HowTo } from '../types';", '',
       'export const howTos: HowTo[] = [', body, '];', ''].join('\n'),
   };
+}
+
+// The guides' steps and key numbers (what read-aloud says), without the checks.
+export function conditionsForSpeech(csvText) {
+  return parseCsv(csvText).map((r) => {
+    const parsed = splitSteps(r.output).map(parseMarks);
+    return { steps: parsed.map((p) => p.text), facts: parsed.map((p) => p.facts) };
+  });
 }
 
 export function render(csvText, howToIds = null, diagramIds = null) {
@@ -206,6 +220,39 @@ if (isMain) {
   if (howTo) outputs['howTo.ts'] = howTo.content;
   outputs['diagrams.ts'] = diagrams.content;
   let stale = 0;
+  const report = (what) => {
+    stale++;
+    if (check) console.error(`[guides] out of date: ${what}`);
+    else console.log(`[guides] updated ${what}`);
+  };
+
+  // Read-aloud clips: the manifest of everything the apps say, and which clips are recorded.
+  const clips = collectSpeech({
+    conditions: conditionsForSpeech(readFileSync(CSV, 'utf8')),
+    cards: howTo?.cards ?? [],
+    safetyStep: existsSync(PCH_CORE) ? readSafetyStep(readFileSync(PCH_CORE, 'utf8')) : null,
+  });
+  const manifest = manifestContent(clips);
+  if ((existsSync(SPEECH_MANIFEST) ? readFileSync(SPEECH_MANIFEST, 'utf8') : '') !== manifest) {
+    report(path.relative(ROOT, SPEECH_MANIFEST));
+    if (!check) writeFileSync(SPEECH_MANIFEST, manifest);
+  }
+  const maps = audioMaps(clips, AUDIO_DIR);
+  const perApp = { 'primacura-frontend': maps.web, 'primacura-ios': maps.ios };
+  for (const [app, content] of Object.entries(perApp)) {
+    const target = path.join(ROOT, app, 'src', 'data', 'speechAudio.ts');
+    if (!existsSync(path.dirname(target))) continue;
+    if ((existsSync(target) ? readFileSync(target, 'utf8') : '') === content) continue;
+    report(path.relative(ROOT, target));
+    if (!check) writeFileSync(target, content);
+  }
+  if (existsSync(path.join(ROOT, 'primacura-ios'))) {
+    const diffs = syncIosAudio(maps.have, AUDIO_DIR, IOS_AUDIO_DIR, !check);
+    if (diffs.length) report(`primacura-ios/assets/audio (${diffs.length} file${diffs.length === 1 ? '' : 's'})`);
+  }
+  const missing = clips.length - maps.have.length;
+  if (missing && !check) console.log(`[guides] ${missing} of ${clips.length} read-aloud clips not recorded yet (device voice used for those). Record them: python3 scripts/generate-speech.py`);
+
   for (const dir of APPS) {
     if (!existsSync(dir)) continue;
     for (const [name, content] of Object.entries(outputs)) {
