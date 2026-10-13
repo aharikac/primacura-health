@@ -144,10 +144,17 @@ _RESPONSIVE_WORDS = ["awake", "conscious", "talking", "alert", "responding", "re
 
 # Water mentioned: the drowning CPR protocol applies (rescue breaths first).
 _WATER = re.compile(
-    r"(?<!\bnot )(?<!\bno )\b(pool|lake|water|bathtub|bath|drowning|drowned|drown|near[- ]?drown\w*|underwater|swimm\w*|ocean|sea|river|tub|pond|creek|stream|canal|reservoir|quarry|beach|surf|waves?|kayak|canoe|boat|dock|pier|(?:went|was|slipped|pulled|got) under(?!\s+(?:an(?:a)?esthesia|general|sedation)))\b", re.I
+    r"(?<!\bnot )(?<!\bno )\b(pool(?![- ]?(?:tables?|cues?|halls?|rooms?|sticks?|games?|league|shark|hustl\w*)\b)|lake|water|bathtub|bath|drowning|drowned|drown|near[- ]?drown\w*|underwater|swimm\w*|ocean|sea|river|tub|pond|creek|stream|canal|reservoir|quarry|beach|surf|waves?|kayak|canoe|boat|dock|pier|(?:went|was|slipped|pulled|got) under(?!\s+(?:an(?:a)?esthesia|general|sedation)))\b", re.I
 )
 # Evidence that the airway is blocked by something. Without any of these, an
 # unresponsive person is not given the conscious-choking protocol.
+# Fire on the person (clothes, hair, body), as opposed to a fire nearby.
+_FIRE = re.compile(
+    r"\b(caught|catch|catching|on) fire\b|\bset (?:him|her|them|me|it|his \w+|her \w+) (?:on fire|alight)\b|"
+    r"\b(?:went|go|goes) up in flames\b|\bset alight\b|\bin flames\b",
+    re.I,
+)
+
 _AIRWAY_OBSTRUCTION = re.compile(
     r"\b(chok\w*|gag\w*|cough\w*|stuck|swallow\w*|eating|ate|food|candy|toy|coin|grape|hot ?dog|piece|bite|"
     r"windpipe|throat|heimlich)\b",
@@ -528,6 +535,10 @@ def _described_text(conversation: Conversation, new_text: str, new_is_option: bo
 def _apply_safety_state(probs: dict[str, float], responsive: str | None, breathing: str | None,
                         text: str) -> dict[str, float]:
     p = dict(probs)
+    # Someone who caught fire and then got into water needs burn care, not the
+    # drowning steps, unless they are now unresponsive or not breathing.
+    if _FIRE.search(text) and responsive != "unresponsive" and breathing != "absent":
+        p[DROWNING] = 0.0
     if responsive == "responsive" or breathing in ("present", "normal", "slow"):
         p[ARREST] = 0.0
         p[DROWNING] = 0.0

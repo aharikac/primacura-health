@@ -109,10 +109,12 @@ _AGE_FROM_SITUATION = (
 # Deliberately conservative: a wrong age guess is worse than asking. We only
 # claim to know the age when the wording is unambiguous.
 _AGE_FROM_QUERY = (
+    # "baby" is not here: callers say "my baby" about toddlers too, and infant
+    # CPR differs from child CPR, so "baby" alone gets the age question.
     ("infant", re.compile(
-        r"\b(infant|baby|newborn|\d+[- ]month[- ]old|months old)\b", re.I)),
+        r"\b(infant|newborn|\d+[- ]?(month|week)s?[- ]old|(months|weeks) old)\b", re.I)),
         ("child", re.compile(
-        r"\b(child|kid|toddler|schoolgirl|schoolboy|girl|boy|my (son|daughter)|"
+        r"\b(child|kid|toddler|schoolgirl|schoolboy|(?<!baby )(?:girl|boy)|my (son|daughter)|"
         r"([1-9]|1[0-2])[- ]year[- ]old)\b", re.I)),
     ("adult", re.compile(
         r"\b(adult|man|woman|guy|lady|husband|wife|uncle|aunt|"

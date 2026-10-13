@@ -6,6 +6,7 @@
 | `regression_testset_oct4.csv` | The 85 cases from the Oct 4 sheet, with the tester's clarification answers as scripted replies. Fine to use while developing. |
 | `user_testset_oct5.csv` | The user's 60 queries (Voice / Message / Search), added 2026-10-06. No scripted replies. |
 | `realworld_testset_oct6.csv` | 103 real queries collected 2026-10-06 from public sources (26 quoted 911 callers, 71 forum/Q&A titles, 6 searches), each with its source URL. Verbatim or trimmed, never reworded. One ("how to treat a burn") also appears in the how-to training phrasings. |
+| `realworld_testset_oct12.csv` | 115 new real queries collected 2026-10-12 (21 from 911/999/poison-control call transcripts, 7 news quotes, 87 forum/Q&A posts), 5–9 per condition plus 11 out of scope, each with its source URL. No copied queries from other sets or training data. Results in `realworld_testset_oct12_results_20261012.csv`. |
 | `testset_conditions_oct6.csv` | The user's second sheet (131 queries, Voice / Message / Search), 2026-10-06. The first 60 are the Oct-5 set; the 71 new ones are M509–M579 in the master set. |
 | `build_testset.py` | Source of the held-out set (edit here, then regenerate). |
 | `run_eval.py` | Runs a set against the live `/chat/` endpoint and prints the scores. Standard library only. |
@@ -113,3 +114,21 @@ these numbers for a release.
 For offline experiments, start the backend with `PRIMACURA_DEV_ENDPOINTS=1` and POST to
 `/dev/embed_csv` (`{"path": ..., "column": ..., "out": "tests/eval/_cache/x.npy"}`) to export
 embeddings made by the production model. Never set that flag in production.
+
+Real-world set v2 (115), 2026-10-12, current engine with LLM (run from the browser with the same logic as `run_eval.py`):
+
+| | Strict | Within one tap | Wrong protocol |
+|---|---|---|---|
+| With LLM | 92 (80.0%) | 109 (94.8%) | 5 (4.3%), 4 time-critical |
+
+Wrong: W004 "pool table" -> drowning steps; W042 "throat closing up, struggling to breathe" -> Choking (should be Anaphylaxis); W065 "caught on fire ... jumped inside a swimming pool" -> drowning steps; W005/W007 toddler called "baby" -> infant CPR. Never offered: W066 tea spilled on a baby (offered Poisoning / Drowning).
+
+
+2026-10-12 (later): fixes from the real-world set v2. "baby" alone (and "baby girl/boy") no longer sets the age band, so CPR and choking ask the age; "N-week-old" now counts as infant. The water-word rule ignores "pool table / pool hall / playing pool". Someone who caught fire gets no drowning steps unless unresponsive or not breathing. The LLM label guide now says anaphylaxis includes a throat closing with no named allergen, and burns include catching fire. 35 training examples added (anaphylaxis without a trigger, hot-drink scalds, fire then water, pool-table collapses). Per-case results: `master-test-set_results_20261012.csv`, `realworld_testset_oct12_results_20261012_after_fixes.csv`.
+
+| With LLM | Strict | Within one tap | Wrong protocol |
+|---|---|---|---|
+| Real-world v2 (115), before | 92 (80.0%) | 109 (94.8%) | 5 (4.3%) |
+| **Real-world v2 (115), after** | **94 (81.7%)** | **114 (99.1%)** | **0 (0.0%)** |
+| Master (579), before | 507 (87.6%) | 574 (99.1%) | 3 (0.5%) |
+| **Master (579), after** | **505 (87.2%)** | **575 (99.3%)** | **3 (0.5%)** |

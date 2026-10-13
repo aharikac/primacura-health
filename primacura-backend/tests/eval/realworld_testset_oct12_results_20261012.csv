@@ -1,0 +1,116 @@
+Test_ID,Expected_Condition,Expected_Age_Band,strict_first_status,strict_first_reply,strict_final_title,strict_variant,strict_turns,strict_correct,strict_wrong_protocol,strict_critical_error,assisted_final_title,assisted_used_condition_tap,assisted_correct
+W001,Cardiac Arrest,adult,clarification_needed,"Not responding and not breathing (or only gasping) | Not responding, but breathing | Awake and responding",Cardiac Arrest,adult,2,true,false,false,Cardiac Arrest,false,true
+W002,Cardiac Arrest,adult,age_clarification_needed,Adult | Child (1 year to puberty) | Infant (under 1 year),Cardiac Arrest,adult,2,true,false,false,Cardiac Arrest,false,true
+W003,Cardiac Arrest,adult,age_clarification_needed,Adult | Child (1 year to puberty) | Infant (under 1 year),Cardiac Arrest,adult,2,true,false,false,Cardiac Arrest,false,true
+W004,Cardiac Arrest,adult,success,Cardiac Arrest (Drowning),Cardiac Arrest (Drowning),any,1,false,true,true,Cardiac Arrest (Drowning),false,false
+W005,Cardiac Arrest,child,success,Cardiac Arrest,Cardiac Arrest,infant,1,false,true,true,Cardiac Arrest,false,false
+W006,Cardiac Arrest,child,success,Cardiac Arrest,Cardiac Arrest,child,1,true,false,false,Cardiac Arrest,false,true
+W007,Cardiac Arrest,child,success,Cardiac Arrest,Cardiac Arrest,infant,1,false,true,true,Cardiac Arrest,false,false
+W008,Cardiac Arrest,infant,success,Cardiac Arrest,Cardiac Arrest,infant,1,true,false,false,Cardiac Arrest,false,true
+W009,Cardiac Arrest,infant,age_clarification_needed,Adult | Child (1 year to puberty) | Infant (under 1 year),Cardiac Arrest,infant,2,true,false,false,Cardiac Arrest,false,true
+W010,Cardiac Arrest (Drowning),adult,success,Cardiac Arrest (Drowning),Cardiac Arrest (Drowning),any,1,true,false,false,Cardiac Arrest (Drowning),false,true
+W011,Cardiac Arrest (Drowning),child,success,Cardiac Arrest (Drowning),Cardiac Arrest (Drowning),any,1,true,false,false,Cardiac Arrest (Drowning),false,true
+W012,Cardiac Arrest (Drowning),child,success,Cardiac Arrest (Drowning),Cardiac Arrest (Drowning),any,1,true,false,false,Cardiac Arrest (Drowning),false,true
+W013,Cardiac Arrest (Drowning),child,success,Cardiac Arrest (Drowning),Cardiac Arrest (Drowning),any,1,true,false,false,Cardiac Arrest (Drowning),false,true
+W014,Cardiac Arrest (Drowning),infant,clarification_needed,"Not responding and not breathing (or only gasping) | Not responding, but breathing | Awake and responding",Cardiac Arrest (Drowning),any,2,true,false,false,Cardiac Arrest (Drowning),false,true
+W015,Heart Attack,any,success,Heart Attack,Heart Attack,any,1,true,false,false,Heart Attack,false,true
+W016,Heart Attack,any,success,Heart Attack,Heart Attack,any,1,true,false,false,Heart Attack,false,true
+W017,Heart Attack,any,success,Heart Attack,Heart Attack,any,1,true,false,false,Heart Attack,false,true
+W018,Heart Attack,any,success,Heart Attack,Heart Attack,any,1,true,false,false,Heart Attack,false,true
+W019,Heart Attack,any,success,Heart Attack,Heart Attack,any,1,true,false,false,Heart Attack,false,true
+W020,Heart Attack,any,success,Heart Attack,Heart Attack,any,1,true,false,false,Heart Attack,false,true
+W021,Heart Attack,any,success,Heart Attack,Heart Attack,any,1,true,false,false,Heart Attack,false,true
+W022,Heart Attack,any,success,Heart Attack,Heart Attack,any,1,true,false,false,Heart Attack,false,true
+W023,Heart Attack,any,success,Heart Attack,Heart Attack,any,1,true,false,false,Heart Attack,false,true
+W024,Stroke,any,success,Stroke,Stroke,any,1,true,false,false,Stroke,false,true
+W025,Stroke,any,success,Stroke,Stroke,any,1,true,false,false,Stroke,false,true
+W026,Stroke,any,success,Stroke,Stroke,any,1,true,false,false,Stroke,false,true
+W027,Stroke,any,success,Stroke,Stroke,any,1,true,false,false,Stroke,false,true
+W028,Stroke,any,success,Stroke,Stroke,any,1,true,false,false,Stroke,false,true
+W029,Stroke,any,success,Stroke,Stroke,any,1,true,false,false,Stroke,false,true
+W030,Stroke,any,success,Stroke,Stroke,any,1,true,false,false,Stroke,false,true
+W031,Stroke,any,clarification_needed,"Not responding and not breathing (or only gasping) | Not responding, but breathing | Awake and responding",Stroke,any,2,true,false,false,Stroke,false,true
+W032,Stroke,any,clarification_needed,"Head, Neck, or Spinal Injury | Stroke | None of these",,,1,false,false,false,Stroke,true,true
+W033,Choking,infant,age_clarification_needed,Adult | Child (1 year to puberty) | Infant (under 1 year),Choking,infant,2,true,false,false,Choking,false,true
+W034,Choking,infant,age_clarification_needed,Adult | Child (1 year to puberty) | Infant (under 1 year),Choking,infant,2,true,false,false,Choking,false,true
+W035,Choking,child,age_clarification_needed,Adult | Child (1 year to puberty) | Infant (under 1 year),Choking,adult/child,2,true,false,false,Choking,false,true
+W036,Choking,child,age_clarification_needed,Adult | Child (1 year to puberty) | Infant (under 1 year),Choking,adult/child,2,true,false,false,Choking,false,true
+W037,Choking,child,success,Choking,Choking,adult/child,1,true,false,false,Choking,false,true
+W038,Choking,adult,age_clarification_needed,Adult | Child (1 year to puberty) | Infant (under 1 year),Choking,adult/child,2,true,false,false,Choking,false,true
+W039,Choking,adult,clarification_needed,Choking | Stroke | None of these,,,1,false,false,false,Choking,true,true
+W040,Choking,adult,clarification_needed,"Not responding and not breathing (or only gasping) | Not responding, but breathing | Awake and responding",Choking,adult/child,3,true,false,false,Choking,false,true
+W041,Anaphylaxis,any,success,Anaphylaxis,Anaphylaxis,any,1,true,false,false,Anaphylaxis,false,true
+W042,Anaphylaxis,any,age_clarification_needed,Adult | Child (1 year to puberty) | Infant (under 1 year),Choking,adult/child,2,false,true,true,Choking,false,false
+W043,Anaphylaxis,any,success,Anaphylaxis,Anaphylaxis,any,1,true,false,false,Anaphylaxis,false,true
+W044,Anaphylaxis,any,success,Anaphylaxis,Anaphylaxis,any,1,true,false,false,Anaphylaxis,false,true
+W045,Anaphylaxis,any,success,Anaphylaxis,Anaphylaxis,any,1,true,false,false,Anaphylaxis,false,true
+W046,Diabetic Emergency,any,success,Diabetic Emergency,Diabetic Emergency,any,1,true,false,false,Diabetic Emergency,false,true
+W047,Diabetic Emergency,any,clarification_needed,"Not responding and not breathing (or only gasping) | Not responding, but breathing | Awake and responding",,,2,false,false,false,Diabetic Emergency,true,true
+W048,Diabetic Emergency,any,clarification_needed,Diabetic Emergency | Cardiac Arrest (Drowning) | None of these,,,1,false,false,false,Diabetic Emergency,true,true
+W049,Diabetic Emergency,any,clarification_needed,"Not responding and not breathing (or only gasping) | Not responding, but breathing | Awake and responding",Diabetic Emergency,any,2,true,false,false,Diabetic Emergency,false,true
+W050,Diabetic Emergency,any,success,Diabetic Emergency,Diabetic Emergency,any,1,true,false,false,Diabetic Emergency,false,true
+W051,Opioid Overdose,any,success,Opioid Overdose,Opioid Overdose,any,1,true,false,false,Opioid Overdose,false,true
+W052,Opioid Overdose,any,success,Opioid Overdose,Opioid Overdose,any,1,true,false,false,Opioid Overdose,false,true
+W053,Opioid Overdose,any,clarification_needed,Cardiac Arrest | Opioid Overdose | None of these,,,1,false,false,false,Opioid Overdose,true,true
+W054,Opioid Overdose,any,success,Opioid Overdose,Opioid Overdose,any,1,true,false,false,Opioid Overdose,false,true
+W055,Opioid Overdose,any,success,Opioid Overdose,Opioid Overdose,any,1,true,false,false,Opioid Overdose,false,true
+W056,Severe Bleeding,any,success,Severe Bleeding,Severe Bleeding,any,1,true,false,false,Severe Bleeding,false,true
+W057,Severe Bleeding,any,success,Severe Bleeding,Severe Bleeding,any,1,true,false,false,Severe Bleeding,false,true
+W058,Severe Bleeding,any,success,Severe Bleeding,Severe Bleeding,any,1,true,false,false,Severe Bleeding,false,true
+W059,Severe Bleeding,any,success,Severe Bleeding,Severe Bleeding,any,1,true,false,false,Severe Bleeding,false,true
+W060,Severe Bleeding,any,success,Severe Bleeding,Severe Bleeding,any,1,true,false,false,Severe Bleeding,false,true
+W061,Severe Bleeding,any,clarification_needed,Severe Bleeding | Choking | None of these,,,1,false,false,false,Severe Bleeding,true,true
+W062,Severe Bleeding,any,clarification_needed,"Severe Bleeding | Head, Neck, or Spinal Injury | None of these",,,1,false,false,false,Severe Bleeding,true,true
+W063,Burns (Thermal),any,clarification_needed,Burns (Thermal) | Poisoning / Ingestion | None of these,,,1,false,false,false,Burns (Thermal),true,true
+W064,Burns (Thermal),any,success,Burns (Thermal),Burns (Thermal),any,1,true,false,false,Burns (Thermal),false,true
+W065,Burns (Thermal),any,success,Cardiac Arrest (Drowning),Cardiac Arrest (Drowning),any,1,false,true,false,Cardiac Arrest (Drowning),false,false
+W066,Burns (Thermal),any,clarification_needed,Poisoning / Ingestion | Cardiac Arrest (Drowning) | None of these,,,1,false,false,false,,false,false
+W067,Burns (Thermal),any,success,Burns (Thermal),Burns (Thermal),any,1,true,false,false,Burns (Thermal),false,true
+W068,Burns (Thermal),any,success,Burns (Thermal),Burns (Thermal),any,1,true,false,false,Burns (Thermal),false,true
+W069,Burns (Thermal),any,success,Burns (Thermal),Burns (Thermal),any,1,true,false,false,Burns (Thermal),false,true
+W070,Burns (Thermal),any,clarification_needed,"Not responding and not breathing (or only gasping) | Not responding, but breathing | Awake and responding",Burns (Thermal),any,2,true,false,false,Burns (Thermal),false,true
+W071,Burns (Thermal),any,clarification_needed,"Burns (Thermal) | Head, Neck, or Spinal Injury | None of these",,,1,false,false,false,Burns (Thermal),true,true
+W072,Burns (Chemical to Eye),any,success,Burns (Chemical to Eye),Burns (Chemical to Eye),any,1,true,false,false,Burns (Chemical to Eye),false,true
+W073,Burns (Chemical to Eye),any,success,Burns (Chemical to Eye),Burns (Chemical to Eye),any,1,true,false,false,Burns (Chemical to Eye),false,true
+W074,Burns (Chemical to Eye),any,success,Burns (Chemical to Eye),Burns (Chemical to Eye),any,1,true,false,false,Burns (Chemical to Eye),false,true
+W075,Burns (Chemical to Eye),any,success,Burns (Chemical to Eye),Burns (Chemical to Eye),any,1,true,false,false,Burns (Chemical to Eye),false,true
+W076,Burns (Chemical to Eye),any,success,Burns (Chemical to Eye),Burns (Chemical to Eye),any,1,true,false,false,Burns (Chemical to Eye),false,true
+W077,Burns (Chemical to Eye),any,success,Burns (Chemical to Eye),Burns (Chemical to Eye),any,1,true,false,false,Burns (Chemical to Eye),false,true
+W078,Burns (Chemical to Eye),any,success,Burns (Chemical to Eye),Burns (Chemical to Eye),any,1,true,false,false,Burns (Chemical to Eye),false,true
+W079,Burns (Chemical to Eye),any,success,Burns (Chemical to Eye),Burns (Chemical to Eye),any,1,true,false,false,Burns (Chemical to Eye),false,true
+W080,Poisoning / Ingestion,any,success,Poisoning / Ingestion,Poisoning / Ingestion,any,1,true,false,false,Poisoning / Ingestion,false,true
+W081,Poisoning / Ingestion,any,success,Poisoning / Ingestion,Poisoning / Ingestion,any,1,true,false,false,Poisoning / Ingestion,false,true
+W082,Poisoning / Ingestion,any,success,Poisoning / Ingestion,Poisoning / Ingestion,any,1,true,false,false,Poisoning / Ingestion,false,true
+W083,Poisoning / Ingestion,any,success,Poisoning / Ingestion,Poisoning / Ingestion,any,1,true,false,false,Poisoning / Ingestion,false,true
+W084,Poisoning / Ingestion,any,success,Poisoning / Ingestion,Poisoning / Ingestion,any,1,true,false,false,Poisoning / Ingestion,false,true
+W085,Poisoning / Ingestion,any,success,Poisoning / Ingestion,Poisoning / Ingestion,any,1,true,false,false,Poisoning / Ingestion,false,true
+W086,Poisoning / Ingestion,any,clarification_needed,Choking | Poisoning / Ingestion | None of these,,,1,false,false,false,Poisoning / Ingestion,true,true
+W087,Poisoning / Ingestion,any,clarification_needed,Poisoning / Ingestion | Stroke | None of these,,,1,false,false,false,Poisoning / Ingestion,true,true
+W088,Seizures,any,success,Seizures,Seizures,any,1,true,false,false,Seizures,false,true
+W089,Seizures,any,success,Seizures,Seizures,any,1,true,false,false,Seizures,false,true
+W090,Seizures,any,success,Seizures,Seizures,any,1,true,false,false,Seizures,false,true
+W091,Seizures,any,success,Seizures,Seizures,any,1,true,false,false,Seizures,false,true
+W092,Seizures,any,clarification_needed,Seizures | Stroke | None of these,,,1,false,false,false,Seizures,true,true
+W093,Seizures,any,clarification_needed,Seizures | Stroke | None of these,,,1,false,false,false,Seizures,true,true
+W094,Seizures,any,clarification_needed,"Seizures | Head, Neck, or Spinal Injury | None of these",,,1,false,false,false,Seizures,true,true
+W095,Seizures,any,success,Seizures,Seizures,any,1,true,false,false,Seizures,false,true
+W096,"Head, Neck, or Spinal Injury",any,success,"Head, Neck, or Spinal Injury","Head, Neck, or Spinal Injury",any,1,true,false,false,"Head, Neck, or Spinal Injury",false,true
+W097,"Head, Neck, or Spinal Injury",any,clarification_needed,"Head, Neck, or Spinal Injury | Cardiac Arrest | None of these",,,1,false,false,false,"Head, Neck, or Spinal Injury",true,true
+W098,"Head, Neck, or Spinal Injury",any,success,"Head, Neck, or Spinal Injury","Head, Neck, or Spinal Injury",any,1,true,false,false,"Head, Neck, or Spinal Injury",false,true
+W099,"Head, Neck, or Spinal Injury",any,success,"Head, Neck, or Spinal Injury","Head, Neck, or Spinal Injury",any,1,true,false,false,"Head, Neck, or Spinal Injury",false,true
+W100,"Head, Neck, or Spinal Injury",any,success,"Head, Neck, or Spinal Injury","Head, Neck, or Spinal Injury",any,1,true,false,false,"Head, Neck, or Spinal Injury",false,true
+W101,"Head, Neck, or Spinal Injury",any,success,"Head, Neck, or Spinal Injury","Head, Neck, or Spinal Injury",any,1,true,false,false,"Head, Neck, or Spinal Injury",false,true
+W102,"Head, Neck, or Spinal Injury",any,success,"Head, Neck, or Spinal Injury","Head, Neck, or Spinal Injury",any,1,true,false,false,"Head, Neck, or Spinal Injury",false,true
+W103,"Head, Neck, or Spinal Injury",any,clarification_needed,"Head, Neck, or Spinal Injury | Cardiac Arrest (Drowning) | None of these",,,1,false,false,false,"Head, Neck, or Spinal Injury",true,true
+W104,"Head, Neck, or Spinal Injury",any,clarification_needed,"Head, Neck, or Spinal Injury | Severe Bleeding | None of these",,,1,false,false,false,"Head, Neck, or Spinal Injury",true,true
+W105,Out of scope,any,clarification_needed,"Head, Neck, or Spinal Injury | Stroke | None of these",,,1,true,false,false,,false,true
+W106,Out of scope,any,clarification_needed,Severe Bleeding | Opioid Overdose | None of these,,,1,true,false,false,,false,true
+W107,Out of scope,any,clarification_needed,"Head, Neck, or Spinal Injury | Anaphylaxis | None of these",,,1,true,false,false,,false,true
+W108,Out of scope,any,clarification_needed,"Head, Neck, or Spinal Injury | Stroke | None of these",,,1,true,false,false,,false,true
+W109,Out of scope,any,clarification_needed,Severe Bleeding | Burns (Thermal) | None of these,,,1,true,false,false,,false,true
+W110,Out of scope,any,clarification_needed,"Head, Neck, or Spinal Injury | Severe Bleeding | None of these",,,1,true,false,false,,false,true
+W111,Out of scope,any,clarification_needed,Anaphylaxis | Poisoning / Ingestion | None of these,,,1,true,false,false,,false,true
+W112,Out of scope,any,clarification_needed,Poisoning / Ingestion | Anaphylaxis | None of these,,,1,true,false,false,,false,true
+W113,Out of scope,any,clarification_needed,,,,1,true,false,false,,false,true
+W114,Out of scope,any,clarification_needed,"Severe Bleeding | Head, Neck, or Spinal Injury | None of these",,,1,true,false,false,,false,true
+W115,Out of scope,any,clarification_needed,"Anaphylaxis | Head, Neck, or Spinal Injury | None of these",,,1,true,false,false,,false,true

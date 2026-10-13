@@ -1,0 +1,116 @@
+Test_ID,Expected_Condition,result
+W001,Cardiac Arrest,right
+W002,Cardiac Arrest,right
+W003,Cardiac Arrest,right
+W004,Cardiac Arrest,one tap
+W005,Cardiac Arrest,right
+W006,Cardiac Arrest,right
+W007,Cardiac Arrest,right
+W008,Cardiac Arrest,right
+W009,Cardiac Arrest,right
+W010,Cardiac Arrest (Drowning),right
+W011,Cardiac Arrest (Drowning),right
+W012,Cardiac Arrest (Drowning),right
+W013,Cardiac Arrest (Drowning),right
+W014,Cardiac Arrest (Drowning),right
+W015,Heart Attack,right
+W016,Heart Attack,right
+W017,Heart Attack,right
+W018,Heart Attack,right
+W019,Heart Attack,right
+W020,Heart Attack,right
+W021,Heart Attack,right
+W022,Heart Attack,right
+W023,Heart Attack,right
+W024,Stroke,right
+W025,Stroke,right
+W026,Stroke,right
+W027,Stroke,right
+W028,Stroke,right
+W029,Stroke,right
+W030,Stroke,right
+W031,Stroke,right
+W032,Stroke,right
+W033,Choking,right
+W034,Choking,right
+W035,Choking,right
+W036,Choking,right
+W037,Choking,right
+W038,Choking,right
+W039,Choking,one tap
+W040,Choking,right
+W041,Anaphylaxis,right
+W042,Anaphylaxis,one tap
+W043,Anaphylaxis,right
+W044,Anaphylaxis,right
+W045,Anaphylaxis,right
+W046,Diabetic Emergency,right
+W047,Diabetic Emergency,one tap
+W048,Diabetic Emergency,one tap
+W049,Diabetic Emergency,one tap
+W050,Diabetic Emergency,right
+W051,Opioid Overdose,right
+W052,Opioid Overdose,right
+W053,Opioid Overdose,one tap
+W054,Opioid Overdose,right
+W055,Opioid Overdose,right
+W056,Severe Bleeding,right
+W057,Severe Bleeding,right
+W058,Severe Bleeding,right
+W059,Severe Bleeding,right
+W060,Severe Bleeding,right
+W061,Severe Bleeding,one tap
+W062,Severe Bleeding,one tap
+W063,Burns (Thermal),one tap
+W064,Burns (Thermal),right
+W065,Burns (Thermal),one tap
+W066,Burns (Thermal),not offered
+W067,Burns (Thermal),right
+W068,Burns (Thermal),right
+W069,Burns (Thermal),right
+W070,Burns (Thermal),right
+W071,Burns (Thermal),one tap
+W072,Burns (Chemical to Eye),right
+W073,Burns (Chemical to Eye),right
+W074,Burns (Chemical to Eye),right
+W075,Burns (Chemical to Eye),right
+W076,Burns (Chemical to Eye),right
+W077,Burns (Chemical to Eye),right
+W078,Burns (Chemical to Eye),right
+W079,Burns (Chemical to Eye),right
+W080,Poisoning / Ingestion,right
+W081,Poisoning / Ingestion,right
+W082,Poisoning / Ingestion,right
+W083,Poisoning / Ingestion,right
+W084,Poisoning / Ingestion,right
+W085,Poisoning / Ingestion,right
+W086,Poisoning / Ingestion,one tap
+W087,Poisoning / Ingestion,one tap
+W088,Seizures,right
+W089,Seizures,right
+W090,Seizures,right
+W091,Seizures,right
+W092,Seizures,one tap
+W093,Seizures,one tap
+W094,Seizures,one tap
+W095,Seizures,right
+W096,"Head, Neck, or Spinal Injury",right
+W097,"Head, Neck, or Spinal Injury",one tap
+W098,"Head, Neck, or Spinal Injury",right
+W099,"Head, Neck, or Spinal Injury",right
+W100,"Head, Neck, or Spinal Injury",right
+W101,"Head, Neck, or Spinal Injury",right
+W102,"Head, Neck, or Spinal Injury",right
+W103,"Head, Neck, or Spinal Injury",one tap
+W104,"Head, Neck, or Spinal Injury",one tap
+W105,Out of scope,right
+W106,Out of scope,right
+W107,Out of scope,right
+W108,Out of scope,right
+W109,Out of scope,right
+W110,Out of scope,right
+W111,Out of scope,right
+W112,Out of scope,right
+W113,Out of scope,right
+W114,Out of scope,right
+W115,Out of scope,right
