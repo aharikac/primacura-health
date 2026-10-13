@@ -132,3 +132,12 @@ Wrong: W004 "pool table" -> drowning steps; W042 "throat closing up, struggling 
 | **Real-world v2 (115), after** | **94 (81.7%)** | **114 (99.1%)** | **0 (0.0%)** |
 | Master (579), before | 507 (87.6%) | 574 (99.1%) | 3 (0.5%) |
 | **Master (579), after** | **505 (87.2%)** | **575 (99.3%)** | **3 (0.5%)** |
+
+2026-10-13: poisoning guide now covers every route (fresh air first, rinse eyes/skin 15–20 min, "if swallowed" don't induce vomiting); a chemical that was also breathed in, swallowed or causes trouble breathing goes to Poisoning instead of Chemical-to-Eye; "throat closing / tight / swelling" with nothing stuck goes to Anaphylaxis instead of Choking. Rules only, no training or LLM-prompt change (both were tried and caused regressions). No case got worse in either set.
+
+| With LLM | Strict | Within one tap | Wrong protocol |
+|---|---|---|---|
+| Real-world v2 (115), before | 94 (81.7%) | 114 (99.1%) | 0 (0.0%) |
+| **Real-world v2 (115), after** | **95 (82.6%)** | **114 (99.1%)** | **0 (0.0%)** |
+| Master (579), before | 505 (87.2%) | 575 (99.3%) | 3 (0.5%) |
+| **Master (579), after** | **507 (87.6%)** | **576 (99.5%)** | **2 (0.3%)** |

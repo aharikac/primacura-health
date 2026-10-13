@@ -64,6 +64,10 @@ OUT_OF_SCOPE = "Out of scope"
 NONE_OPTION = "None of these"
 ARREST = "Cardiac Arrest"
 DROWNING = "Cardiac Arrest (Drowning)"
+CHEM_EYE = "Burns (Chemical to Eye)"
+POISONING = "Poisoning / Ingestion"
+CHOKING = "Choking"
+ANAPHYLAXIS = "Anaphylaxis"
 # No reply text mentions 911: the clarification screen in both apps always
 # shows the one "CHECK SCENE FOR SAFETY. If it's life-threatening, call 911
 # immediately." box above the message, so repeating it here only duplicated it.
@@ -148,6 +152,28 @@ _WATER = re.compile(
 )
 # Evidence that the airway is blocked by something. Without any of these, an
 # unresponsive person is not given the conscious-choking protocol.
+# A chemical that was also breathed in or swallowed (or that leaves them
+# struggling to breathe) needs the poisoning guide, which covers fresh air,
+# rinsing eyes and skin, and swallowing. The eye guide covers only the eyes.
+_INHALED_OR_SWALLOWED = re.compile(
+    r"(?<!n't )(?<!not )(?<!no )\b(inhal\w*|breath(?:ed|ing)? in|fumes?|vapou?rs?|gas|swallow\w*|drank|ate|"
+    r"in (?:his|her|my|their|your) mouth|"
+    r"(?:can'?t|cannot|can not|couldn'?t|unable to|struggling to|trouble|hard to) breath\w*|short of breath)\b",
+    re.I,
+)
+
+# "My throat is closing up / swelling / tight" with nothing stuck in it is an
+# allergic reaction, not choking (choking means food or an object is stuck).
+_THROAT_CLOSING = re.compile(
+    r"\bthroat\b[^.]{0,30}\b(clos\w*|tight\w*|swell\w*|swollen|thick)\b|"
+    r"\b(clos\w*|tight\w*|swell\w*|swollen)\b[^.]{0,20}\bthroat\b",
+    re.I,
+)
+_SOMETHING_STUCK = re.compile(
+    r"\b(chok\w*|stuck|lodged|wrong (?:way|pipe)|piece|chunk|bite of|coin|toy|marble|grape|candy|bone|button|lego|food)\b",
+    re.I,
+)
+
 # Fire on the person (clothes, hair, body), as opposed to a fire nearby.
 _FIRE = re.compile(
     r"\b(caught|catch|catching|on) fire\b|\bset (?:him|her|them|me|it|his \w+|her \w+) (?:on fire|alight)\b|"
@@ -539,6 +565,12 @@ def _apply_safety_state(probs: dict[str, float], responsive: str | None, breathi
     # drowning steps, unless they are now unresponsive or not breathing.
     if _FIRE.search(text) and responsive != "unresponsive" and breathing != "absent":
         p[DROWNING] = 0.0
+    if _THROAT_CLOSING.search(text) and not _SOMETHING_STUCK.search(text) and ANAPHYLAXIS in p:
+        p[ANAPHYLAXIS] += p.get(CHOKING, 0.0)
+        p[CHOKING] = 0.0
+    if _INHALED_OR_SWALLOWED.search(text) and p.get(CHEM_EYE, 0.0) > 0 and POISONING in p:
+        p[POISONING] += p[CHEM_EYE]
+        p[CHEM_EYE] = 0.0
     if responsive == "responsive" or breathing in ("present", "normal", "slow"):
         p[ARREST] = 0.0
         p[DROWNING] = 0.0

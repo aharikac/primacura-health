@@ -229,16 +229,18 @@ export const conditions: Condition[] = [
   },
   {
     title: "Poisoning / Ingestion",
-    description: "Accidental or intentional ingestion of toxic substance, household chemical, or drug.",
+    description: "Swallowed, breathed in, or got on the skin or in the eyes: a toxic substance, household chemical, pesticide, fumes or drug.",
     steps: [
+      "Get them away from the poison, without becoming a victim yourself. For fumes, smoke or gas, get them into fresh air only if you can do it without breathing it in. Never go into a closed space full of fumes: call 911 and wait for rescuers.",
       "Call Poison Help: 1-800-222-1222. Call 911 instead if they are unresponsive, having trouble breathing or a seizure, or more than one person is affected.",
+      "Rinse any eyes or skin it touched. Lukewarm running water, continuously. Remove contaminated clothing and jewelry.",
+      "If swallowed, don't make them vomit. Don't give charcoal, milk or water either, unless Poison Control or EMS tells you to.",
       "Find out what, how much and when. Keep the container to show EMS, if it is safe to do so.",
-      "Don't make them vomit. Unless Poison Control or EMS tells you to.",
-      "Don't give charcoal, milk or water. Unless medical experts tell you to.",
       "If they vomit, turn them on their side. Clear the mouth and use the recovery position to keep the airway open.",
     ],
-    actions: ["Call Poison Help: 1-800-222-1222.", "Find out what, how much and when.", "Don't make them vomit.", "Don't give charcoal, milk or water.", "If they vomit, turn them on their side."],
-    howTo: [null, null, null, null, "recovery-position"],
+    actions: ["Get them away from the poison, without becoming a victim yourself.", "Call Poison Help: 1-800-222-1222.", "Rinse any eyes or skin it touched.", "If swallowed, don't make them vomit.", "Find out what, how much and when.", "If they vomit, turn them on their side."],
+    facts: [["Fresh air first", "Don't breathe it in"], [], ["15–20 minutes", "Keep rinsing"], [], [], []],
+    howTo: [null, null, null, null, null, "recovery-position"],
   },
   {
     title: "Seizures",

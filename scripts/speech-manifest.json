@@ -190,10 +190,6 @@
       "text": "Inject. Press the tip hard against the outer middle of the thigh (it can go through clothes) until it clicks, and hold it there for as long as the label says."
     },
     {
-      "id": "1hl0f4a9j26",
-      "text": "Don't give charcoal, milk or water. Unless medical experts tell you to."
-    },
-    {
       "id": "1i2e1td0g3u",
       "text": "Time. Keep cooling for at least 10 minutes, ideally 20."
     },
@@ -380,6 +376,10 @@
     {
       "id": "21frz5lxr1u",
       "text": "Don't rub the eye. Don't force contact lenses in or out, and don't use neutralizing solutions."
+    },
+    {
+      "id": "22gpnnn892u",
+      "text": "If swallowed, don't make them vomit. Don't give charcoal, milk or water either, unless Poison Control or E M S tells you to."
     },
     {
       "id": "22qrw95orp4",
@@ -666,6 +666,10 @@
       "text": "Dressing. Put gauze (hemostatic gauze is best) or a clean cloth, such as a T-shirt, right on the wound."
     },
     {
+      "id": "cnsff6hxys",
+      "text": "Rinse any eyes or skin it touched. Lukewarm running water, continuously. Remove contaminated clothing and jewelry. 15 to 20 minutes, Keep rinsing"
+    },
+    {
       "id": "crypz7vmgy",
       "text": "Breathe. Tilt the head back and lift the chin. Pinch the nose, seal your mouth over theirs and blow for 1 second until the chest starts to rise. Let it fall, then give a second breath."
     },
@@ -676,10 +680,6 @@
     {
       "id": "cwgkjzagit",
       "text": "Not better in 15 minutes? Call 9 1 1. Also if a meter still reads under 70 milligrams/dL. Give more sugar only if they are still awake and can swallow. Recheck at 15 min"
-    },
-    {
-      "id": "cz27ockqer",
-      "text": "Don't make them vomit. Unless Poison Control or E M S tells you to."
     },
     {
       "id": "d9dishr3qf",
@@ -884,6 +884,10 @@
     {
       "id": "t7oe472ntv",
       "text": "Chest Thrusts for Choking."
+    },
+    {
+      "id": "tpsyfjzn6m",
+      "text": "Get them away from the poison, without becoming a victim yourself. For fumes, smoke or gas, get them into fresh air only if you can do it without breathing it in. Never go into a closed space full of fumes: call 9 1 1 and wait for rescuers. Fresh air first, Don't breathe it in"
     },
     {
       "id": "twvwcsx1mv",
