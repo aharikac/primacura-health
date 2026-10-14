@@ -66,6 +66,7 @@ ARREST = "Cardiac Arrest"
 DROWNING = "Cardiac Arrest (Drowning)"
 CHEM_EYE = "Burns (Chemical to Eye)"
 POISONING = "Poisoning / Ingestion"
+BLEEDING = "Severe Bleeding"
 CHOKING = "Choking"
 ANAPHYLAXIS = "Anaphylaxis"
 # No reply text mentions 911: the clarification screen in both apps always
@@ -165,13 +166,51 @@ _INHALED_OR_SWALLOWED = re.compile(
 # "My throat is closing up / swelling / tight" with nothing stuck in it is an
 # allergic reaction, not choking (choking means food or an object is stuck).
 _THROAT_CLOSING = re.compile(
-    r"\bthroat\b[^.]{0,30}\b(clos\w*|tight\w*|swell\w*|swollen|thick)\b|"
-    r"\b(clos\w*|tight\w*|swell\w*|swollen)\b[^.]{0,20}\bthroat\b",
+    r"\b(throat|wind-?pipe|airway)\b[^.]{0,30}\b(clos\w*|tight\w*|swell\w*|swollen|thick)\b|"
+    r"\b(clos\w*|tight\w*|swell\w*|swollen)\b[^.]{0,20}\b(throat|wind-?pipe|airway)\b",
     re.I,
 )
 _SOMETHING_STUCK = re.compile(
     r"\b(chok\w*|stuck|lodged|wrong (?:way|pipe)|piece|chunk|bite of|coin|toy|marble|grape|candy|bone|button|lego|food)\b",
     re.I,
+)
+
+# Plain-language cues real callers use without naming the condition. Each one
+# lifts that condition (it still needs the LLM or the user to confirm it when
+# the classifier is unsure): a stabbing or "applying pressure" is bleeding;
+# back blows or the Heimlich mean choking; carbon monoxide, a gas stove or
+# several people sick or passing out at once means poisoning.
+_CUES = (
+    (BLEEDING, re.compile(
+        r"\b(stabbed|stab wounds?|knifed|apply(?:ing)? pressure|bleeding out|bleed(?:ing)? to death|spurting|gushing)\b",
+        re.I)),
+    ("Choking", re.compile(r"\b(heimlich|back blows?|back slaps?|abdominal thrusts?)\b", re.I)),
+    (POISONING, re.compile(
+        r"\b(carbon monoxide|co poisoning|gas (?:stove|leak|heater|fumes)|smell(?:s|ed)? (?:of )?gas)\b|"
+        r"\b(all of (?:them|us)|whole family|everyone in the house|all three of (?:them|us))\b[^.]{0,60}"
+        r"\b(pass(?:ing|ed)? out|dizzy|sick|vomit\w*|headaches?|throwing up)\b",
+        re.I)),
+)
+CUE_BOOST = 0.6
+
+# Cues that only count when a competing explanation is absent.
+_GUARDED_CUES = (
+    # "took double her heart medication": an accidental extra dose is poisoning,
+    # unless it is insulin (diabetic) or an opioid / sedation picture.
+    (POISONING,
+     re.compile(r"\b(took|taken|swallowed|gave (?:him|her|them))\b[^.]{0,25}\b(double|twice|too many|extra|"
+                r"a handful|the whole (?:bottle|pack))\b|\b(double|extra|wrong) dose\b", re.I),
+     re.compile(r"\b(insulin|diabet\w*|heroin|fentanyl|oxy\w*|opioid\w*|percs?|morphine|methadone|pain ?meds?|"
+                r"painkillers?|out cold|won'?t wake|unresponsive|breathing (?:slow\w*|shallow\w*))\b", re.I)),
+    # One-sided arm/leg/face weakness or numbness with no injury and no chest
+    # pain is a stroke sign.
+    ("Stroke",
+     re.compile(r"\b(lost the use of|weak(?:ness)? (?:in|on)|numb(?:ness)? (?:in|on)|can'?t move|cannot move|affected)\b"
+                r"[^.]{0,30}\b(left|right|one)\b[^.]{0,15}\b(side|arm|leg|hand|face)\b|"
+                r"\b(left|right|one)\b[^.]{0,10}\b(side|arm|leg|hand|face)\b[^.]{0,30}"
+                r"\b(weak\w*|numb\w*|droop\w*|dead|limp|affected|won'?t move|can'?t move)\b", re.I),
+     re.compile(r"\b(fell|fall\w*|hit|crash\w*|landed|accident|dove|dived|thrown|struck|car|bike|ladder|stairs|roof|"
+                r"chest|jaw)\b", re.I)),
 )
 
 # Fire on the person (clothes, hair, body), as opposed to a fire nearby.
@@ -183,7 +222,7 @@ _FIRE = re.compile(
 
 _AIRWAY_OBSTRUCTION = re.compile(
     r"\b(chok\w*|gag\w*|cough\w*|stuck|swallow\w*|eating|ate|food|candy|toy|coin|grape|hot ?dog|piece|bite|"
-    r"windpipe|throat|heimlich)\b",
+    r"windpipe|throat|heimlich|back blows?|back slaps?|abdominal thrusts?)\b",
     re.I,
 )
 
@@ -565,6 +604,12 @@ def _apply_safety_state(probs: dict[str, float], responsive: str | None, breathi
     # drowning steps, unless they are now unresponsive or not breathing.
     if _FIRE.search(text) and responsive != "unresponsive" and breathing != "absent":
         p[DROWNING] = 0.0
+    for condition, cue in _CUES:
+        if condition in p and p[condition] > 0 and cue.search(text):
+            p[condition] += CUE_BOOST
+    for condition, cue, unless in _GUARDED_CUES:
+        if condition in p and p[condition] > 0 and cue.search(text) and not unless.search(text):
+            p[condition] += CUE_BOOST
     if _THROAT_CLOSING.search(text) and not _SOMETHING_STUCK.search(text) and ANAPHYLAXIS in p:
         p[ANAPHYLAXIS] += p.get(CHOKING, 0.0)
         p[CHOKING] = 0.0

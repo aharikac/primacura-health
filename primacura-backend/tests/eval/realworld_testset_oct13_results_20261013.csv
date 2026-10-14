@@ -1,0 +1,84 @@
+Test_ID,Expected_Condition,result,app_showed_when_not_right
+X001,Cardiac Arrest,right,
+X002,Cardiac Arrest,right,
+X003,Cardiac Arrest (Drowning),right,
+X004,Cardiac Arrest (Drowning),right,
+X005,Cardiac Arrest (Drowning),right,
+X006,Cardiac Arrest (Drowning),right,
+X007,Heart Attack,right,
+X008,Heart Attack,right,
+X009,Heart Attack,tap,Heart Attack / Stroke
+X010,Heart Attack,right,
+X011,Heart Attack,right,
+X012,Heart Attack,right,
+X013,Heart Attack,right,
+X014,Stroke,right,
+X015,Stroke,not offered,Anaphylaxis / Head injury
+X016,Stroke,right,
+X017,Stroke,right,
+X018,Stroke,tap,Stroke / Choking
+X019,Stroke,right,
+X020,Choking,not offered,Choking / Cardiac Arrest
+X021,Choking,not offered,Cardiac Arrest / Opioid Overdose
+X022,Choking,right,
+X023,Anaphylaxis,right,
+X024,Anaphylaxis,right,
+X025,Anaphylaxis,right,
+X026,Anaphylaxis,not offered,"triage, then Seizures / Opioid Overdose"
+X027,Anaphylaxis,right,
+X028,Anaphylaxis,right,
+X029,Diabetic Emergency,WRONG,Seizures
+X030,Diabetic Emergency,tap,Head injury / Diabetic Emergency
+X031,Severe Bleeding,not offered,Heart Attack / Choking
+X032,Severe Bleeding,right,
+X033,Severe Bleeding,right,
+X034,Severe Bleeding,right,
+X035,Severe Bleeding,right,
+X036,Severe Bleeding,right,
+X037,Severe Bleeding,tap,Severe Bleeding / Anaphylaxis
+X038,Burns (Thermal),right,
+X039,Burns (Thermal),right,
+X040,Burns (Thermal),tap,Burns (Thermal) / Drowning
+X041,Burns (Thermal),tap,Burns (Thermal) / Anaphylaxis
+X042,Burns (Thermal),right,
+X043,Burns (Chemical to Eye),right,
+X044,Burns (Chemical to Eye),right,
+X045,Burns (Chemical to Eye),right,
+X046,Burns (Chemical to Eye),right,
+X047,Burns (Chemical to Eye),right,
+X048,Burns (Chemical to Eye),right,
+X049,Burns (Chemical to Eye),tap,Chemical to Eye / Head injury
+X050,Burns (Chemical to Eye),right,
+X051,Poisoning / Ingestion,not offered,Cardiac Arrest / Severe Bleeding
+X052,Poisoning / Ingestion,tap,Poisoning / Stroke
+X053,Poisoning / Ingestion,right,
+X054,Poisoning / Ingestion,not offered,Choking / Opioid Overdose
+X055,Poisoning / Ingestion,not offered,Heart Attack / Choking
+X056,Poisoning / Ingestion,right,
+X057,Poisoning / Ingestion,right,
+X058,Seizures,right,
+X059,Seizures,tap,Seizures / Head injury
+X060,Seizures,not offered,Stroke / Opioid Overdose
+X061,Seizures,right,
+X062,Seizures,right,
+X063,Seizures,right,
+X064,Seizures,tap,Seizures / Cardiac Arrest
+X065,"Head, Neck, or Spinal Injury",right,
+X066,"Head, Neck, or Spinal Injury",right,
+X067,"Head, Neck, or Spinal Injury",tap,Head injury / Cardiac Arrest
+X068,"Head, Neck, or Spinal Injury",right,
+X069,"Head, Neck, or Spinal Injury",right,
+X070,"Head, Neck, or Spinal Injury",right,
+X071,"Head, Neck, or Spinal Injury",right,
+X072,"Head, Neck, or Spinal Injury",right,
+X073,Out of scope,right,
+X074,Out of scope,right,
+X075,Out of scope,right,
+X076,Out of scope,right,
+X077,Out of scope,right,
+X078,Out of scope,right,
+X079,Out of scope,right,
+X080,Out of scope,right,
+X081,Out of scope,right,
+X082,Out of scope,right,
+X083,Out of scope,right,

@@ -106,6 +106,8 @@ _AGE_FROM_SITUATION = (
     ("adult", re.compile(r"\badults?\b|\bpuberty and older\b", re.I)),
 )
 
+_BABY = re.compile(r"\bbab(?:y|ies)\b", re.I)
+
 # Deliberately conservative: a wrong age guess is worse than asking. We only
 # claim to know the age when the wording is unambiguous.
 _AGE_FROM_QUERY = (
@@ -270,10 +272,13 @@ def detect_age_band(text: str) -> str | None:
     'Conscious Adult or Child' rows are matched by either band, handled by the
     'any' fallthrough at filter time rather than here.
     """
-    for band, pattern in _AGE_FROM_QUERY:
-        if pattern.search(str(text)):
-            return band
-    return None
+    text = str(text)
+    found = [band for band, pattern in _AGE_FROM_QUERY if pattern.search(text)]
+    # Two different ages mentioned ("my wife ... the baby"), or "baby" next to an
+    # adult word, means we can't tell who the patient is: ask instead.
+    if len(set(found)) > 1 or (found == ["adult"] and _BABY.search(text)):
+        return None
+    return found[0] if found else None
 
 
 # --------------------------------------------------------------------------

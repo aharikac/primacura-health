@@ -1,0 +1,111 @@
+# master-test-set.csv (777 cases), 2026-10-13, with LLM. Every case not listed was right with no condition tap.
+# Strict 669/777 (86.1%) · within one tap 770/777 (99.1%) · wrong 3 (0.4%) · right option not offered 4 (0.5%)
+Test_ID	result	app_showed
+M014	one tap	triage question
+M020	one tap	Cardiac Arrest (Drowning) | Cardiac Arrest
+M028	one tap	Choking | Anaphylaxis
+M036	one tap	Anaphylaxis | Choking
+M039	one tap	Anaphylaxis | Poisoning / Ingestion
+M052	one tap	triage question
+M053	one tap	Opioid Overdose | Heart Attack
+M055	one tap	Opioid Overdose | Anaphylaxis
+M073	one tap	Poisoning / Ingestion | Choking
+M077	one tap	Seizures | Head, Neck, or Spinal Injury
+M079	one tap	Seizures | Head, Neck, or Spinal Injury
+M084	one tap	Head, Neck, or Spinal Injury | Seizures
+M100	one tap	Cardiac Arrest (Drowning) | Cardiac Arrest
+M101	one tap	Cardiac Arrest (Drowning) | Cardiac Arrest
+M143	one tap	Choking | Stroke
+M149	one tap	Choking | Anaphylaxis
+M157	one tap	Choking | Poisoning / Ingestion
+M161	one tap	Anaphylaxis | Head, Neck, or Spinal Injury
+M162	one tap	Anaphylaxis | Poisoning / Ingestion
+M216	one tap	Opioid Overdose | Anaphylaxis
+M227	one tap	Severe Bleeding | Head, Neck, or Spinal Injury
+M229	one tap	Severe Bleeding | Anaphylaxis
+M256	one tap	Burns (Thermal) | Seizures
+M261	one tap	Burns (Thermal) | Burns (Chemical to Eye)
+M267	one tap	Cardiac Arrest (Drowning) | Burns (Thermal)
+M269	one tap	Burns (Thermal) | Heart Attack
+M272	one tap	Poisoning / Ingestion | Burns (Thermal)
+M279	one tap	Poisoning / Ingestion | Seizures
+M283	one tap	Poisoning / Ingestion | Choking
+M287	one tap	Seizures | Diabetic Emergency
+M293	one tap	Seizures | Head, Neck, or Spinal Injury
+M304	one tap	Head, Neck, or Spinal Injury | Seizures
+M317	one tap	Head, Neck, or Spinal Injury | Heart Attack
+M349	one tap	Cardiac Arrest | Heart Attack
+M352	one tap	Cardiac Arrest | Cardiac Arrest (Drowning)
+M360	one tap	Heart Attack | Stroke
+M371	one tap	Choking | Heart Attack
+M387	one tap	Anaphylaxis | Severe Bleeding
+M419	one tap	Cardiac Arrest (Drowning) | Heart Attack
+M420	not offered	Opioid Overdose | Stroke
+M421	one tap	Cardiac Arrest (Drowning) | Head, Neck, or Spinal Injury
+M429	one tap	Heart Attack | Severe Bleeding
+M430	one tap	Cardiac Arrest | Heart Attack
+M435	one tap	Choking | Opioid Overdose
+M436	one tap	triage question
+M455	one tap	Heart Attack | Stroke
+M456	wrong	Head, Neck, or Spinal Injury
+M457	one tap	Stroke | Seizures
+M462	wrong	Cardiac Arrest
+M464	one tap	Opioid Overdose | Cardiac Arrest
+M465	one tap	Poisoning / Ingestion | Opioid Overdose
+M467	one tap	Severe Bleeding | Head, Neck, or Spinal Injury
+M490	one tap	Poisoning / Ingestion | Choking
+M492	one tap	Heart Attack | Poisoning / Ingestion
+M493	one tap	Poisoning / Ingestion | Anaphylaxis
+M498	one tap	Seizures | Stroke
+M506	one tap	Head, Neck, or Spinal Injury | Cardiac Arrest (Drowning)
+M508	one tap	Head, Neck, or Spinal Injury | Anaphylaxis
+M509	one tap	Cardiac Arrest (Drowning) | Cardiac Arrest
+M513	one tap	Heart Attack | Cardiac Arrest
+M521	one tap	Cardiac Arrest | Seizures
+M522	one tap	triage question
+M523	one tap	Cardiac Arrest | Choking
+M536	one tap	Cardiac Arrest | Choking
+M547	one tap	Diabetic Emergency | Poisoning / Ingestion
+M549	one tap	Stroke | Cardiac Arrest (Drowning)
+M553	one tap	Opioid Overdose | Burns (Thermal)
+M575	one tap	Seizures | Cardiac Arrest
+M583	one tap	Cardiac Arrest (Drowning) | Cardiac Arrest
+M618	one tap	Choking | Stroke
+M626	one tap	triage question
+M627	one tap	Diabetic Emergency | Cardiac Arrest (Drowning)
+M628	one tap	triage question
+M632	one tap	Cardiac Arrest | Opioid Overdose
+M640	one tap	Severe Bleeding | Choking
+M641	one tap	Severe Bleeding | Head, Neck, or Spinal Injury
+M642	one tap	Poisoning / Ingestion | Burns (Thermal)
+M644	one tap	Burns (Thermal) | Head, Neck, or Spinal Injury
+M645	one tap	Poisoning / Ingestion | Burns (Thermal)
+M650	one tap	Burns (Thermal) | Head, Neck, or Spinal Injury
+M665	one tap	Choking | Poisoning / Ingestion
+M666	one tap	Poisoning / Ingestion | Stroke
+M671	one tap	Seizures | Stroke
+M672	one tap	Seizures | Stroke
+M673	one tap	Seizures | Head, Neck, or Spinal Injury
+M676	one tap	Head, Neck, or Spinal Injury | Cardiac Arrest
+M682	one tap	Head, Neck, or Spinal Injury | Cardiac Arrest (Drowning)
+M683	one tap	Head, Neck, or Spinal Injury | Severe Bleeding
+M703	one tap	Heart Attack | Stroke
+M709	not offered	Anaphylaxis | Head, Neck, or Spinal Injury
+M712	one tap	Stroke | Choking
+M715	one tap	Cardiac Arrest | Choking
+M720	not offered	triage, then Seizures | Opioid Overdose
+M723	wrong	Seizures
+M724	one tap	Head, Neck, or Spinal Injury | Diabetic Emergency
+M725	one tap	Severe Bleeding | Heart Attack
+M731	one tap	Severe Bleeding | Anaphylaxis
+M734	one tap	Burns (Thermal) | Cardiac Arrest (Drowning)
+M735	one tap	Burns (Thermal) | Anaphylaxis
+M743	one tap	Burns (Chemical to Eye) | Head, Neck, or Spinal Injury
+M745	one tap	Poisoning / Ingestion | Cardiac Arrest
+M746	one tap	Poisoning / Ingestion | Stroke
+M748	one tap	Poisoning / Ingestion | Choking
+M749	one tap	Poisoning / Ingestion | Heart Attack
+M753	one tap	Seizures | Head, Neck, or Spinal Injury
+M754	not offered	Stroke | Opioid Overdose
+M758	one tap	Seizures | Cardiac Arrest
+M761	one tap	Head, Neck, or Spinal Injury | Cardiac Arrest

@@ -7,6 +7,7 @@
 | `user_testset_oct5.csv` | The user's 60 queries (Voice / Message / Search), added 2026-10-06. No scripted replies. |
 | `realworld_testset_oct6.csv` | 103 real queries collected 2026-10-06 from public sources (26 quoted 911 callers, 71 forum/Q&A titles, 6 searches), each with its source URL. Verbatim or trimmed, never reworded. One ("how to treat a burn") also appears in the how-to training phrasings. |
 | `realworld_testset_oct12.csv` | 115 new real queries collected 2026-10-12 (21 from 911/999/poison-control call transcripts, 7 news quotes, 87 forum/Q&A posts), 5–9 per condition plus 11 out of scope, each with its source URL. No copied queries from other sets or training data. Results in `realworld_testset_oct12_results_20261012.csv`. |
+| `realworld_testset_oct13.csv` | 83 real queries collected 2026-10-13 from sources not used before (22 from 911/999 call quotes, 13 question-style searches, 48 forum/patient-story posts), all 14 conditions plus 11 out of scope. Thin on Cardiac Arrest (2), Diabetic (2) and Choking (3); no Opioid cases met the bar (real callers rarely name the drug). Results in `realworld_testset_oct13_results_20261013.csv`. |
 | `testset_conditions_oct6.csv` | The user's second sheet (131 queries, Voice / Message / Search), 2026-10-06. The first 60 are the Oct-5 set; the 71 new ones are M509–M579 in the master set. |
 | `build_testset.py` | Source of the held-out set (edit here, then regenerate). |
 | `run_eval.py` | Runs a set against the live `/chat/` endpoint and prints the scores. Standard library only. |
@@ -141,3 +142,19 @@ Wrong: W004 "pool table" -> drowning steps; W042 "throat closing up, struggling 
 | **Real-world v2 (115), after** | **95 (82.6%)** | **114 (99.1%)** | **0 (0.0%)** |
 | Master (579), before | 505 (87.2%) | 575 (99.3%) | 3 (0.5%) |
 | **Master (579), after** | **507 (87.6%)** | **576 (99.5%)** | **2 (0.3%)** |
+
+Real-world set v3 (83), 2026-10-13, current engine with LLM, never used for tuning:
+
+| | Strict | Within one tap | Wrong protocol | Right option never offered |
+|---|---|---|---|---|
+| With LLM | 62 (74.7%) | 73 (88.0%) | 1 (1.2%) | 9 (10.8%) |
+
+
+2026-10-13 (later): the Oct 12 (115) and Oct 13 (83) real-world sets are now part of the master set as M580–M694 and M695–M777 (777 cases). 15 training examples that shared a 5-word phrase with them were reworded. New rules: plain-language cues lift a condition (stabbed / applying pressure → bleeding; Heimlich / back blows → choking; carbon monoxide, gas stove, several people sick → poisoning; accidental double dose → poisoning unless insulin/opioid; one-sided weakness with no fall or chest pain → stroke); "windpipe/airway closing" counts as an allergic reaction; two different ages in one message ("wife … baby") → ask the age. Per-case results: `master-test-set_results_20261013.tsv`. No case is worse than in the committed version or any run today.
+
+| 777-case master set, with LLM | Strict | Within one tap | Wrong protocol |
+|---|---|---|---|
+| Original 579 | 511 (88.3%) | 576 (99.5%) | 2 (0.3%) |
+| Oct 12 real-world (115) | 95 (82.6%) | 115 (100%) | 0 (0.0%) |
+| Oct 13 real-world (83) | 63 (75.9%) | 79 (95.2%) | 1 (1.2%) |
+| **All 777** | **669 (86.1%)** | **770 (99.1%)** | **3 (0.4%)** |

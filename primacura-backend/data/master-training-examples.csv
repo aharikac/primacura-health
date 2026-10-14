@@ -2,7 +2,7 @@ text,condition,source
 "Man down in the office, not breathing, no pulse.",Cardiac Arrest,handwritten
 my mother just fell and she is not breathing at all what do i do,Cardiac Arrest,handwritten
 "Person collapsed at the gym, unresponsive, no breathing, starting CPR?",Cardiac Arrest,handwritten
-My baby is not breathing and is completely floppy.,Cardiac Arrest,handwritten
+My baby isn't breathing and is completely floppy.,Cardiac Arrest,handwritten
 The child collapsed on the field and isn't breathing or responding.,Cardiac Arrest,handwritten
 an elderly woman fell in the aisle and is not breathing,Cardiac Arrest,handwritten
 hes not breathing hes not breathing help,Cardiac Arrest,handwritten
@@ -72,7 +72,7 @@ my baby keeled over and has no heartbeat,Cardiac Arrest,templated
 This lady won't respond and there's no heartbeat!,Cardiac Arrest,templated
 My boyfriend collapsed while running and has no breathing.,Cardiac Arrest,templated
 my baby girl needs cpr there's no breathing,Cardiac Arrest,templated
-My baby is not breathing and won't respond to anything.,Cardiac Arrest,templated
+My baby has stopped breathing and does not respond to anything.,Cardiac Arrest,templated
 "My friend is blue, limp and not breathing.",Cardiac Arrest,templated
 i don't know what to do my 6 year old went limp and isn't breathing,Cardiac Arrest,templated
 My baby stopped breathing right in front of me.,Cardiac Arrest,templated
@@ -193,7 +193,7 @@ A teenager has crushing chest pain.,Heart Attack,templated
 oh god a patient in the waiting room says the chest feels squeezed,Heart Attack,templated
 This lady says there's a heavy weight on the chest.,Heart Attack,templated
 "A customer has crushing chest pain, and is vomiting.",Heart Attack,templated
-um a man at the store has a tight chest and pain in the neck it came on while climbing stairs,Heart Attack,templated
+um a man at the store has chest tightness and pain in the neck it came on while climbing stairs,Heart Attack,templated
 "My father in law has crushing chest pain, and is vomiting!",Heart Attack,templated
 "A patient in the waiting room says there's a heavy weight on the chest, it came on while climbing stairs.",Heart Attack,templated
 "My neighbor says the chest feels squeezed, and looks really pale.",Heart Attack,templated
@@ -209,7 +209,7 @@ My grandma is dizzy with pain in the chest.,Heart Attack,templated
 My wife has an ache in the chest and left shoulder.,Heart Attack,templated
 my roommate says the chest feels squeezed and looks really pale,Heart Attack,templated
 My boyfriend has tightness in the chest and feels sick.,Heart Attack,templated
-A coworker has a tight chest and pain in the neck.,Heart Attack,templated
+A coworker has chest tightness and pain in the neck.,Heart Attack,templated
 "My grandma has chest pain and is breathless, and looks really pale.",Heart Attack,templated
 "A cutsomer says the chest feels squeezed, and is vomiting.",Heart Attack,templated
 what do i do my grandma has an ache in the chest and left shoulder but is still awake and talking,Heart Attack,templated
@@ -304,7 +304,7 @@ My roommate is gagging and can't get any air.,Choking,templated
 My aunt is making a squeaky sound and can't breathe after eating!,Choking,templated
 quick my toddler swallowed a hard candy and can't breathe,Choking,templated
 The baby is making a squeaky sound and can't breathe after eating!,Choking,templated
-A stranger on the street has food going down the wrong way and can't breathe!,Choking,templated
+A stranger on the street had food go down the wrong pipe and now can't breathe!,Choking,templated
 A woman on the bus can't speak and is hlding the neck at dinner.,Choking,templated
 "My little girl is choking on food and can't breathe, and is starting to turn blue.",Choking,templated
 "My brother got a grape lodged in the throat, it happened while eating.",Choking,templated
@@ -858,7 +858,7 @@ She spilled hot tea on her leg and it's blistered.,Burns (Thermal),handwritten
 "burn from cooking oil, big blisters",Burns (Thermal),handwritten
 "He got burned by the bonfire, skin is charred on his hand.",Burns (Thermal),handwritten
 baby got hot coffee spilled on her,Burns (Thermal),handwritten
-i burnt my arm on the grill,Burns (Thermal),handwritten
+i burned my arm on the grill,Burns (Thermal),handwritten
 Second degree burn on hand from a hot pan.,Burns (Thermal),handwritten
 how long to run a burn under cool water,Burns (Thermal),howto
 first aid for a scald,Burns (Thermal),howto
@@ -1293,13 +1293,13 @@ my dad went under while swimming laps we got him out and hes not breathing no pu
 What do I do for a drowning victim who isn't breathing? We just got her onto the dock,Cardiac Arrest (Drowning),prototype-ours
 "My diabetic brother went low while swimming and slipped under, we pulled him out and he's not breathing",Cardiac Arrest (Drowning),prototype-ours
 "She was drinking at the pool party and fell in, now she's out of the water but unresponsive and not breathing",Cardiac Arrest (Drowning),prototype-ours
-baby fell in the pool um we got her out shes not breathing shes so cold,Cardiac Arrest (Drowning),prototype-ours
+baby fell into the pool um we got her out shes not breathing shes so cold,Cardiac Arrest (Drowning),prototype-ours
 "Swimmer got pulled from the river after going under, no breathing and no heartbeat",Cardiac Arrest (Drowning),prototype-ours
 "My 10 year old got stuck under the dock float, we got him up and he won't breathe",Cardiac Arrest (Drowning),prototype-ours
 "Our 11 month old crawled into the kiddie pool and was face down, now she's blue and not breathing",Cardiac Arrest (Drowning),prototype-ours
 "Grandma slipped into the pool and was underwater, now she's lying on the deck not breathing",Cardiac Arrest (Drowning),prototype-ours
 drowned kid at the lake not breathing how many rescue breaths do i give first,Cardiac Arrest (Drowning),prototype-ours
-"Surfer washed up unconscious and gasping, we dragged him out of the water",Cardiac Arrest (Drowning),prototype-ours
+"Surfer washed up unconscious and gasping, we dragged him from the water",Cardiac Arrest (Drowning),prototype-ours
 someone jumped off the rocks at the quarry and didnt come up for a while now we got him out but hes not breathin,Cardiac Arrest (Drowning),prototype-ours
 "Husband says his jaw and chest ache and he's cold and clammy, he's still awake and talking",Heart Attack,prototype-ours
 coworker grabbed his chest and sat down hes pale sweaty and says he feels like throwing up,Heart Attack,prototype-ours
@@ -1311,7 +1311,7 @@ Heavy pressure in my chest for twenty minutes now and I'm breaking out in a cold
 "My mom had a stroke years ago, but her face and speech are fine, she says her chest is tight and her left shoulder aches",Heart Attack,prototype-ours
 "Grandpa is sitting on the porch pale and gray, says he feels an awful pressure behind his breastbone",Heart Attack,prototype-ours
 my boyfriend says his chest hurts real bad and hes short of breath and sweating like crazy,Heart Attack,prototype-ours
-"Could this be a heart attack? My wife's got pain between her shoulder blades, nausea, and she's really short of breath",Heart Attack,prototype-ours
+"Is this a heart attack? My wife's got pain between her shoulder blades, nausea, and she's really short of breath",Heart Attack,prototype-ours
 "Middle-aged guy at the hardware store is leaning on a shelf holding his chest, says it feels like a vise",Heart Attack,prototype-ours
 tight chest pain going up into my neck feel dizzy and sick um should i call 911,Heart Attack,prototype-ours
 "Chest pain that started while shoveling snow, now he's sweaty and breathing fast but still talking to me",Heart Attack,prototype-ours
@@ -1375,14 +1375,14 @@ diabetic kid in my class is shakin and pale says he feels weird and hungry,Diabe
 my mom has diabetes shes confused and sweaty and her hands wont stop shaking can she have juice,Diabetic Emergency,prototype-ours
 "My diabetic husband woke up drenched in sweat, shaky and not making sense, but he's awake and can swallow",Diabetic Emergency,prototype-ours
 "My uncle's on insulin and got shaky and pale while mowing the lawn, now he's asking for something sweet",Diabetic Emergency,prototype-ours
-"I think my mom is having a stroke, the left side of her face is drooping",Stroke,prototype-ours
+"I think my mom's having a stroke, the left side of her face is drooping",Stroke,prototype-ours
 Dad's words are coming out slurred and he can't lift his right arm,Stroke,prototype-ours
 Coworker suddenly can't understand what I'm saying and her right hand went limp,Stroke,prototype-ours
 Stroke signs? My wife's smile is crooked and her left arm keeps drifting down,Stroke,prototype-ours
 "He had two beers but this isn't drunk, the right side of his face is sagging and he can't lift that arm",Stroke,prototype-ours
 Woke up and the whole left side of my body feels numb and my face feels heavy on that side,Stroke,prototype-ours
 "Aunt was talking normally, then out of nowhere her speech turned to gibberish and she's leaning to one side",Stroke,prototype-ours
-stroke i think my uncle cant move his left leg and his mouth is crooked,Stroke,prototype-ours
+stroke i think my uncle cant move his left leg plus his mouth is crooked,Stroke,prototype-ours
 "Old man in the waiting room suddenly lost his balance, one eye droopy, can't get a sentence out",Stroke,prototype-ours
 What do I do for a stroke? My grandma is confused and one arm is dead weight,Stroke,prototype-ours
 my wife is like talking weird and her face looks uneven it just started like five minutes ago,Stroke,prototype-ours
@@ -1588,7 +1588,7 @@ The 10-month-old looks blue and isn't breathing or responding.,Cardiac Arrest,pr
 My infant is in cardiac arrest. He's unresponsive and not breathing.,Cardiac Arrest,prototype-chatgpt
 Someone just collapsed and won't respond; they're only making gasping sounds.,Cardiac Arrest,prototype-chatgpt
 "They said it was a heart attack, but now the person is unconscious and not breathing.",Cardiac Arrest,prototype-chatgpt
-He was pulled from the pool and is unconscious with no breathing.,Cardiac Arrest (Drowning),prototype-chatgpt
+He got pulled from the swimming pool unconscious with no breathing.,Cardiac Arrest (Drowning),prototype-chatgpt
 "My 7-year-old went under in the lake. We got her out, but she isn't breathing.",Cardiac Arrest (Drowning),prototype-chatgpt
 An adult was dragged out of the ocean and is only gasping.,Cardiac Arrest (Drowning),prototype-chatgpt
 Someone fell through the ice. They're out of the water now and not breathing.,Cardiac Arrest (Drowning),prototype-chatgpt
@@ -1617,7 +1617,7 @@ My mom is awake but has crushing chest pain and can't catch her breath.,Heart At
 An adult coworker says her chest hurts and her jaw aches.,Heart Attack,prototype-chatgpt
 My father is pale and nauseated with pain across his chest.,Heart Attack,prototype-chatgpt
 He says his chest is being squeezed and he's covered in sweat.,Heart Attack,prototype-chatgpt
-My wife has a tight chest and pain into her back and shoulder.,Heart Attack,prototype-chatgpt
+My wife has chest tightness and pain into her back and shoulder.,Heart Attack,prototype-chatgpt
 "The man is still talking, but chest pain is spreading into both arms.",Heart Attack,prototype-chatgpt
 I think I'm having a heart attack; my chest is tight and I'm short of breath.,Heart Attack,prototype-chatgpt
 My grandpa says this feels like a heart attack and is clutching his chest.,Heart Attack,prototype-chatgpt
@@ -1931,7 +1931,7 @@ I was curious whether paramedics carry different equipment than nurses.,Out of s
 "40 year old male, no pulse, starting CPR",Cardiac Arrest,prototype-gemini
 she passed out and her chest isn't moving at all,Cardiac Arrest,prototype-gemini
 "older woman dropped to the floor, eyes open but unblinking, silent",Cardiac Arrest,prototype-gemini
-he had a heart attack and now his heart stopped completely,Cardiac Arrest,prototype-gemini
+he had a heart attack then his heart stopped completely,Cardiac Arrest,prototype-gemini
 "man on the street, no heartbeat, need steps",Cardiac Arrest,prototype-gemini
 Help my daughter is 8 and she doesn't have a pulse,Cardiac Arrest,prototype-gemini
 "kid collapsed on the playground, totally limp and silent",Cardiac Arrest,prototype-gemini
@@ -2335,7 +2335,7 @@ he's allergic to nuts and now he's throwing up and his lips are puffing up,Anaph
 "my kid ate egg by mistake, he has a known allergy and is starting to wheeze",Anaphylaxis,redcross-oct7
 which part of the leg do you jab the epipen into,Anaphylaxis,redcross-oct7
 when do I give the second epipen,Anaphylaxis,redcross-oct7
-after he hit his head he keeps asking the same question over and over,"Head, Neck, or Spinal Injury",redcross-oct7
+after hitting his head he keeps asking the same question over and over,"Head, Neck, or Spinal Injury",redcross-oct7
 she bumped her head on the pool edge and has thrown up twice and seems dazed,"Head, Neck, or Spinal Injury",redcross-oct7
 "my son got hit in football, now he can't remember the game and has double vision","Head, Neck, or Spinal Injury",redcross-oct7
 fell down the stairs and is stumbling and confused,"Head, Neck, or Spinal Injury",redcross-oct7
