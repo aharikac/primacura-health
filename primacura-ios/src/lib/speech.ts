@@ -1,6 +1,6 @@
 import * as Speech from 'expo-speech';
 import { createAudioPlayer, setAudioModeAsync, type AudioPlayer } from 'expo-audio';
-import { speakable } from './speakable';
+import { clipKey, speakable } from './speakable';
 import { clipId } from './clipId';
 import { AUDIO } from '../data/speechAudio';
 import { Lang } from '../types';
@@ -8,6 +8,7 @@ import { Lang } from '../types';
 // Read-aloud. Every guide and How-To sentence is pre-recorded with a natural
 // voice (assets/audio, see scripts/generate-speech.py); anything without a
 // recording falls back to the phone's built-in voice. Nothing is uploaded.
+const SYNTH_LANG: Record<Lang, string> = { en: 'en-US', es: 'es-US', 'zh-Hans': 'zh-CN', 'zh-Hant': 'zh-HK' };
 let run = 0; // bumps on every new request so a stopped queue never continues
 let current: AudioPlayer | null = null;
 
@@ -27,7 +28,7 @@ function ensurePlaybackSession() {
 // "Step 3. Push hard…" is said as two clips, "Step 3." and the step itself,
 // so one recording of each step works whatever number it has.
 function units(piece: string, lang: Lang): string[] {
-  const m = piece.match(/^\s*((?:Step|Paso) \d+\.)\s+([\s\S]+)$/);
+  const m = piece.match(/^\s*((?:Step|Paso) \d+\.|第\d+步。)\s*([\s\S]+)$/);
   return (m ? [m[1], m[2]] : [piece]).map((t) => speakable(t, lang)).filter(Boolean);
 }
 
@@ -39,7 +40,7 @@ function releaseCurrent() {
 
 function sayOne(text: string, mine: number, done: () => void, lang: Lang) {
   if (mine !== run) return;
-  const source = AUDIO[clipId(text)];
+  const source = AUDIO[clipId(clipKey(text, lang))];
   if (source !== undefined) {
     try {
       const player = createAudioPlayer(source);
@@ -59,8 +60,8 @@ function sayOne(text: string, mine: number, done: () => void, lang: Lang) {
       releaseCurrent(); // fall through to the device voice
     }
   }
-  // No recording: the phone's own voice, Spanish for Spanish text.
-  Speech.speak(text, { language: lang === 'es' ? 'es-US' : 'en-US', rate: 0.95, useApplicationAudioSession: true, onDone: done, onError: done });
+  // No recording: the phone's own voice in the text's language (Cantonese for zh-Hant).
+  Speech.speak(text, { language: SYNTH_LANG[lang], rate: 0.95, useApplicationAudioSession: true, onDone: done, onError: done });
 }
 
 // Speak several pieces in order; onIndex(i) fires as piece i starts, onEnd when all are done.

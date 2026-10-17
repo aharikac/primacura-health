@@ -112,6 +112,16 @@ Fixes after the first run: ages said in Spanish ("tiene 9 meses", "de 10 días")
 Hot-liquid rule (pchTriage `_HOT_LIQUID`): boiling/scalding/steaming or hot water, oil, soup, tea, coffee, milk, or a kettle rules out the drowning guide unless the person is unresponsive or not breathing, and adds weight to Burns (S077, M256, M650, M734 improved; nothing worse). 12 extra toddler-scald training examples were tried with it and rolled back: M374 and M560 dropped from right to one tap.
 Caveat: the translation hints were written after seeing the first run, so the second-run numbers are optimistic.
 
+2026-10-17: Chinese support (Simplified zh-Hans, read aloud in Mandarin; Traditional zh-Hant incl. written Cantonese, read aloud in Cantonese). New set `realworld_testset_zh_oct17.csv`: 100 Chinese messages (46 Simplified, 25 Traditional, 29 Cantonese) from news, health pages, searches and forums (15 verbatim, 12 trimmed, 73 adapted). Not-right cases in `realworld_testset_zh_oct17_results_20261017.tsv`.
+
+| Set | Strict | Within one tap | Wrong protocol |
+|---|---|---|---|
+| **Chinese 100** | **83 (83.0%)** | **96 (96.0%)** | **3 (3.0%)** |
+| Spanish 102 (after Chinese) | 84 (82.4%) | 99 (97.1%) | 2 (2.0%) |
+| English master 777 (after Chinese) | 672 (86.5%) | 770 (99.1%) | 3 (0.4%) |
+
+By script (strict / within one tap): Simplified 38/46 (82.6%) / 45/46 (97.8%), Traditional 20/25 (80.0%) / 23/25 (92.0%), Cantonese 25/29 (86.2%) / 28/29 (96.6%). Every reply was in the script the message was written in (100/100). English and Spanish: no case changed. Wrong: Z056, Z057 (not breathing after fentanyl -> CPR, as English M462) and Z003 (3-month-old choked on milk, not breathing -> infant choking steps, which start CPR when the baby is unresponsive).
+
 Note: v1 has now been used to choose between options (LLM model choice, the
 "isn't moving or breathing" rule), so treat it as a regression set from here on.
 

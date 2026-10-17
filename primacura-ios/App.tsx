@@ -176,7 +176,7 @@ export default function App() {
 
       if (ON_DEVICE_SPEECH) {
         let text = '';
-        let spokenLang: Lang | null = null;
+        let spokenLang: 'en' | 'es' | 'zh' | null = null;
         try {
           ({ text, lang: spokenLang } = await transcribeOnDevice(uri));
         } catch (error) {
@@ -190,7 +190,9 @@ export default function App() {
           return;
         }
         setQuery(text);
-        await sendQuery(text, spokenLang ?? lang);
+        // Chinese speech: keep the app's Chinese script if it has one (the backend also reads the characters).
+        const queryLang: Lang = spokenLang === 'zh' ? (lang.startsWith('zh') ? lang : 'zh-Hans') : spokenLang ?? lang;
+        await sendQuery(text, queryLang);
         return;
       }
 

@@ -11,6 +11,7 @@ import { EmergencyDialog } from './EmergencyDialog';
 import { useI18n } from '../lib/i18n';
 import { speakAll, stopSpeaking } from '../lib/speech';
 import { factsLine, splitSentences } from '../lib/stepText';
+import { stepLabel } from '../lib/speakable';
 
 // One step at a time, and the step is the page:
 //   1. the action in big type
@@ -88,7 +89,7 @@ export function ProtocolScreen({
   const [readAloud, setReadAloud] = useState(false);
   useEffect(() => {
     if (!readAloud) return;
-    speakAll([`${t('stepN', { n: stepIndex + 1 })}. ${action ?? ''} ${details} ${keyLine}`], undefined, undefined, lang);
+    speakAll([`${stepLabel(lang, stepIndex + 1)} ${action ?? ''} ${details} ${keyLine}`], undefined, undefined, lang);
   }, [readAloud, stepIndex]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => () => stopSpeaking(), []);
   const toggleReadAloud = () => {

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { BookOpen, ChevronDown, ChevronRight, Languages, MapPin, Mic, Phone, ShieldAlert, Square, User } from 'lucide-react';
 import { SearchBox } from './SearchBox';
 import { LocationCard, useLocationFix } from './LocationPanel';
-import { useI18n } from '../lib/i18n';
+import { LANGUAGES, useI18n } from '../lib/i18n';
 
 export function HomeScreen({
   query,
@@ -55,13 +55,16 @@ export function HomeScreen({
           <span className="brand-title">PrimaCura</span>
           <span className="brand-slogan">{t('slogan')}</span>
         </div>
-        <button type="button" className="lang-switch" onClick={() => setLang(lang === 'es' ? 'en' : 'es')}
-                aria-label={t('langSwitchLabel')} title={t('langSwitchLabel')}>
-          {/* Language icon + EN | ES, the current one highlighted (no flags: a language is not a country). */}
+        {/* Language icon + EN | ES | 简 | 繁, the current one filled in (no flags: a language is not a country). */}
+        <div className="lang-switch" role="group" aria-label={t('langSwitchLabel')}>
           <Languages size={16} strokeWidth={2.4} aria-hidden="true" />
-          <span className={lang === 'en' ? 'on' : ''} aria-hidden="true">EN</span>
-          <span className={lang === 'es' ? 'on' : ''} aria-hidden="true">ES</span>
-        </button>
+          {LANGUAGES.map((l) => (
+            <button key={l.lang} type="button" className={lang === l.lang ? 'on' : ''} onClick={() => setLang(l.lang)}
+                    aria-pressed={lang === l.lang} aria-label={l.name} title={l.name} lang={l.lang}>
+              {l.short}
+            </button>
+          ))}
+        </div>
       </header>
 
       {/* 1 · Describe it: heading, search box and the speak alternative sit together. */}

@@ -1,0 +1,20 @@
+# realworld_testset_zh_oct17.csv (100 Chinese cases: 46 Simplified, 25 Traditional, 29 Cantonese), 2026-10-17, with LLM translation. Every case not listed was right with no condition tap; every reply came back in the script the message was written in.
+# Strict 83/100 (83.0%) · within one tap 96/100 (96.0%) · wrong 3 (3.0%) · right option not offered 1 (1.0%)
+Test_ID	result	app_showed	translation
+Z003	wrong	Choking (infant)	3-month-old grandson choked after breastfeeding, no response, not breathing!
+Z006	one tap		Delivery person suddenly fell and had a few convulsions before becoming unresponsive and not breathing.
+Z009	one tap		2-year-old daughter fell into the bathtub, lips turned blue, no response when called
+Z017	one tap		Dad, 60 years old, says stomach pain, keeps sweating cold, thought to have eaten something bad
+Z019	one tap		Left arm numb, heart discomfort - what's wrong
+Z029	one tap		Child swallowed candy, cannot speak, face is red and swollen
+Z031	one tap		Dad ate soft shell crab for a meal, now has all over body red swelling and can't breathe
+Z033	one tap		Husband was stung on the head by a wasp, face swelled up, now unconscious and collapsed
+Z040	one tap		Grandpa ate the blood sugar lowering medicine without eating, now not waking up
+Z055	one tap		A man fainted in the hotel room, there's a syringe nearby, he doesn't respond, breathing is very slow
+Z056	wrong	Cardiac Arrest (adult)	Someone has no breathing, he may have used fentanyl, I have Narcan nasal spray
+Z057	wrong	Cardiac Arrest (adult)	Son may have swallowed fentanyl, not responding, seems to have stopped breathing
+Z078	one tap		Doctor, my child cannot stand steadily and is feeling dizzy
+Z079	one tap		What should I do if a 4-year-old child accidentally drank dish soap
+Z081	one tap		The girl ate something that looks like sugar, and now she's dizzy and vomiting
+Z084	one tap		The girl is 1 year old, seems to have swallowed her grandmother's blood pressure medicine as if it were sugar (1 year old)
+Z096	not offered		BB fell off the bed, how to calculate   [點算 = "what do I do", mistranslated]

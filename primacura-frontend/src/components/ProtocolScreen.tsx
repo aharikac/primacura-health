@@ -8,6 +8,7 @@ import { useI18n } from '../lib/i18n';
 import { LocationPanel } from './LocationPanel';
 import { speakAll, speechSupported, stopSpeaking } from '../lib/speech';
 import { factsLine, splitSentences } from '../lib/stepText';
+import { stepLabel } from '../lib/speakable';
 import { MoreBelow, useMoreBelow } from './MoreBelow';
 
 // One step at a time, and the step is the page: the action in big type, the
@@ -63,7 +64,7 @@ export function ProtocolScreen({
   const [readAloud, setReadAloud] = useState(false);
   useEffect(() => {
     if (!readAloud) return;
-    speakAll([`${t('stepN', { n: stepIndex + 1 })}. ${action ?? ''} ${details} ${keyLine}`], undefined, undefined, lang);
+    speakAll([`${stepLabel(lang, stepIndex + 1)} ${action ?? ''} ${details} ${keyLine}`], undefined, undefined, lang);
   }, [readAloud, stepIndex]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => () => stopSpeaking(), []);
   const toggleReadAloud = () => {

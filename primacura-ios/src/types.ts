@@ -1,6 +1,6 @@
 export type Screen = 'home' | 'guides' | 'protocol' | 'howto' | 'clarification' | 'disclaimer' | 'about' | 'contact';
 
-export type Lang = 'en' | 'es';
+export type Lang = 'en' | 'es' | 'zh-Hans' | 'zh-Hant';
 
 export type Condition = {
   title: string;

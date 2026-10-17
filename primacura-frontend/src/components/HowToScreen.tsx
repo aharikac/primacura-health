@@ -7,6 +7,7 @@ import { StepDiagram } from './StepDiagram';
 import { CprRhythm } from './CprRhythm';
 import { MoreBelow, useMoreBelow } from './MoreBelow';
 import { factsLine } from '../lib/stepText';
+import { stepLabel, stop } from '../lib/speakable';
 
 // One How-To card. The numbered steps and their pictures are the page; the key
 // numbers are one bold line of text, and the CPR beat is a slim bar docked at
@@ -37,7 +38,7 @@ export function HowToScreen({
     if (speaking !== null) { stopSpeaking(); setSpeaking(null); return; }
     setSpeaking(-1);
     speakAll(
-      [`${card.title}.`, ...card.steps.map((s, i) => `${t('stepN', { n: i + 1 })}. ${s.lead ? s.lead + '. ' : ''}${s.text}`)],
+      [`${card.title}${stop(lang)}`.trim(), ...card.steps.map((s, i) => `${stepLabel(lang, i + 1)} ${s.lead ? s.lead + stop(lang) : ''}${s.text}`)],
       (i) => {
         setSpeaking(i - 1);
         stepRefs.current[i - 1]?.scrollIntoView({ behavior: 'smooth', block: 'center' });

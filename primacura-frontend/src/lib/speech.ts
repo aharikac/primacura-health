@@ -1,4 +1,4 @@
-import { speakable } from './speakable';
+import { clipKey, speakable } from './speakable';
 import { clipId } from './clipId';
 import { AUDIO } from '../data/speechAudio';
 import { Lang } from '../types';
@@ -15,21 +15,23 @@ let current: HTMLAudioElement | null = null;
 // "Step 3. Push hard…" is said as two clips, "Step 3." and the step itself,
 // so one recording of each step works whatever number it has.
 function units(piece: string, lang: Lang): string[] {
-  const m = piece.match(/^\s*((?:Step|Paso) \d+\.)\s+([\s\S]+)$/);
+  const m = piece.match(/^\s*((?:Step|Paso) \d+\.|第\d+步。)\s*([\s\S]+)$/);
   return (m ? [m[1], m[2]] : [piece]).map((t) => speakable(t, lang)).filter(Boolean);
 }
 
-// The device voice for text with no recording: a Spanish voice for Spanish text.
+// The device voice for text with no recording, in the text's language (Cantonese for zh-Hant).
+const SYNTH_LANG: Record<Lang, string> = { en: 'en-US', es: 'es-US', 'zh-Hans': 'zh-CN', 'zh-Hant': 'zh-HK' };
 function voiceFor(lang: Lang): SpeechSynthesisVoice | undefined {
   const voices = window.speechSynthesis.getVoices();
-  const prefix = lang === 'es' ? 'es' : 'en';
-  return voices.find((v) => v.lang === (lang === 'es' ? 'es-US' : 'en-US'))
-    ?? voices.find((v) => v.lang.toLowerCase().startsWith(prefix));
+  const want = SYNTH_LANG[lang];
+  return voices.find((v) => v.lang === want)
+    ?? (lang === 'zh-Hant' ? voices.find((v) => /^(zh-HK|yue)/i.test(v.lang)) : undefined)
+    ?? voices.find((v) => v.lang.toLowerCase().startsWith(want.slice(0, 2).toLowerCase()));
 }
 
 function sayOne(text: string, mine: number, done: () => void, lang: Lang) {
   if (mine !== run) return;
-  const url = AUDIO[clipId(text)];
+  const url = AUDIO[clipId(clipKey(text, lang))];
   if (url) {
     const audio = new Audio(url);
     current = audio;
@@ -45,7 +47,7 @@ function synth(text: string, mine: number, done: () => void, lang: Lang) {
   if (mine !== run) return;
   if (!hasSynth) { done(); return; }
   const u = new SpeechSynthesisUtterance(text);
-  u.lang = lang === 'es' ? 'es-US' : 'en-US';
+  u.lang = SYNTH_LANG[lang];
   const voice = voiceFor(lang);
   if (voice) u.voice = voice;
   u.rate = 0.95;

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Linking, TextInput, ActivityIndicator, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LocationCard, useLocationFix } from './LocationPanel';
-import { useI18n } from '../lib/i18n';
+import { LANGUAGES, useI18n } from '../lib/i18n';
 import { BookOpen, ChevronDown, ChevronRight, Languages, Mail, MapPin, Mic, Phone, Search, ShieldAlert, Square, User } from 'lucide-react-native';
 
 const RED = '#d33b32';
@@ -63,17 +63,22 @@ export function HomeScreen({
             <Text style={styles.brandTitle}>PrimaCura</Text>
             <Text style={styles.brandSlogan}>{t('slogan')}</Text>
           </View>
-          <TouchableOpacity
-            style={styles.langSwitch}
-            onPress={() => setLang(lang === 'es' ? 'en' : 'es')}
-            accessibilityRole="button"
-            accessibilityLabel={t('langSwitchLabel')}
-          >
-            {/* Language icon + EN | ES, the current one highlighted (no flags: a language is not a country). */}
-            <Languages size={16} color={RED} strokeWidth={2.4} />
-            <Text style={[styles.langCode, lang === 'en' && styles.langCodeOn]}>EN</Text>
-            <Text style={[styles.langCode, lang === 'es' && styles.langCodeOn]}>ES</Text>
-          </TouchableOpacity>
+          {/* Language icon + EN | ES | 简 | 繁, the current one filled in (no flags: a language is not a country). */}
+          <View style={styles.langSwitch} accessibilityRole="radiogroup" accessibilityLabel={t('langSwitchLabel')}>
+            <Languages size={15} color={RED} strokeWidth={2.4} />
+            {LANGUAGES.map((l) => (
+              <TouchableOpacity
+                key={l.lang}
+                onPress={() => setLang(l.lang)}
+                accessibilityRole="radio"
+                accessibilityState={{ selected: lang === l.lang }}
+                accessibilityLabel={l.name}
+                hitSlop={{ top: 8, bottom: 8 }}
+              >
+                <Text style={[styles.langCode, lang === l.lang && styles.langCodeOn]}>{l.short}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
 
         {/* 1 · Describe it */}
@@ -187,11 +192,12 @@ export function HomeScreen({
 
 const styles = StyleSheet.create({
   langSwitch: {
-    marginLeft: 'auto', flexDirection: 'row', alignItems: 'center', gap: 4, paddingLeft: 9, paddingRight: 4,
+    marginLeft: 'auto', flexDirection: 'row', alignItems: 'center', gap: 2, paddingLeft: 8, paddingRight: 3,
     paddingVertical: 4, borderWidth: 1.5, borderColor: '#e4e4e7', borderRadius: 999, backgroundColor: '#fff',
   },
   langCode: {
-    fontSize: 12, fontWeight: '800', color: '#52525b', letterSpacing: 0.3, paddingHorizontal: 8, paddingVertical: 4,
+    fontSize: 12, fontWeight: '800', color: '#52525b', letterSpacing: 0.3, paddingHorizontal: 7, paddingVertical: 5,
+    minWidth: 28, textAlign: 'center',
     borderRadius: 999, overflow: 'hidden',
   },
   langCodeOn: { backgroundColor: '#050505', color: '#fff' },

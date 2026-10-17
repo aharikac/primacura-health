@@ -67,7 +67,7 @@ class FirstAidRuntime:
     llm: pchLLM.LLMClassifier | None
     gate: pchGate.NonsenseGate | None
     translator: pchLang.Translator
-    guides_es: pchLang.SpanishGuides | None
+    guides: dict[str, pchLang.Guides]  # by language (es, zh-Hans, zh-Hant)
 
 
 @lru_cache(maxsize=1)
@@ -77,11 +77,6 @@ def get_runtime() -> FirstAidRuntime:
     dataset = load_dataset()
     model = load_embedding_model()
     llm = pchLLM.load_llm()
-    try:
-        guides_es = pchLang.SpanishGuides(dataset)
-    except FileNotFoundError:
-        logger.warning("No Spanish guides (%s); Spanish messages get English guides.", pchLang.ES_CSV)
-        guides_es = None
     return FirstAidRuntime(
         dataset=dataset,
         model=model,
@@ -90,7 +85,7 @@ def get_runtime() -> FirstAidRuntime:
         llm=llm,
         gate=pchGate.load_gate(model),
         translator=pchLang.Translator(use_llm=llm is not None),
-        guides_es=guides_es,
+        guides=pchLang.load_guides(dataset),
     )
 
 
@@ -342,8 +337,14 @@ async def speak_endpoint(
 
         # Move processing inside the try block so it only runs on success
         if(not(trasncribedText['text'].strip() == "")):
-            # Whisper already translated non-English speech to English; answer in Spanish if it was Spanish.
-            spoken = "es" if detected_lang == "es" else ("en" if detected_lang == "en" else lang)
+            # Whisper already translated non-English speech to English; answer in the language spoken
+            # (Chinese: the script the app is set to, else Simplified).
+            if detected_lang in ("en", "es"):
+                spoken = detected_lang
+            elif detected_lang in ("zh", "yue"):
+                spoken = lang if lang in pchLang.CHINESE else ("zh-Hant" if detected_lang == "yue" else "zh-Hans")
+            else:
+                spoken = lang
             result = processUserQuery(userQuery=trasncribedText['text'], session_id=session_id,
                                       lang=spoken, already_english=True)
             print(f"Processed result: {result}")
@@ -391,15 +392,14 @@ def _reply_language(query: str, conversation: Conversation, app_lang: str | None
     """(language to reply in, whether the query needs translating to English)."""
     answer = pchCore.normalise_answer(query)
     tapped = any(answer == o.lower() for t in conversation.turns for o in t.options)
-    fallback = conversation.lang or (app_lang if app_lang in ("en", "es") else None) or "en"
+    known = ("en",) + pchLang.LANGS
+    fallback = conversation.lang or (app_lang if app_lang in known else None) or "en"
     if tapped:  # buttons always send the English value
         return fallback, False
-    if pchLang.looks_spanish(query):
-        return "es", True
-    if pchLang.looks_english(query):
-        # Mixed ("my wife no respira"): reply in English, but translate the Spanish words.
-        return "en", pchLang.has_spanish(query)
-    return fallback, fallback == "es"
+    detected = pchLang.detect(query, fallback)
+    if detected:
+        return detected
+    return fallback, fallback != "en"
 
 
 def processUserQuery(userQuery: str, session_id: str = "default", lang: str | None = None,
@@ -408,13 +408,14 @@ def processUserQuery(userQuery: str, session_id: str = "default", lang: str | No
     conversation = _conversation_for(session_id)
 
     if already_english:
-        reply_lang, translate = (lang if lang in ("en", "es") else conversation.lang or "en"), False
+        reply_lang, translate = (lang if lang in ("en",) + pchLang.LANGS else conversation.lang or "en"), False
     else:
         reply_lang, translate = _reply_language(userQuery, conversation, lang)
     english = userQuery
     if translate:
-        english, how = runtime.translator.to_english(userQuery)
-        logger.info("es -> en (%s): %r -> %r", how, userQuery, english)
+        source = reply_lang if reply_lang != "en" else "es"  # "en" + translate = English with Spanish words
+        english, how = runtime.translator.to_english(userQuery, source)
+        logger.info("%s -> en (%s): %r -> %r", source, how, userQuery, english)
 
     # Conversation is mutable, so keep a single local request from interleaving
     # turns with another request using the same session.
@@ -431,16 +432,18 @@ def processUserQuery(userQuery: str, session_id: str = "default", lang: str | No
         )
     logger.info("status=%s condition=%s llm=%s (%s ms)%s", out["status"], out["condition"],
                 out.get("llm_label"), out.get("llm_ms"), " [discarded by gate]" if out.get("discarded") else "")
-    if reply_lang == "es" and out["status"] == "success" and runtime.guides_es is not None:
-        spanish = runtime.guides_es.protocol(out["response"])
-        if spanish is None:
-            logger.warning("no Spanish guide for %s; sending English", out["condition"])
+    if reply_lang != "en" and reply_lang not in runtime.guides:
+        reply_lang = "en"  # no guides in that language on this server
+    if reply_lang != "en" and out["status"] == "success":
+        translated = runtime.guides[reply_lang].protocol(out["response"])
+        if translated is None:
+            logger.warning("no %s guide for %s; sending English", reply_lang, out["condition"])
             reply_lang = "en"
         else:
-            out = {**out, "condition": spanish[0], "response": spanish[1]}
+            out = {**out, "condition": translated[0], "response": translated[1]}
     result = _serialize_agent_output(out, session_id)
-    if reply_lang == "es":
-        result = pchLang.localize(result)
+    if reply_lang != "en":
+        result = pchLang.localize(result, reply_lang)
         result["translated_query"] = english if translate else None
     else:
         result["lang"] = "en"

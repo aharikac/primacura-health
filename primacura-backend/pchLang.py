@@ -1,17 +1,19 @@
-"""Spanish support: read Spanish messages, answer in Spanish.
+"""Other languages: read the message, answer in the person's language.
 
-The classifier, the safety rules and the LLM second opinion all work on English.
-A message written in Spanish is translated to English first (the local LLM, with
-a small glossary as the fallback when the LLM is down); the decision is made
-exactly as for English; and the reply is then put back into Spanish:
+Supported: Spanish ("es"), Chinese in Simplified ("zh-Hans") and Traditional
+("zh-Hant") characters. The classifier, the safety rules and the LLM second
+opinion all work on English. A message in another language is translated to
+English first (the local LLM, with a small glossary as the Spanish fallback when
+the LLM is down); the decision is made exactly as for English; and the reply is
+then put back into the person's language:
 
   * every message the backend can send (questions, picker intro, pet reply...)
   * option labels and hints (the option VALUES stay English: the apps send the
-    value back, so taps work the same in both languages)
-  * the guide itself, from data/First_Aid_Dataset_Final.es.csv (same rows, steps
-    and [marks] as the English CSV; guide_id = the English guide_title)
+    value back, so taps work the same in every language)
+  * the guide itself, from data/First_Aid_Dataset_Final.<lang>.csv (same rows,
+    steps and [marks] as the English CSV; guide_id = the English guide_title)
 
-Spanish medical wording should be reviewed by a native speaker before release.
+Medical wording in every language should be reviewed by a native speaker before release.
 """
 
 from __future__ import annotations
@@ -30,11 +32,23 @@ from pathlib import Path
 import pandas as pd
 
 import pchCore
-from pchCore import AGE_OPTIONS, CLARIFICATION_PAIRS, SAFETY_STEP, SAFETY_STEP_ES, format_protocol, strip_howto
+import pchLangZh
+from pchCore import AGE_OPTIONS, CLARIFICATION_PAIRS, SAFETY_STEP, format_protocol, strip_howto
 
 log = logging.getLogger(__name__)
 
-ES_CSV = pchCore.REPO_ROOT / "data" / "First_Aid_Dataset_Final.es.csv"
+LANGS = ("es", "zh-Hans", "zh-Hant")
+CHINESE = ("zh-Hans", "zh-Hant")
+
+
+def guides_csv(lang: str) -> Path:
+    return pchCore.REPO_ROOT / "data" / f"First_Aid_Dataset_Final.{lang}.csv"
+
+
+def safety_step(lang: str) -> tuple[str, str]:
+    """(step, action) shown first in every guide in that language."""
+    sfx = {"es": "_ES", "zh-Hans": "_ZH_HANS", "zh-Hant": "_ZH_HANT"}[lang]
+    return getattr(pchCore, f"SAFETY_STEP{sfx}"), getattr(pchCore, f"SAFETY_ACTION{sfx}")
 
 # --------------------------------------------------------------------------
 # Is this message Spanish?
@@ -94,16 +108,35 @@ def has_spanish(text: str) -> bool:
 
 def looks_english(text: str) -> bool:
     words = [w.lower() for w in _WORD.findall(str(text))]
-    return sum(w in _EN_WORDS for w in words) >= 1 and not looks_spanish(text)
+    return sum(w in _EN_WORDS for w in words) >= 1 and not looks_spanish(text) and not pchLangZh.is_chinese(text)
+
+
+def detect(text: str, fallback: str | None = None) -> tuple[str, bool] | None:
+    """(language, needs translating) for a typed message, or None if it could be either.
+
+    fallback: the language to use for Chinese written in characters both scripts share.
+    """
+    if pchLangZh.is_chinese(text):
+        script = pchLangZh.chinese_script(text) or (fallback if fallback in CHINESE else "zh-Hans")
+        return script, True
+    if looks_spanish(text):
+        return "es", True
+    if looks_english(text):
+        # Mixed ("my wife no respira"): reply in English, but translate the Spanish words.
+        return "en", has_spanish(text)
+    return None
 
 
 # --------------------------------------------------------------------------
 # Spanish -> English
 # --------------------------------------------------------------------------
-_TRANSLATE_PROMPT = (
-    "You translate messages typed into a first-aid app from Spanish (or a mix of Spanish and English) "
+_PROMPT_HEAD = (
+    "You translate messages typed into a first-aid app from {language} (or a mix of {language} and English) "
     "into English. Translate faithfully and literally: keep every detail, including who it is, ages, "
     "numbers, drug and product names, and words like 'not'. Do not add, explain, answer or give advice. "
+)
+_PROMPT_TAIL = 'Reply only with JSON: {"english": "<the translation>"}.'
+_SPANISH_HINTS = (
     "Emergency words: 'ahogar(se)' / 'se está ahogando' / 'atragantado' = choking (cannot breathe), unless the "
     "person was in water (agua, piscina, alberca, pileta, río, mar, playa), then it is drowning; 'morado/morada', "
     "'se puso azul' = turned blue; 'no respira' = is not breathing; 'no responde', 'no reacciona', 'no despierta', "
@@ -118,8 +151,13 @@ _TRANSLATE_PROMPT = (
     "= boiling water/oil spilled on them (a burn). Ages: 'tiene 7 días', 'de 7 días' = is 7 days old; 'tiene un "
     "mes', 'de un mes' = is one month old; 'tiene 9 meses', 'de 9 meses' = is 9 months old; 'tiene 2 años', 'de "
     "2 años' = is 2 years old. "
-    'Reply only with JSON: {"english": "<the translation>"}.'
 )
+PROMPTS = {
+    "es": _PROMPT_HEAD.format(language="Spanish") + _SPANISH_HINTS + _PROMPT_TAIL,
+    # Mandarin or Cantonese, Simplified or Traditional characters: one prompt.
+    "zh": _PROMPT_HEAD.format(language="Chinese (Mandarin or Cantonese, written in Simplified or Traditional "
+                              "characters)") + pchLangZh.PROMPT_HINTS + _PROMPT_TAIL,
+}
 # Structured output: Qwen3 otherwise sometimes writes out its reasoning even
 # with thinking switched off, and that text must never reach the classifier.
 _SCHEMA = {"type": "object", "properties": {"english": {"type": "string"}}, "required": ["english"]}
@@ -185,16 +223,16 @@ def spanish_age(text: str) -> str | None:
 
 
 def with_age(original: str, english: str) -> str:
-    """Make sure an age stated in Spanish survives translation in a form the age check reads
-    (the model tends to write "has 9 months" for a short reply like "tiene 9 meses")."""
-    age = spanish_age(original)
+    """Make sure an age stated in Spanish or Chinese survives translation in a form the age check
+    reads (the model tends to write "has 9 months" for a short reply like "tiene 9 meses")."""
+    age = pchLangZh.chinese_age(original) if pchLangZh.is_chinese(original) else spanish_age(original)
     if age and pchCore.detect_age_band(english) is None:
         return f"{english} ({age})"
     return english
 
 
 class Translator:
-    """Spanish -> English with the same local Ollama model as the LLM second opinion."""
+    """Spanish or Chinese -> English with the same local Ollama model as the LLM second opinion."""
 
     def __init__(self, url: str | None = None, model: str | None = None, timeout: float | None = None,
                  use_llm: bool = True):
@@ -205,17 +243,25 @@ class Translator:
         self._send_think_flag = True
 
     @lru_cache(maxsize=512)
-    def to_english(self, text: str) -> tuple[str, str]:
-        """(english, how): how is "llm" or "glossary"."""
-        english, how = self._to_english(text)
+    def to_english(self, text: str, lang: str = "es") -> tuple[str, str]:
+        """(english, how): how is "llm", "glossary" or "untranslated"."""
+        english, how = self._to_english(text, lang)
         return with_age(text, english), how
 
-    def _to_english(self, text: str) -> tuple[str, str]:
-        if not self.use_llm:
+    def _fallback(self, text: str, lang: str) -> tuple[str, str]:
+        # Spanish has a word list; Chinese has none, so the classifier gets the text as is
+        # (it will usually offer the picker rather than guess).
+        if lang == "es":
             return glossary_translate(text), "glossary"
+        return text, "untranslated"
+
+    def _to_english(self, text: str, lang: str) -> tuple[str, str]:
+        if not self.use_llm:
+            return self._fallback(text, lang)
+        prompt = PROMPTS["zh" if lang in CHINESE else "es"]
         body = {
             "model": self.model,
-            "messages": [{"role": "system", "content": _TRANSLATE_PROMPT},
+            "messages": [{"role": "system", "content": prompt},
                          {"role": "user", "content": text.strip()[:1000] + " /no_think"}],
             "format": _SCHEMA,
             "stream": False, "keep_alive": "30m",
@@ -231,21 +277,23 @@ class Translator:
                 content = json.loads(response.read()).get("message", {}).get("content", "")
             content = re.sub(r"<think>.*?</think>", "", content, flags=re.S).strip()
             content = str(json.loads(content).get("english", "")).replace("/no_think", "").strip()
-            # A translation is about as long as the message; anything much longer is not one.
-            if content and len(content) <= 3 * len(text) + 40:
+            # A translation is about as long as the message; anything much longer is not one
+            # (Chinese is denser: one character is often a whole English word).
+            limit = (8 if lang in CHINESE else 3) * len(text) + 40
+            if content and len(content) <= limit:
                 log.info("translated in %d ms: %r -> %r", (time.monotonic() - started) * 1000, text, content)
                 return content, "llm"
         except urllib.error.HTTPError as exc:
             if self._send_think_flag and "think" in exc.read().decode(errors="replace").lower():
                 self._send_think_flag = False
-                return self._to_english(text)
+                return self._to_english(text, lang)
         except Exception as exc:  # LLM down or too slow
-            log.warning("translation failed (%s); using the glossary", exc)
-        return glossary_translate(text), "glossary"
+            log.warning("translation failed (%s); falling back", exc)
+        return self._fallback(text, lang)
 
 
 # --------------------------------------------------------------------------
-# English reply -> Spanish reply
+# English reply -> reply in the person's language
 # --------------------------------------------------------------------------
 CONDITION_ES = {
     "Cardiac Arrest": "Paro cardíaco",
@@ -331,24 +379,57 @@ for _pair, _info in CLARIFICATION_PAIRS.items():
 _AGE_Q = re.compile(r"^This looks like \*\*(.+?)\*\*, but the correct steps depend on the patient's age", re.S)
 
 
-def message_es(message: str) -> str:
+def _replies(lang: str) -> dict:
+    """condition names, option labels and hints, and every message, in one language."""
+    if lang == "es":
+        return {"condition": CONDITION_ES, "option": OPTION_ES, "hint": HINT_ES, "messages": MESSAGE_ES,
+                "age_q": ("Parece **{name}**, pero los pasos correctos dependen de la edad de la persona y no son "
+                          "intercambiables.\n\n**¿Es un adulto, un niño (de 1 año a la pubertad) o un bebé (menor "
+                          "de 1 año)?**")}
+    t = pchLangZh.TABLES[lang]
+    m = t["MESSAGES"]
+    messages = {english: m[key] for key, english in _MESSAGE_KEYS.items()}
+    for pair, info in CLARIFICATION_PAIRS.items():
+        if pair == frozenset(["Cardiac Arrest", "Cardiac Arrest (Drowning)"]):
+            messages[f"**{info['question']}**"] = m["pair_drowning"]
+    return {"condition": t["CONDITION"], "option": {**t["OPTION_EXTRA"], **t["CONDITION"]},
+            "hint": {"None of these": t["NONE_HINT"], **t["CUE"]}, "messages": messages, "age_q": t["AGE_Q"]}
+
+
+# The English messages, by the key the Chinese tables use.
+_MESSAGE_KEYS = dict(zip(
+    ["triage", "triage_again", "tap_again", "tap", "out_of_scope", "unable", "describe", "pet", "discard"],
+    list(MESSAGE_ES)[:9],
+))
+REPLIES = {lang: _replies(lang) for lang in LANGS}
+
+
+def message_in(lang: str, message: str) -> str:
     if not message:
         return message
-    if message in MESSAGE_ES:
-        return MESSAGE_ES[message]
+    r = REPLIES[lang]
+    if message in r["messages"]:
+        return r["messages"][message]
     m = _AGE_Q.match(message)
     if m:
-        name = CONDITION_ES.get(m.group(1), m.group(1))
-        return (f"Parece **{name}**, pero los pasos correctos dependen de la edad de la persona y no son "
-                "intercambiables.\n\n**¿Es un adulto, un niño (de 1 año a la pubertad) o un bebé (menor de 1 año)?**")
-    log.warning("no Spanish text for message: %r", message[:120])
+        return r["age_q"].format(name=r["condition"].get(m.group(1), m.group(1)))
+    log.warning("no %s text for message: %r", lang, message[:120])
     return message
 
 
-class SpanishGuides:
-    def __init__(self, dataset: pd.DataFrame, csv_path: Path = ES_CSV):
-        es = pd.read_csv(csv_path)
-        by_key = {str(r.guide_id).strip(): r for r in es.itertuples()}
+def message_es(message: str) -> str:
+    return message_in("es", message)
+
+
+class Guides:
+    """The guides in one language, looked up by the English protocol the triage picked."""
+
+    def __init__(self, dataset: pd.DataFrame, lang: str, csv_path: Path | None = None):
+        csv_path = csv_path or guides_csv(lang)
+        rows = pd.read_csv(csv_path)
+        by_key = {str(r.guide_id).strip(): r for r in rows.itertuples()}
+        self.lang = lang
+        self.step, action = safety_step(lang)
         self.by_protocol: dict[str, tuple[str, str]] = {}
         for row in dataset.itertuples():
             key = str(row.guide_title).strip()
@@ -357,27 +438,43 @@ class SpanishGuides:
             r = by_key[key]
             self.by_protocol[row.reformatted_output] = (str(r.guide_title).strip(),
                                                         format_protocol(strip_howto(r.output)))
-        pchCore.STEP_ACTION[SAFETY_STEP_ES] = pchCore.SAFETY_ACTION_ES
+        pchCore.STEP_ACTION[self.step] = action
 
     def protocol(self, english_response: str) -> tuple[str, str] | None:
-        """(title, response) in Spanish for a protocol reply ("SAFETY_STEP\\n<steps>")."""
+        """(title, response) in this language for a protocol reply ("SAFETY_STEP\\n<steps>")."""
         head, _, steps = english_response.partition("\n")
         if head != SAFETY_STEP or steps not in self.by_protocol:
             return None
-        title, es_steps = self.by_protocol[steps]
-        return title, f"{SAFETY_STEP_ES}\n{es_steps}"
+        title, translated = self.by_protocol[steps]
+        return title, f"{self.step}\n{translated}"
 
 
-def localize(result: dict) -> dict:
-    """Put a serialized /chat/ reply into Spanish (option values stay English).
+def SpanishGuides(dataset: pd.DataFrame) -> Guides:  # noqa: N802 (kept for older callers)
+    return Guides(dataset, "es")
 
-    Protocol replies get their Spanish steps before serializing (see
-    SpanishGuides.protocol), so here only the message and the options change.
+
+def load_guides(dataset: pd.DataFrame) -> dict[str, Guides]:
+    """Every language whose guides CSV is present."""
+    out = {}
+    for lang in LANGS:
+        if guides_csv(lang).exists():
+            out[lang] = Guides(dataset, lang)
+        else:
+            log.warning("No %s guides (%s); %s messages get English guides.", lang, guides_csv(lang), lang)
+    return out
+
+
+def localize(result: dict, lang: str = "es") -> dict:
+    """Put a serialized /chat/ reply into another language (option values stay English).
+
+    Protocol replies get their translated steps before serializing (see
+    Guides.protocol), so here only the message and the options change.
     """
     result = dict(result)
-    result["lang"] = "es"
+    r = REPLIES[lang]
+    result["lang"] = lang
     options = result.get("options") or []
-    result["option_labels"] = [OPTION_ES.get(o, o) for o in options]
-    result["option_hints"] = [HINT_ES.get(o, "") for o in options]
-    result["message"] = message_es(result.get("message", ""))
+    result["option_labels"] = [r["option"].get(o, o) for o in options]
+    result["option_hints"] = [r["hint"].get(o, "") for o in options]
+    result["message"] = message_in(lang, result.get("message", ""))
     return result

@@ -7,6 +7,17 @@ export function splitSentences(text: string): string[] {
   let start = 0;
   for (let i = 0; i < text.length; i++) {
     const ch = text[i];
+    // Chinese: a full-width 。！？ (and any closing quote) always ends a sentence.
+    if (ch === '。' || ch === '！' || ch === '？') {
+      let end = i + 1;
+      while (end < text.length && /[」』”）]/.test(text[end])) end++;
+      if (end >= text.length) continue;
+      const piece = text.slice(start, end).trim();
+      if (piece) out.push(piece);
+      start = end;
+      i = end - 1;
+      continue;
+    }
     if (ch !== '.' && ch !== '!' && ch !== '?') continue;
     let end = i + 1;
     while (end < text.length && /["”')]/.test(text[end])) end++;

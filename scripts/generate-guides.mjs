@@ -23,9 +23,15 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DATA = path.join(ROOT, 'primacura-backend', 'data');
 const CSV = path.join(DATA, 'First_Aid_Dataset_Final.csv');
 const HOWTO_CSV = path.join(DATA, 'how-to-guides.csv');
-// Spanish: same rows, steps and [marks]; guide_id (Spanish guides) is the English guide_title.
-const CSV_ES = path.join(DATA, 'First_Aid_Dataset_Final.es.csv');
-const HOWTO_CSV_ES = path.join(DATA, 'how-to-guides.es.csv');
+// Other languages: First_Aid_Dataset_Final.<lang>.csv and how-to-guides.<lang>.csv
+// have the same rows, steps and [marks] as the English ones (guide_id = the
+// English guide_title); diagrams/<lang>/*.svg come from scripts/translate-diagrams.py.
+// suffix: the generated exports (conditionsEs, howTosZhHans, ...).
+export const LANGS = [
+  { lang: 'es', suffix: 'Es' },
+  { lang: 'zh-Hans', suffix: 'ZhHans' },
+  { lang: 'zh-Hant', suffix: 'ZhHant' },
+];
 const DIAGRAM_DIR = path.join(DATA, 'diagrams');
 const APPS = ['primacura-frontend', 'primacura-ios'].map((app) => path.join(ROOT, app, 'src', 'data'));
 const PCH_CORE = path.join(ROOT, 'primacura-backend', 'pchCore.py');
@@ -126,7 +132,7 @@ export function renderHowTo(csvText, diagramIds = null, { source = 'how-to-guide
     }
     const steps = splitSteps(r.steps).map((step, n) => {
       // "Lead: rest" -> bold lead + text (only for a short lead)
-      const m = step.match(/^([^:]{1,32}):\s+(.*)$/s);
+      const m = step.match(/^([^:：]{1,32})(?::\s+|：\s*)(.*)$/s); // ASCII or full-width colon (Chinese)
       const s = m ? { lead: m[1].trim(), text: m[2].trim() } : { lead: '', text: step };
       return stepDiagrams[n + 1] ? { ...s, diagram: stepDiagrams[n + 1] } : s;
     });
@@ -222,23 +228,25 @@ if (isMain) {
   const howTo = existsSync(HOWTO_CSV) ? renderHowTo(readFileSync(HOWTO_CSV, 'utf8'), diagrams.ids) : null;
   const outputs = { 'conditions.ts': render(readFileSync(CSV, 'utf8'), howTo?.ids ?? null, diagrams.ids) };
   if (howTo) outputs['howTo.ts'] = howTo.content;
-  // Spanish guides and How-To cards (same order, ids and marks as the English ones).
-  const howToEs = existsSync(HOWTO_CSV_ES)
-    ? renderHowTo(readFileSync(HOWTO_CSV_ES, 'utf8'), diagrams.ids, { source: 'how-to-guides.es.csv', exportName: 'howTosEs' }) : null;
-  if (howToEs) {
-    const en = howTo?.cards.map((c) => c.id).join() ?? '', es = howToEs.cards.map((c) => c.id).join();
-    if (en !== es) throw new Error('how-to-guides.es.csv must have the same ids, in the same order, as how-to-guides.csv');
-    outputs['howTo.es.ts'] = howToEs.content;
+  // Translated guides, How-To cards and diagrams (same order, ids and marks as the English ones;
+  // the apps fall back to the English diagram for any that is missing).
+  const translated = [];
+  for (const { lang, suffix } of LANGS) {
+    const csv = path.join(DATA, `First_Aid_Dataset_Final.${lang}.csv`);
+    const howToCsv = path.join(DATA, `how-to-guides.${lang}.csv`);
+    if (!existsSync(csv) || !existsSync(howToCsv)) continue;
+    const cards = renderHowTo(readFileSync(howToCsv, 'utf8'), diagrams.ids, { source: `how-to-guides.${lang}.csv`, exportName: `howTos${suffix}` });
+    if ((howTo?.cards.map((c) => c.id).join() ?? '') !== cards.cards.map((c) => c.id).join()) {
+      throw new Error(`how-to-guides.${lang}.csv must have the same ids, in the same order, as how-to-guides.csv`);
+    }
+    outputs[`howTo.${lang}.ts`] = cards.content;
+    outputs[`conditions.${lang}.ts`] = render(readFileSync(csv, 'utf8'), howTo?.ids ?? null, diagrams.ids,
+      { source: `First_Aid_Dataset_Final.${lang}.csv`, exportName: `conditions${suffix}` });
+    const pics = renderDiagrams(path.join(DIAGRAM_DIR, lang), { source: `diagrams/${lang}/*.svg`, exportName: `diagrams${suffix}` });
+    for (const id of pics.ids) if (!diagrams.ids.has(id)) throw new Error(`diagrams/${lang}/${id}.svg has no English diagrams/${id}.svg`);
+    outputs[`diagrams.${lang}.ts`] = pics.content;
+    translated.push({ lang, csv, cards: cards.cards });
   }
-  if (existsSync(CSV_ES)) {
-    outputs['conditions.es.ts'] = render(readFileSync(CSV_ES, 'utf8'), howTo?.ids ?? null, diagrams.ids,
-      { source: 'First_Aid_Dataset_Final.es.csv', exportName: 'conditionsEs' });
-  }
-  outputs['diagrams.ts'] = diagrams.content;
-  // Spanish diagrams (scripts/translate-diagrams-es.py); the apps fall back to English for any missing.
-  const diagramsEs = renderDiagrams(path.join(DIAGRAM_DIR, 'es'), { source: 'diagrams/es/*.svg', exportName: 'diagramsEs' });
-  for (const id of diagramsEs.ids) if (!diagrams.ids.has(id)) throw new Error(`diagrams/es/${id}.svg has no English diagrams/${id}.svg`);
-  outputs['diagrams.es.ts'] = diagramsEs.content;
   let stale = 0;
   const report = (what) => {
     stale++;
@@ -253,16 +261,16 @@ if (isMain) {
     cards: howTo?.cards ?? [],
     safetyStep: pchCore ? readSafetyStep(pchCore) : null,
   });
-  if (existsSync(CSV_ES)) {
-    const ids = new Set(clips.map((c) => c.id));
+  const ids = new Set(clips.map((c) => c.id));
+  for (const { lang, csv, cards } of translated) {
     for (const c of collectSpeech({
-      conditions: conditionsForSpeech(readFileSync(CSV_ES, 'utf8')),
-      cards: howToEs?.cards ?? [],
-      safetyStep: pchCore ? readSafetyStep(pchCore, 'es') : null,
-      lang: 'es',
-    })) if (!ids.has(c.id)) clips.push(c);
-    clips.sort((a, b) => a.id.localeCompare(b.id));
+      conditions: conditionsForSpeech(readFileSync(csv, 'utf8')),
+      cards,
+      safetyStep: pchCore ? readSafetyStep(pchCore, lang) : null,
+      lang,
+    })) if (!ids.has(c.id)) { ids.add(c.id); clips.push(c); }
   }
+  clips.sort((a, b) => a.id.localeCompare(b.id));
   const manifest = manifestContent(clips);
   if ((existsSync(SPEECH_MANIFEST) ? readFileSync(SPEECH_MANIFEST, 'utf8') : '') !== manifest) {
     report(path.relative(ROOT, SPEECH_MANIFEST));

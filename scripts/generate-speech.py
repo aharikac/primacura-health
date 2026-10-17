@@ -18,8 +18,11 @@ own packages (see below).
   python3 scripts/generate-speech.py --engine kokoro  # free, runs on this computer
   python3 scripts/generate-speech.py --voice-es es-US-Chirp3-HD-Leda  # another Spanish voice
 
-Spanish clips (manifest entries with "lang": "es", from the Spanish guides) are
-recorded with a Spanish voice: es-US-Chirp3-HD-Aoede on Google, ef_dora on Kokoro.
+Clips in other languages (manifest entries with "lang") are recorded with a voice
+for that language (--voice-es, --voice-zh-hans, --voice-zh-hant to change them):
+  es       Spanish    Google es-US-Chirp3-HD-Aoede   Kokoro ef_dora
+  zh-Hans  Mandarin   Google cmn-CN-Chirp3-HD-Aoede  Kokoro zf_xiaobei
+  zh-Hant  Cantonese  Google yue-HK-Standard-A       (Kokoro has no Cantonese voice)
 
 Google: needs the gcloud CLI signed in (gcloud auth login), a project set
 (gcloud config set project <id>) and the Text-to-Speech API enabled on it
@@ -33,6 +36,7 @@ espeak-ng (brew install espeak-ng) and ffmpeg (brew install ffmpeg).
 import argparse
 import base64
 import json
+import re
 import shutil
 import subprocess
 import sys
@@ -47,6 +51,25 @@ MANIFEST = ROOT / "scripts" / "speech-manifest.json"
 AUDIO_DIR = ROOT / "primacura-frontend" / "public" / "audio"
 SAMPLE_DIR = ROOT / "scripts" / "speech-samples"
 RATE = 0.95  # a touch slower than normal: easier to follow while doing first aid
+
+
+def shorten_chinese_sentences(text, limit=36):
+    """Google rejects a Chinese "sentence" (text between 。！？) that is too long, and
+    Chinese uses commas where English would start a new sentence. Turn the pauses
+    inside a long sentence into full stops: first ：and ；, then ，if still too long,
+    and put a space after every full stop (Google needs it to see the sentence end).
+    Only the audio request changes; the clip id still comes from the original text."""
+    def split(sentence, marks):
+        if len(sentence) <= limit:
+            return sentence
+        for mark in marks:
+            sentence = sentence.replace(mark, "。")
+        return sentence
+    parts = re.split(r"(?<=[。！？])", text)
+    parts = [split(p, "：；") for p in parts]
+    parts = [split(p, "，、") if any(len(x) > limit for x in re.split(r"(?<=[。！？])", p)) else p for p in parts]
+    # Google only ends a sentence at a full stop followed by a space, so add one.
+    return re.sub(r"([。！？])(?=\S)", r"\1 ", "".join(parts)).strip()
 
 
 # ---------------------------------------------------------------- Google ----
@@ -73,6 +96,8 @@ class Google:
         return out.stdout.strip()
 
     def synthesize(self, text, dest):
+        if self.lang.startswith(("cmn", "yue", "zh")):
+            text = shorten_chinese_sentences(text)
         config = {"audioEncoding": "MP3", "sampleRateHertz": 24000}
         if self.use_rate:
             config["speakingRate"] = RATE
@@ -113,8 +138,8 @@ class Kokoro:
         if not shutil.which("ffmpeg"):
             sys.exit("ffmpeg not found. Run: brew install ffmpeg")
         self.voice = voice or "af_heart"
-        # Voice prefix: a = American English, b = British English, e = Spanish.
-        self.pipeline = KPipeline(lang_code=self.voice[0] if self.voice[0] in "abe" else "a")
+        # Voice prefix: a = American English, b = British English, e = Spanish, z = Mandarin.
+        self.pipeline = KPipeline(lang_code=self.voice[0] if self.voice[0] in "abez" else "a")
 
     def synthesize(self, text, dest):
         import numpy as np
@@ -131,6 +156,8 @@ def main():
     ap.add_argument("--engine", choices=["google", "kokoro"], default="google")
     ap.add_argument("--voice", help="Google: e.g. en-US-Chirp3-HD-Aoede (default), en-US-Chirp3-HD-Charon, en-US-Neural2-F. Kokoro: af_heart (default), am_michael")
     ap.add_argument("--voice-es", help="Spanish clips. Google: es-US-Chirp3-HD-Aoede (default). Kokoro: ef_dora (default)")
+    ap.add_argument("--voice-zh-hans", help="Mandarin clips (Simplified). Google: cmn-CN-Chirp3-HD-Aoede (default). Kokoro: zf_xiaobei")
+    ap.add_argument("--voice-zh-hant", help="Cantonese clips (Traditional). Google: yue-HK-Standard-A (default)")
     ap.add_argument("--sample", action="store_true", help="record 3 sample clips into scripts/speech-samples/ and stop")
     ap.add_argument("--redo", action="store_true", help="re-record every clip (e.g. after changing the voice)")
     args = ap.parse_args()
@@ -142,11 +169,20 @@ def main():
     engine = Engine(args.voice)
     engines = {"en": engine}
 
+    defaults = {  # language: (Google voice, Kokoro voice, --voice-... option)
+        "es": ("es-US-Chirp3-HD-Aoede", "ef_dora", args.voice_es),
+        "zh-Hans": ("cmn-CN-Chirp3-HD-Aoede", "zf_xiaobei", args.voice_zh_hans),
+        "zh-Hant": ("yue-HK-Standard-A", None, args.voice_zh_hant),
+    }
+
     def engine_for(clip):
         lang = clip.get("lang", "en")
         if lang not in engines:
-            default = "es-US-Chirp3-HD-Aoede" if args.engine == "google" else "ef_dora"
-            engines[lang] = Engine(args.voice_es or default)
+            google, kokoro, chosen = defaults[lang]
+            voice = chosen or (google if args.engine == "google" else kokoro)
+            if not voice:
+                sys.exit(f"No {args.engine} voice for {lang} clips. Use --engine google, or pass --voice-{lang.lower()}.")
+            engines[lang] = Engine(voice)
         return engines[lang]
 
     if args.sample:
@@ -163,9 +199,11 @@ def main():
     AUDIO_DIR.mkdir(parents=True, exist_ok=True)
     wanted = {c["id"] for c in clips}
     todo = [c for c in clips if args.redo or not (AUDIO_DIR / f"{c['id']}.mp3").exists()]
-    spanish = sum(1 for c in todo if c.get("lang") == "es")
-    print(f"{len(clips)} clips, {len(todo)} to record with {args.engine} voice {engine.voice}"
-          + (f" ({spanish} Spanish, with a Spanish voice)" if spanish else ""))
+    by_lang = {}
+    for c in todo:
+        by_lang[c.get("lang", "en")] = by_lang.get(c.get("lang", "en"), 0) + 1
+    print(f"{len(clips)} clips, {len(todo)} to record with {args.engine}: "
+          + ", ".join(f"{n} {lang}" for lang, n in sorted(by_lang.items())) if todo else "nothing to record")
     for n, c in enumerate(todo, 1):
         dest = AUDIO_DIR / f"{c['id']}.mp3"
         tmp = dest.with_suffix(".part")

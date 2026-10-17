@@ -5,6 +5,7 @@ import { Lang } from '../types';
 // Keep in sync with scripts/speech-clips.mjs and the other app's src/lib/speakable.ts.
 export function speakable(text: string, lang: Lang = 'en'): string {
   if (lang === 'es') return speakableEs(text);
+  if (lang === 'zh-Hans' || lang === 'zh-Hant') return speakableZh(text);
   return text
     .replace(/½/g, ' and a half')
     // Phone numbers digit by digit (1-800-222-1222), before "2-3" becomes "2 to 3".
@@ -56,4 +57,41 @@ function speakableEs(text: string): string {
     .replace(/\bRCP\b/g, 'R C P')
     .replace(/\s+/g, ' ')
     .trim();
+}
+
+// Chinese guides ("100–120次" -> "100到120次", "30 : 2" -> "30比2", "AED" -> "A E D").
+function speakableZh(text: string): string {
+  return text
+    .replace(/(\d)\s*½/g, '$1.5')
+    .replace(/½/g, '0.5')
+    .replace(/\b(?:\d{1,3}-)?\d{3}-\d{3}-\d{4}\b/g, (m: string) => m.split('-').map((g) => g.split('').join(' ')).join('，'))
+    .replace(/(\d)\s*[-–]\s*(\d)/g, '$1到$2')
+    .replace(/(\d)\s*:\s*(\d)/g, '$1比$2')
+    .replace(/mg\/dL/g, '毫克每分升')
+    .replace(/×/g, '乘')
+    .replace(/\s+·\s+/g, '，')
+    .replace(/\b911\b/g, '9 1 1')
+    .replace(/\bAED\b/g, 'A E D')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+const isChinese = (lang: Lang) => lang === 'zh-Hans' || lang === 'zh-Hant';
+
+// "Step 3." said before a step (its own clip). Keep in sync with stepLabel() in scripts/speech-clips.mjs.
+export function stepLabel(lang: Lang, n: number): string {
+  if (lang === 'es') return `Paso ${n}.`;
+  if (isChinese(lang)) return `第${n}步。`;
+  return `Step ${n}.`;
+}
+
+// The full stop after a How-To title or step lead. Keep in sync with stop() in scripts/speech-clips.mjs.
+export function stop(lang: Lang): string {
+  return isChinese(lang) ? '。' : '. ';
+}
+
+// What a recorded clip's id is the hash of: Cantonese clips are kept apart from Mandarin ones.
+// Keep in sync with clipKey() in scripts/speech-clips.mjs.
+export function clipKey(spoken: string, lang: Lang): string {
+  return lang === 'zh-Hant' ? `yue|${spoken}` : spoken;
 }

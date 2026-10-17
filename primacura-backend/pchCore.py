@@ -313,6 +313,10 @@ STEP_ACTION[SAFETY_STEP] = SAFETY_ACTION
 # Spanish (lang="es"): same safety step, shown first in every Spanish guide.
 SAFETY_ACTION_ES = "Asegúrate de que el lugar es seguro."
 SAFETY_STEP_ES = f"{SAFETY_ACTION_ES} Busca tráfico, fuego, agua, electricidad u otros peligros antes de acercarte."
+SAFETY_ACTION_ZH_HANS = "确保现场安全。"
+SAFETY_STEP_ZH_HANS = f"{SAFETY_ACTION_ZH_HANS} 靠近之前，留意车辆、火、水、电或其他危险。"
+SAFETY_ACTION_ZH_HANT = "確保現場安全。"
+SAFETY_STEP_ZH_HANT = f"{SAFETY_ACTION_ZH_HANT} 靠近之前，留意車輛、火、水、電或其他危險。"
 
 
 def strip_howto(raw_steps: str) -> str:

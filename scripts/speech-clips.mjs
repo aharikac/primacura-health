@@ -15,6 +15,7 @@ import path from 'node:path';
 // Keep in sync with src/lib/speakable.ts in both apps.
 export function speakable(text, lang = 'en') {
   if (lang === 'es') return speakableEs(text);
+  if (lang === 'zh-Hans' || lang === 'zh-Hant') return speakableZh(text);
   return text
     .replace(/½/g, ' and a half')
     // Phone numbers digit by digit (1-800-222-1222), before "2-3" becomes "2 to 3".
@@ -68,6 +69,42 @@ function speakableEs(text) {
     .trim();
 }
 
+// Chinese guides ("100–120次" -> "100到120次", "30 : 2" -> "30比2", "AED" -> "A E D").
+function speakableZh(text) {
+  return text
+    .replace(/(\d)\s*½/g, '$1.5')
+    .replace(/½/g, '0.5')
+    .replace(/\b(?:\d{1,3}-)?\d{3}-\d{3}-\d{4}\b/g, (m) => m.split('-').map((g) => g.split('').join(' ')).join('，'))
+    .replace(/(\d)\s*[-–]\s*(\d)/g, '$1到$2')
+    .replace(/(\d)\s*:\s*(\d)/g, '$1比$2')
+    .replace(/mg\/dL/g, '毫克每分升')
+    .replace(/×/g, '乘')
+    .replace(/\s+·\s+/g, '，')
+    .replace(/\b911\b/g, '9 1 1')
+    .replace(/\bAED\b/g, 'A E D')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+// The full stop after a How-To title or step lead: "Push. " / "按压。". Keep in sync
+// with HowToScreen in both apps.
+export function stop(lang) {
+  return lang === 'zh-Hans' || lang === 'zh-Hant' ? '。' : '. ';
+}
+
+// "Step 3." in each language; the apps say it as its own clip before the step.
+export function stepLabel(lang, n) {
+  if (lang === 'es') return `Paso ${n}.`;
+  if (lang === 'zh-Hans' || lang === 'zh-Hant') return `第${n}步。`;
+  return `Step ${n}.`;
+}
+
+// What a clip's id is the hash of. Cantonese (zh-Hant) recordings are kept apart
+// from Mandarin ones, since the same characters can appear in both.
+export function clipKey(spoken, lang = 'en') {
+  return lang === 'zh-Hant' ? `yue|${spoken}` : spoken;
+}
+
 // Keep in sync with src/lib/clipId.ts in both apps (cyrb53, base 36).
 export function clipId(text) {
   let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
@@ -83,7 +120,7 @@ export function clipId(text) {
 
 // The guides' safety step, which the backend puts first in every guide it sends.
 export function readSafetyStep(pchCorePy, lang = 'en') {
-  const sfx = lang === 'es' ? '_ES' : '';
+  const sfx = { es: '_ES', 'zh-Hans': '_ZH_HANS', 'zh-Hant': '_ZH_HANT' }[lang] ?? '';
   const action = (pchCorePy.match(new RegExp(`^SAFETY_ACTION${sfx}\\s*=\\s*"([^"]+)"`, 'm')) || [])[1];
   const step = (pchCorePy.match(new RegExp(`^SAFETY_STEP${sfx}\\s*=\\s*f"([^"]+)"`, 'm')) || [])[1];
   return action && step ? step.replace(`{SAFETY_ACTION${sfx}}`, action) : null;
@@ -94,12 +131,11 @@ const MAX_STEP_NUMBER = 20;
 // Every piece of text the apps read aloud. Long pieces start with "Step N." in
 // the apps; that prefix is its own short clip, so the same step body is reused
 // whatever number it has (guides from chat start with the safety step).
-// lang "es": Spanish guides ("Paso N."); those clips carry lang: "es" so they are
-// recorded with a Spanish voice.
+// lang: the language of the guides (other than "en", the clips carry it so they are
+// recorded with that language's voice).
 export function collectSpeech({ conditions, cards, safetyStep, lang = 'en' }) {
   const texts = new Set();
-  const stepWord = lang === 'es' ? 'Paso' : 'Step';
-  for (let n = 1; n <= MAX_STEP_NUMBER; n++) texts.add(`${stepWord} ${n}.`);
+  for (let n = 1; n <= MAX_STEP_NUMBER; n++) texts.add(stepLabel(lang, n));
   // Guide step: "<action> <details> <key numbers>" (ProtocolScreen).
   for (const c of conditions) {
     c.steps.forEach((text, i) => {
@@ -110,13 +146,13 @@ export function collectSpeech({ conditions, cards, safetyStep, lang = 'en' }) {
   if (safetyStep) texts.add(safetyStep);
   // How-To card: "<title>." then "<lead>. <text>" per step (HowToScreen).
   for (const card of cards ?? []) {
-    texts.add(`${card.title}.`);
-    for (const s of card.steps) texts.add(`${s.lead ? `${s.lead}. ` : ''}${s.text}`);
+    texts.add(`${card.title}${stop(lang)}`.trim());
+    for (const s of card.steps) texts.add(`${s.lead ? `${s.lead}${stop(lang)}` : ''}${s.text}`);
   }
   const clips = new Map();
   for (const t of texts) {
     const spoken = speakable(t, lang);
-    if (spoken) clips.set(clipId(spoken), spoken);
+    if (spoken) clips.set(clipId(clipKey(spoken, lang)), spoken);
   }
   return [...clips].map(([id, text]) => (lang === 'en' ? { id, text } : { id, text, lang })).sort((a, b) => a.id.localeCompare(b.id));
 }

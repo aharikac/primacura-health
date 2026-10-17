@@ -1,0 +1,101 @@
+Test_ID,User_Query,Expected_Condition,Expected_Age_Band,Follow_Up_Replies,Category,Source_URL,Fidelity,Script
+Z001,打球的队友突然一头栽倒在地，感受不到他的呼吸和心跳，快救人！,Cardiac Arrest,adult,,news,https://m.thepaper.cn/newsDetail_forward_29201921,adapted,Simplified
+Z002,4歲囡囡喺街度暈低咗，冇呼吸冇心跳，點做CPR？,Cardiac Arrest,child,,news,https://www.stheadline.com/kindness_stories/3402556/%E6%88%91%E8%A6%81%E8%AE%9A%E4%BD%A24%E6%AD%B2%E5%A5%B3%E7%AB%A5%E5%85%AB%E8%99%9F%E6%B3%A2%E4%B8%8B%E8%A1%97%E9%A0%AD%E6%9A%88%E5%80%92%E7%84%A1%E5%91%BC%E5%90%B8%E5%BF%83%E8%B7%B3-%E5%B1%AF%E9%96%80%E9%95%B7%E8%80%85%E4%B8%AD%E5%BF%83%E8%81%B7%E5%93%A1%E7%88%AD%E5%88%86%E5%A5%AA%E7%A7%92%E6%95%91%E5%9B%9E%E4%B8%80%E5%91%BD,adapted,Cantonese
+Z003,3個月大的孫子嗆奶後沒反應，沒有呼吸了！,Cardiac Arrest,infant,,911/999,https://www.setn.com/News.aspx?NewsID=1844621,adapted,Traditional
+Z004,球场上一个男的突然倒地，叫不醒也没呼吸了，附近有AED吗,Cardiac Arrest,adult,,news,https://www.chinanews.com.cn/sh/2026/08-29/10686308.shtml,adapted,Simplified
+Z005,港鐵站有個男人暈低咗，冇反應又冇呼吸，我要唔要做CPR？,Cardiac Arrest,adult,,news,https://www.stheadline.com/health-edu/3360313/%E6%B8%AF%E7%88%B8%E5%BF%83%E8%87%9F%E5%81%9C%E9%A0%93%E6%9A%88%E5%80%92%E6%B8%AF%E9%90%B5-%E9%80%94%E4%BA%BA%E5%81%9ACPR%E6%88%90%E5%8A%9F%E6%95%91%E4%BA%BA-%E9%86%AB%E7%94%9F%E6%95%994%E6%8B%9B%E5%88%A4%E6%96%B7%E7%8C%9D%E6%AD%BB%E5%8D%B1%E6%A9%9F-%E9%99%84CPR%E6%96%BD%E6%95%914%E8%B2%BC%E5%A3%AB,adapted,Cantonese
+Z006,外卖小哥突然倒地抽了几下就没反应了，也不喘气了,Cardiac Arrest,adult,,news,https://m.thepaper.cn/newsDetail_forward_33172856,adapted,Simplified
+Z007,他剛剛說胸悶、冒冷汗，下一秒就倒下去失去意識，現在沒有呼吸,Cardiac Arrest,adult,,news,https://health.ettoday.net/news/2351014,adapted,Traditional
+Z008,宝宝没有呼吸了，怎么叫都没反应，心肺复苏怎么做,Cardiac Arrest,infant,五个月大,health-page,https://m.baidu.com/bh/m/detail/ar_9495843460736267086?frsrcid=rec,adapted,Simplified
+Z009,2岁女儿掉进浴盆里，口唇发紫、怎么叫都没有反应,Cardiac Arrest (Drowning),child,,news,https://m.thepaper.cn/newsDetail_forward_33606588,adapted,Simplified
+Z010,個女跌咗落水，撈返上嚟塊面發紫，冇呼吸！,Cardiac Arrest (Drowning),child,五歲,news,https://www.hk01.com/%E5%A4%A7%E5%9C%8B%E5%B0%8F%E4%BA%8B/60210831/%E5%A5%B3%E7%AB%A5%E6%BA%BA%E6%B0%B4%E8%87%89%E8%89%B2%E7%99%BC%E7%B4%AB-%E9%9D%A2%E8%86%9C%E6%97%97%E8%A2%8D%E5%A5%B3-cpr%E6%95%91%E6%8F%B4%E6%88%90%E5%8A%9F-%E6%88%91%E4%B9%9F%E6%98%AF%E4%B8%80%E5%90%8D%E6%AF%8D%E8%A6%AA,adapted,Cantonese
+Z011,泳灘有個阿伯遇溺，救咗上岸但冇反應冇呼吸,Cardiac Arrest (Drowning),adult,,news,https://www.hk01.com/%E7%AA%81%E7%99%BC/60397753/%E6%B8%85%E6%B0%B4%E7%81%A3%E7%AC%AC%E4%B8%80%E7%81%A3%E6%B3%B3%E7%81%98%E7%94%B7%E6%B3%B3%E5%AE%A2%E7%96%91%E9%81%87%E6%BA%BA-%E6%95%91%E8%AD%B7%E5%93%A1%E7%94%A8%E8%87%AA%E5%8B%95%E5%BF%83%E5%A4%96%E5%A3%93%E6%A9%9F%E6%80%A5%E6%95%91%E9%80%81%E9%99%A2,adapted,Cantonese
+Z012,1歲女兒跌入澡盆，臉色鐵青、意識不清,Cardiac Arrest (Drowning),child,,news,https://www.setn.com/news/1529114,trimmed,Traditional
+Z013,朋友在海邊溺水，拉上岸沒有呼吸心跳，CPR要怎麼做,Cardiac Arrest (Drowning),adult,,news,https://news.ltn.com.tw/news/society/breakingnews/5207687,adapted,Traditional
+Z014,男孩掉河里刚捞上来，没呼吸了，脸都白了,Cardiac Arrest (Drowning),child,,news,https://m.thepaper.cn/newsDetail_forward_29152603,adapted,Simplified
+Z015,孩子溺水了刚救上来，没有呼吸，要不要先倒着控水？,Cardiac Arrest (Drowning),child,七岁,health-page,http://health.people.com.cn/n1/2018/0814/c14739-30227911.html,adapted,Simplified
+Z016,我老公話心口翳悶，一路冒冷汗，係咪心臟病發？,Heart Attack,adult,,news,https://www.stheadline.com/health-edu/3151496/%E7%8C%9D%E6%AD%BB%E7%94%B7%E5%AD%90%E8%83%B8%E5%8F%A3%E7%BF%B3%E6%82%B6%E5%86%92%E5%86%B7%E6%B1%97%E9%9A%AA%E7%8C%9D%E6%AD%BB-%E9%86%AB%E7%94%9F%E7%B1%B2%E5%B0%8F%E5%BF%8310%E5%A4%A7%E7%8C%9D%E6%AD%BB%E7%97%87%E7%8B%80,adapted,Cantonese
+Z017,爸爸60歲，說肚子痛一直冒冷汗，以為吃壞肚子,Heart Attack,adult,,news,https://www.ettoday.net/news/20261008/3251307.htm,adapted,Traditional
+Z018,突然胸口闷手麻是什么原因,Heart Attack,adult,,search,https://health.baidu.com/m/detail/ar_6382687996294147121,verbatim,Simplified
+Z019,左胳膊发麻心脏不舒服是怎么回事,Heart Attack,adult,,search,https://health.baidu.com/m/detail/ar_5911895873361951379,verbatim,Simplified
+Z020,我爸胸悶冒冷汗超過5分鐘了，還喘不太過氣,Heart Attack,adult,,health-page,https://health.udn.com/health/story/5977/3610826,adapted,Traditional
+Z021,老公半夜話胃痛，連心口都痛，成身冒冷汗,Heart Attack,adult,,news,https://hk01.com/%E5%81%A5%E5%BA%B7Easy/60397104/%E8%83%83%E7%97%9B%E4%BB%A5%E7%82%BA%E8%83%83%E7%82%8E-40%E6%AD%B2%E7%94%B7%E5%8D%8A%E5%A4%9C%E5%BF%83%E6%A2%97%E7%8C%9D%E6%AD%BB-%E8%AD%A6%E6%83%95%E5%BF%83%E7%B5%9E%E7%97%9B3%E5%A4%A7%E9%9D%9E%E5%85%B8%E5%9E%8B%E7%97%87%E7%8B%80,adapted,Cantonese
+Z022,我妈说胸口压着痛，牙和左肩也痛，出了一身冷汗,Heart Attack,adult,,health-page,https://zhuanlan.zhihu.com/p/75274982,adapted,Simplified
+Z023,快帮忙！她气管堵了，喘不上气了！,Choking,adult,三十多岁,news,https://www.163.com/dy/article/KFVH51AU0552LUWF.html,verbatim,Simplified
+Z024,宝宝喝奶呛到了，脸憋得发紫，哭不出声,Choking,infant,两个月大,health-page,https://www.thepaper.cn/newsDetail_forward_25489258,adapted,Simplified
+Z025,男童被东西卡住喉咙，瞬间面色发紫、呼吸停滞,Choking,child,,news,https://m.thepaper.cn/newsDetail_forward_30346928,trimmed,Simplified
+Z026,阿爺飲茶食乾炒牛河鯁親，咳唔出聲，塊面開始變色,Choking,adult,,news,https://www.hk01.com/%E7%AA%81%E7%99%BC/60390662/%E9%9D%92%E8%A1%A3%E5%9F%8E%E4%B8%83%E6%97%AC%E7%BF%81%E8%8C%B6%E6%A8%93%E9%A3%9F%E4%B9%BE%E7%82%92%E7%89%9B%E6%B2%B3%E9%AF%81%E5%96%89-%E4%B8%80%E5%BA%A6%E6%98%8F%E8%BF%B7%E9%80%81%E9%99%A2%E5%BE%8C%E6%81%A2%E5%BE%A9%E6%B8%85%E9%86%92,adapted,Cantonese
+Z027,80幾歲的阿公吃飯噎到，講不出話，快要倒下去了,Choking,adult,,911/999,https://udn.com/news/story/7320/9509252,adapted,Traditional
+Z028,個仔1歲，食啫喱鯁住咗，喊唔出聲又唞唔到氣,Choking,child,,news,https://www.stheadline.com/realtime-china/3422810/%E5%A5%AA%E5%91%BD%E5%95%AB%E5%96%B1%E5%BB%A3%E6%9D%B11%E6%AD%B2%E7%94%B7%E5%AC%B0%E4%B8%8D%E5%B9%B8%E9%AF%81%E6%AD%BB-%E7%88%B6%E6%AF%8D%E5%98%97%E8%A9%A6%E6%B5%B7%E5%A7%86%E7%AB%8B%E5%85%8B%E6%B3%95%E4%BB%8D%E5%A4%B1%E6%95%97,adapted,Cantonese
+Z029,小孩糖果卡喉咙了，说不出话，脸憋得通红,Choking,child,四岁,news,https://www.163.com/dy/article/JJN87D6R0534LL2T.html,adapted,Simplified
+Z030,BB飲奶鯁親，塊面發紫，冇聲出,Choking,infant,四個月大,health-page,https://www.hk01.com/%E8%A6%AA%E5%AD%90/992252/%E9%BE%8Db%E8%AC%9B%E5%BA%A7-%E5%AC%B0%E5%85%92%E5%93%BD%E5%A1%9E%E6%88%96%E8%87%B4%E7%94%9F%E5%91%BD%E5%8D%B1%E9%9A%AA-%E5%97%86%E5%A5%B6%E9%9C%80%E9%80%99%E6%A8%A3%E5%81%9A-%E5%89%8D%E8%AD%B7%E5%A3%AB%E6%95%99%E6%80%A5%E6%95%91%E6%8A%80%E5%B7%A7,adapted,Cantonese
+Z031,爸爸聚餐吃了軟殼蟹，全身紅腫、喘不過氣,Anaphylaxis,adult,,news,https://udn.com/news/story/7266/7930850,adapted,Traditional
+Z032,兒子吃花生醬後眼睛和嘴巴腫脹，且呼吸困難,Anaphylaxis,child,,news,https://udn.com/news/story/7266/7997293,trimmed,Traditional
+Z033,老公被马蜂蜇了头，脸肿起来了，现在人昏倒在地,Anaphylaxis,adult,,news,https://www.thepaper.cn/newsDetail_forward_23997508,adapted,Simplified
+Z034,我食完蝦嘴唇腫晒，喉嚨好緊唞唔到氣,Anaphylaxis,adult,,news,https://www.hk01.com/%E6%95%99%E7%85%AE/60300365/%E9%81%8E%E6%95%8F-%E5%A5%B3%E5%AD%90%E5%90%83%E8%9D%A6%E5%8D%B3%E5%98%B4%E5%94%87%E8%85%AB%E8%84%B9%E5%96%89%E5%9A%A8%E7%B7%8A%E7%B8%AE-%E9%86%AB%E6%8F%AD%E8%9D%A6%E9%9D%9E%E5%85%83%E5%85%87-%E5%9B%A01%E7%89%A9%E4%BA%A4%E5%8F%89%E9%81%8E%E6%95%8F,adapted,Cantonese
+Z035,個仔食物敏感發作，喉嚨腫，佢有EpiPen點打？,Anaphylaxis,child,,health-page,https://www.hk01.com/%E5%81%A5%E5%BA%B7Easy/750686/%E9%81%8E%E6%95%8F%E6%80%A7%E4%BC%91%E5%85%8B-%E8%A7%B8%E7%A2%B0%E8%87%B4%E6%95%8F%E6%BA%90%E6%88%96%E7%AA%92%E6%81%AF%E8%87%B4%E5%91%BD-7%E6%AD%A5%E9%A9%9F%E5%AD%B8%E7%94%A8%E6%80%A5%E6%95%91%E7%AD%86-%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A0%85,adapted,Cantonese
+Z036,孩子被蜜蜂蛰了，全身起疙瘩，嘴唇肿，喘不过气,Anaphylaxis,child,,health-page,https://m.bjnews.com.cn/detail/1713251595168799.html,adapted,Simplified
+Z037,媽媽吃完螃蟹嘴唇腫起來，又一直喘，要叫救護車嗎,Anaphylaxis,adult,,news,https://health.ettoday.net/news/3245785,adapted,Traditional
+Z038,他早上还好好的，突然就不行了，怎么叫都叫不醒。,Diabetic Emergency,adult,他有糖尿病，在打胰岛素,911/999,https://m.thepaper.cn/newsDetail_forward_33102502,verbatim,Simplified
+Z039,爷爷79岁有糖尿病，昏迷了，掐他也没反应，手脚冰凉,Diabetic Emergency,adult,,news,https://www.163.com/dy/article/KT25I1V905561G0D.html,adapted,Simplified
+Z040,阿公沒吃飯就吃了降血糖藥，現在叫不太醒,Diabetic Emergency,adult,,news,https://health.ettoday.net/news/825056,adapted,Traditional
+Z041,2歲兒子有糖尿病，冒冷汗、臉色蒼白、意識不清倒地抽筋,Diabetic Emergency,child,,health-page,https://health.udn.com/health/story/5974/1721693,trimmed,Traditional
+Z042,阿媽有糖尿，食完藥頭重腳輕，成身冒汗又手震,Diabetic Emergency,adult,,health-page,https://www.hk01.com/%E5%81%A5%E5%BA%B7Easy/60270597/%E7%B3%96%E5%B0%BF%E7%97%85-%E9%A0%AD%E9%87%8D%E8%85%B3%E8%BC%95-%E5%86%92%E6%B1%97%E6%81%90-%E4%BD%8E%E8%A1%80%E7%B3%96%E7%97%87-%E9%A4%90%E5%BE%8C%E5%9B%9B%E5%B0%8F%E6%99%82%E9%9C%80%E6%B3%A8%E6%84%8F,adapted,Cantonese
+Z043,糖尿病人突然冒汗是怎么回事,Diabetic Emergency,adult,,search,https://m.baidu.com/bh/m/detail/ar_6418128649211778363?frsrcid=rec,verbatim,Simplified
+Z044,阿爸有糖尿病，嘔咗幾次，而家迷迷糊糊叫唔醒,Diabetic Emergency,adult,,health-page,https://www.hk01.com/%E5%81%A5%E5%BA%B7Easy/535116/%E7%B3%96%E5%B0%BF%E7%97%85-%E8%A1%80%E7%B3%96%E5%A4%AA%E9%AB%98%E5%A4%AA%E4%BD%8E%E5%8F%AF%E8%87%B4%E6%98%8F%E8%BF%B73%E6%88%90%E5%9B%A0-%E5%87%BA%E7%8F%BE%E5%98%94%E5%90%90%E5%B9%BE%E5%B0%8F%E6%99%82%E5%85%A7%E6%88%96%E8%87%B4%E5%91%BD,adapted,Cantonese
+Z045,85歲阿嬤突然眼歪嘴斜，想要說話卻聲音薄弱模糊,Stroke,adult,,news,https://udn.com/news/story/7266/8621255,trimmed,Traditional
+Z046,70多歲的阿姨打麻將時突然右側肢體無力、口齒不清,Stroke,adult,,news,https://udn.com/news/story/7266/9580938,trimmed,Traditional
+Z047,老人突然说话含糊不清是什么原因,Stroke,adult,,search,https://m.baidu.com/bh/m/detail/qr_14621436386405136912?frsrcid=rec,verbatim,Simplified
+Z048,我爸突然嘴歪了，左手连筷子都拿不住,Stroke,adult,,search,https://m.baidu.com/bh/m/detail/sv_11598630015202087792,adapted,Simplified
+Z049,阿媽講嘢突然口齒不清，半邊身冇晒力,Stroke,adult,,news,https://www.hk01.com/%E7%A4%BE%E6%9C%83%E6%96%B0%E8%81%9E/17526/%E5%8F%A3%E9%BD%92%E4%B8%8D%E6%B8%85%E6%88%96%E7%8F%BE-%E5%B0%8F%E4%B8%AD%E9%A2%A8-%E6%97%A9%E6%B1%82%E9%86%AB%E6%B8%9B%E4%B8%83%E6%88%90%E5%8D%B1%E6%A9%9F,adapted,Cantonese
+Z050,阿爺舉唔起隻手，笑起上嚟嘴歪咗一邊,Stroke,adult,,health-page,https://www.hk01.com/%E9%86%AB%E5%B8%ABEasy/60219328/%E4%B8%AD%E9%A2%A8-%E7%84%A1%E6%B3%95%E8%88%89%E6%89%8B-%E5%BE%AE%E7%AC%91%E6%81%90%E4%B8%AD%E9%A2%A8%E5%89%8D%E5%85%86-%E9%86%AB%E6%8F%AD%E6%8A%8A%E6%8F%A11%E9%BB%83%E9%87%91%E6%99%82%E9%96%93%E6%96%B7%E7%B5%95%E5%BE%8C%E9%81%BA%E7%97%87,adapted,Cantonese
+Z051,我爸脸一边歪了，一只胳膊抬不起来，说话也不清楚,Stroke,adult,,health-page,https://zhuanlan.zhihu.com/p/2005243677824545892,adapted,Simplified
+Z052,朋友吸了东西后没有反应，嘴唇发灰，还在打呼噜,Opioid Overdose,adult,,health-page,https://www.nyc.gov/assets/doh/downloads/pdf/basas/first-aid-opioid-overdose-sc.pdf,adapted,Simplified
+Z053,他無反應、呼吸很慢，嘴唇變色，我有Narcan要怎麼用,Opioid Overdose,adult,,health-page,https://www.nyc.gov/assets/doh/downloads/pdf/imm/covid-19-responding-overdose-ch.pdf,adapted,Traditional
+Z054,弟弟吃了oxy止痛藥，搖他叫他名字都沒有反應，嘴唇變藍,Opioid Overdose,adult,,health-page,https://www.pharmacy.ca.gov/publications/naloxone_patient_flyer_chinese.pdf,adapted,Traditional
+Z055,酒店房有個男人暈低咗，旁邊有針筒，叫極都唔醒，呼吸好慢,Opioid Overdose,adult,,news,https://www.stheadline.com/breaking-news/3597949/%E5%B0%96%E6%B2%99%E5%92%80%E9%85%92%E5%BA%97%E5%9F%83%E5%8F%8A%E7%94%B7%E6%9A%88%E5%80%92%E4%B8%8D%E6%B2%BB-%E9%81%BA%E6%B5%B7%E6%B4%9B%E8%8B%B1%E5%8F%8A%E9%87%9D%E7%AD%92-%E8%AD%A6%E6%8B%98%E5%90%8C%E6%88%BF%E5%8D%B0%E5%BA%A6%E6%BC%A2,adapted,Cantonese
+Z056,有人已經沒有呼吸了，他可能用了芬太尼，我手上有Narcan噴鼻劑,Opioid Overdose,adult,,news,https://www.taiwannews.com.tw/ch/news/4851264,adapted,Traditional
+Z057,儿子可能吃了芬太尼，叫不醒，好像停止呼吸了,Opioid Overdose,adult,,health-page,https://admin.publichealth.lacounty.gov/sapc/docs/public/overdose-prevention/FentanylLACountyLearnMoreAboutNaloxone-CH-simplified.pdf,adapted,Simplified
+Z058,5歲兒子手臂割傷，血流如注，壓都壓不住,Severe Bleeding,child,,news,https://www.ettoday.net/news/20260810/3216368.htm,adapted,Traditional
+Z059,女兒右前臂被玻璃割傷，傷口極大，還不斷大量出血,Severe Bleeding,child,,news,https://www.setn.com/news/1880519,trimmed,Traditional
+Z060,有人手臂中咗刀，血狂咁噴，點樣止血？,Severe Bleeding,adult,,news,https://www.stheadline.com/breaking-news/3571784/%E5%B1%AF%E9%96%80%E7%94%B7%E5%AD%90%E8%A1%97%E9%A0%AD%E7%AD%89%E6%9C%8B%E5%8F%8B%E6%8D%B1%E6%96%AC-%E6%89%8B%E8%87%82%E4%B8%AD%E5%88%80%E6%B5%B4%E8%A1%80%E9%80%81%E9%99%A2,adapted,Cantonese
+Z061,胳膊被割破了，血一股一股往外喷，按不住,Severe Bleeding,adult,,health-page,https://www.sohu.com/a/446401071_649598,adapted,Simplified
+Z062,切菜的时候把手指甲切掉了一半，血流不止,Severe Bleeding,adult,,forum,https://www.zhihu.com/question/48758715,trimmed,Simplified
+Z063,出车祸了，他腿上一个大口子，血一直止不住,Severe Bleeding,adult,,health-page,https://m.163.com/dy/article/K41AEBA80527A3J9.html,adapted,Simplified
+Z064,我今天不小心弄了一小滴漂白水到眼睛里 我用清水冲洗了,Burns (Chemical to Eye),adult,,search,https://m.baidu.com/bh/m/detail/qr_17528990207837625228?frsrcid=rec,trimmed,Simplified
+Z065,孩子觉得有东西进了右眼，烧得特别疼，然后眼睛就看不见了,Burns (Chemical to Eye),child,他把零食里的干燥剂放进有水的瓶子，炸开了,news,https://m.thepaper.cn/newsDetail_forward_14499929,trimmed,Simplified
+Z066,啲漂白水濺咗入眼，好痛擘唔開眼,Burns (Chemical to Eye),adult,,news,https://www.hk01.com/%E5%81%A5%E5%BA%B7Easy/906588/%E7%9C%BC%E7%9D%9B-%E5%B0%87%E8%BB%8D%E6%BE%B3%E6%B8%85%E6%BD%94%E5%B7%A5%E9%81%AD%E6%BC%82%E7%99%BD%E6%B0%B4%E6%BF%BA%E7%9C%BC-%E5%8C%96%E5%AD%B8%E7%89%A9%E5%85%A5%E7%9C%BC%E6%80%A5%E6%95%91%E8%99%95%E7%90%86%E9%80%99%E6%A8%A3%E5%81%9A,adapted,Cantonese
+Z067,酒精不小心噴到眼睛，一直流眼淚，好刺痛,Burns (Chemical to Eye),adult,,health-page,https://health.ettoday.net/news/2133053,adapted,Traditional
+Z068,消毒液溅到眼睛里了，眼睛又红又疼睁不开,Burns (Chemical to Eye),adult,,health-page,https://zhuanlan.zhihu.com/p/107825738,adapted,Simplified
+Z069,熟石灰进了孩子眼睛，一直揉眼睛哭,Burns (Chemical to Eye),child,,health-page,https://www.sohu.com/a/229138981_600358,adapted,Simplified
+Z070,宝宝被开水烫伤怎么办？,Burns (Thermal),child,一岁半，烫到手臂起泡了,forum,https://www.zhihu.com/question/339622943,verbatim,Simplified
+Z071,我妈炒菜油锅起火，手臂和脸都烧伤了，起了大泡,Burns (Thermal),adult,,news,https://m.thepaper.cn/newsDetail_forward_32420444,adapted,Simplified
+Z072,女兒在火鍋店撞翻熱鍋，熱湯潑到身上，皮膚紅了起水泡,Burns (Thermal),child,,news,https://www.setn.com/news/1314819,adapted,Traditional
+Z073,啲滾水淋咗落我背脊，好痛，起晒水泡,Burns (Thermal),adult,,news,https://www.hk01.com/%E7%A4%BE%E6%9C%83%E6%96%B0%E8%81%9E/60262364/19%E6%AD%B2%E9%9D%92%E5%B9%B4%E5%A4%A9%E6%B0%B4%E5%9C%8D%E8%AD%9A%E4%BB%94%E9%81%AD%E6%BB%BE%E6%B0%B4%E6%B7%8B-%E8%83%8C%E9%83%A8%E4%BA%8C%E7%B4%9A%E7%87%99%E5%82%B7-%E8%AD%9A%E4%BB%94-%E5%86%80%E7%9B%A1%E5%BF%AB%E5%BA%B7%E5%BE%A9,adapted,Cantonese
+Z074,BB俾滾水淥親隻手，紅晒仲起泡，使唔使搽牙膏？,Burns (Thermal),infant,十個月大,health-page,https://www.hk01.com/%E5%81%A5%E5%BA%B7Easy/586187/%E7%87%99%E5%82%B7%E6%80%A5%E6%95%91-%E6%BB%BE%E6%B0%B4%E7%87%99%E5%82%B7%E6%95%B7%E5%86%B0%E6%90%BD%E8%97%A5%E8%86%8F%E9%83%BD%E4%BF%82%E9%8C%AF-%E6%80%A5%E6%95%915%E6%AD%A5%E9%A9%9F%E6%87%89%E5%90%A6%E5%8D%B3%E6%99%82%E6%B2%96%E6%B0%B4,adapted,Cantonese
+Z075,孩子打翻熱湯，燙到下半身一直慘叫,Burns (Thermal),child,,news,https://health.ettoday.net/news/1860135,adapted,Traditional
+Z076,手臂被热水壶烫了一下,Burns (Thermal),adult,,search,https://health.baidu.com/m/detail/ar_6644086870081477303,verbatim,Simplified
+Z077,孩子被开水烫伤如何急救,Burns (Thermal),child,,search,https://m.baidu.com/bh/m/detail/ar_5723223852111394319?frsrcid=rec,verbatim,Simplified
+Z078,医生，我家孩子站也站不稳，昏昏沉沉,Poisoning / Ingestion,child,两岁，可能吃了奶奶的安眠药,news,https://www.thepaper.cn/newsDetail_forward_27958710,trimmed,Simplified
+Z079,四岁孩子不小心喝了洗洁精怎么办,Poisoning / Ingestion,child,,search,https://health.baidu.com/m/detail/ar_5992514273585450182,verbatim,Simplified
+Z080,2岁小朋友不小心误食了洗衣凝珠怎么办,Poisoning / Ingestion,child,,search,https://m.baidu.com/bh/m/detail/ar_6398913631185113911?frsrcid=rec,verbatim,Simplified
+Z081,個女食咗啲好似糖嘅嘢，而家又暈又嘔,Poisoning / Ingestion,child,六歲,news,https://www.hk01.com/%E7%AA%81%E7%99%BC/60376395/%E6%A9%AB%E9%A0%AD%E7%A3%A1%E9%82%A8%E5%85%A96%E5%8F%8A12%E6%AD%B2%E7%AB%A5%E7%96%91%E8%AA%A4%E9%A3%9F%E5%A4%A7%E9%BA%BB%E7%B3%96%E5%8F%88%E6%9A%88%E5%8F%88%E5%98%94%E9%80%81%E9%99%A2-%E6%AF%8D%E8%A6%AA%E5%8F%8A%E5%A7%91%E5%A9%86%E8%A2%AB%E6%8D%95,adapted,Cantonese
+Z082,2歲兒子把飲料瓶裡的農藥當飲料喝了，一直吐,Poisoning / Ingestion,child,,news,https://www.setn.com/news/1902210,adapted,Traditional
+Z083,一家人吃了山上采的野蘑菇，现在都在上吐下泻,Poisoning / Ingestion,adult,,news,https://www.163.com/dy/article/K1OQSSKS0556CH8M.html,adapted,Simplified
+Z084,個女1歲，好似食咗嫲嫲啲血壓藥當糖,Poisoning / Ingestion,child,,news,https://www.hk01.com/%E7%86%B1%E7%88%86%E8%A9%B1%E9%A1%8C/552028/%E7%96%91%E6%8B%BF%E5%AB%B2%E5%AB%B2%E9%99%8D%E8%A1%80%E5%A3%93%E8%97%A5%E7%95%B6%E7%B3%96%E9%A3%9F-1%E6%AD%B2%E5%A5%B3%E7%AB%A5%E6%80%A5%E6%80%A7%E8%85%8E%E8%A1%B0%E7%AB%AD-%E5%BB%B6%E8%AA%A42%E5%B0%8F%E6%99%82%E9%80%81%E9%99%A2%E4%B8%8D%E6%B2%BB,adapted,Cantonese
+Z085,老人把清洁剂当饮料喝了一口，喉咙烧得疼,Poisoning / Ingestion,adult,,health-page,https://m.thepaper.cn/newsDetail_forward_33075716,adapted,Simplified
+Z086,港鐵車廂有個男人倒喺地度抽筋，地下仲有嘔吐物,Seizures,adult,,news,https://www.hk01.com/%E7%AA%81%E7%99%BC/438206/%E6%B8%AF%E9%90%B5%E8%BB%8A%E5%BB%82%E7%94%B7%E5%AD%90%E5%80%92%E5%9C%B0-%E6%8A%BD%E6%90%90-%E7%9F%AD%E7%89%87%E7%98%8B%E5%82%B3-%E5%9C%B0%E6%9C%89%E5%98%94%E5%90%90%E7%89%A9-%E4%B9%98%E5%AE%A2%E4%B8%8D%E6%95%A2%E9%9D%A0%E8%BF%91,adapted,Cantonese
+Z087,個女2歲發緊燒，突然抽搐反白眼！,Seizures,child,,news,https://www.hk01.com/%E8%A6%AA%E5%AD%90/994761/%E7%99%BC%E7%87%92-2%E6%AD%B2%E5%A5%B3%E7%AB%A5%E6%84%9F%E5%86%92%E7%97%85%E5%88%B0%E6%8A%BD%E6%90%90-%E5%8F%8D%E7%99%BD%E7%9C%BC-%E9%86%AB%E7%94%9F%E7%A8%B1%E6%86%91-2%E9%BB%9E-%E5%88%A4%E6%96%B7%E5%9A%B4%E9%87%8D%E6%80%A7,adapted,Cantonese
+Z088,孩子突然抽搐，眼睛上翻,Seizures,child,,health-page,https://www.thepaper.cn/newsDetail_forward_13373582,trimmed,Simplified
+Z089,孩子发烧抽风,Seizures,child,,search,https://health.baidu.com/m/detail/ar_6451723058740356633,verbatim,Simplified
+Z090,老公又發羊吊，成身抽緊，口吐白泡,Seizures,adult,,news,https://www.stheadline.com/health-care/3353041/%E8%85%A6%E7%99%87%E7%97%87%E6%B2%BB%E7%99%82%E5%85%A8%E6%B8%AF7%E8%90%AC%E4%BA%BA%E6%82%A3%E7%99%B2%E7%99%87%E7%97%87-30%E6%AD%B2%E7%94%B7%E6%89%93%E9%8E%AE%E9%9D%9C%E5%8A%91%E4%BB%8D%E7%99%BC%E7%BE%8A%E5%90%8A-%E7%94%A8%E7%94%9F%E9%85%AE%E9%A3%9F%E7%99%82%E5%BE%8C%E7%B5%82%E6%94%B9%E5%96%84,adapted,Cantonese
+Z091,個女腦癇發作，手腳抽緊，要唔要塞嘢入佢口？,Seizures,child,,health-page,https://www.hk01.com/%E5%81%A5%E5%BA%B7Easy/584105/%E7%99%BC%E7%BE%8A%E5%90%8A-%E9%8D%BE%E9%BA%97%E6%B7%87%E5%A5%B3%E5%85%92%E5%9F%BA%E5%9B%A0%E7%97%85%E8%85%A6%E7%99%87%E7%99%BC%E4%BD%9C-%E7%99%BC%E7%BE%8A%E5%90%8A%E6%80%A5%E6%95%91%E9%A0%88%E7%9F%A5-%E5%9C%8B%E9%9A%9B%E8%85%A6%E7%99%87%E6%97%A5,adapted,Cantonese
+Z092,宝宝发烧时突然抽搐，是高烧惊厥还是癫痫？,Seizures,child,一岁两个月,health-page,https://zhuanlan.zhihu.com/p/562564894,adapted,Simplified
+Z093,玩水上溜滑梯摔到脖子，下半身當場失去知覺，人是清醒的,"Head, Neck, or Spinal Injury",adult,,news,https://www.ettoday.net/news/20260516/3166830.htm,adapted,Traditional
+Z094,同學跳水撞到頭，現在手腳都不能動,"Head, Neck, or Spinal Injury",adult,,news,https://www.ettoday.net/news/20230918/2585028.htm,adapted,Traditional
+Z095,她骑电动车摔了，后脑着地，后脑起了个血肿，现在叫不醒,"Head, Neck, or Spinal Injury",adult,,news,https://www.sohu.com/a/1088143478_122014422,adapted,Simplified
+Z096,BB跌左落床，點算,"Head, Neck, or Spinal Injury",infant,八個月大，喊完之後嘔咗兩次,forum,https://www.baby-kingdom.com/forum.php?mod=viewthread&tid=10284362,verbatim,Cantonese
+Z097,宝宝从楼梯上摔下来，对大脑有没影响吗?,"Head, Neck, or Spinal Injury",child,两岁，吐了一次，一直想睡觉,forum,https://m.babytree.com/ask/detail/32619936,verbatim,Simplified
+Z098,阿媽喺樓梯跌落嚟撞親個頭，而家話頭好痛又嘔,"Head, Neck, or Spinal Injury",adult,,news,https://www.hk01.com/%E7%86%B1%E7%88%86%E8%A9%B1%E9%A1%8C/60395625/%E4%B8%83%E6%97%AC%E6%AF%8D%E4%BE%86%E6%9A%AB%E4%BD%8F%E6%A8%93%E6%A2%AF%E9%87%8D%E6%91%94%E8%85%A6%E5%87%BA%E8%A1%80-%E5%A5%B3%E5%85%92%E8%87%AA%E8%B2%AC-%E9%86%AB%E7%94%9F%E6%9F%A5%E7%97%85%E5%9B%A0%E8%AD%89-%E4%B8%8D%E6%98%AF%E4%BD%A0%E5%AE%B3,adapted,Cantonese
+Z099,摔倒磕到后脑勺脖子疼怎么回事,"Head, Neck, or Spinal Injury",adult,,search,https://health.baidu.com/m/detail/ar_8050579769374516101,verbatim,Simplified
+Z100,地盤有工友由高處跌落嚟，瞓喺平台度冇反應，唔知有冇傷到條頸,"Head, Neck, or Spinal Injury",adult,,news,https://www.stheadline.com/breaking-news/3623404/%E6%9D%B1%E6%B6%8C%E5%8C%AF%E6%9D%B1%E8%A1%97%E5%9C%B0%E7%9B%A4%E7%94%B7%E5%B7%A5%E9%AB%98%E8%99%95%E5%A2%AE%E4%B8%8B-%E6%98%8F%E8%BF%B7%E5%80%92%E8%87%A5%E5%B9%B3%E5%8F%B0,adapted,Cantonese

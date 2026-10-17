@@ -69,3 +69,46 @@ def test_spanish_ages_survive_translation():
                                      ("tiene 2 años", "has 2 years", "child"),
                                      ("como 6 años", "about 6 years", "child")]:
         assert pchCore.detect_age_band(pchLang.with_age(original, english)) == band, original
+
+
+# ---------------------------------------------------------------- Chinese ----
+def test_chinese_guides_match_english_rows_steps_and_marks():
+    en = pd.read_csv(DATA / "First_Aid_Dataset_Final.csv")
+    for lang in ("zh-Hans", "zh-Hant"):
+        zh = pd.read_csv(DATA / f"First_Aid_Dataset_Final.{lang}.csv")
+        assert list(zh["guide_id"]) == list(en["guide_title"]), lang
+        for (_, e), (_, s) in zip(en.iterrows(), zh.iterrows()):
+            assert len(re.findall(r"^\s*\d+\.", e.output, re.M)) == len(re.findall(r"^\s*\d+\.", s.output, re.M)), s.guide_id
+            assert _MARK.findall(e.output) == _MARK.findall(s.output), s.guide_id
+            assert e.output.count("[facts:") == s.output.count("[facts:"), s.guide_id
+        cards = pd.read_csv(DATA / f"how-to-guides.{lang}.csv", keep_default_na=False)
+        assert list(cards["id"]) == list(pd.read_csv(DATA / "how-to-guides.csv", keep_default_na=False)["id"])
+
+
+def test_every_language_has_every_reply():
+    dataset = pchCore.load_dataset()
+    labels = set(pchTriage.CONDITION_CUES) | set(pchTriage.TRIAGE_OPTIONS) | set(pchCore.AGE_OPTIONS) | {pchTriage.NONE_OPTION}
+    from pchGate import DISCARD_REPLY
+    for lang in pchLang.LANGS:
+        r = pchLang.REPLIES[lang]
+        assert labels <= set(r["option"]), lang
+        assert set(pchTriage.CONDITION_CUES) <= set(r["hint"]), lang
+        for message in (pchTriage.PET_REPLY, DISCARD_REPLY):
+            assert pchLang.message_in(lang, message) != message, lang
+        guides = pchLang.Guides(dataset, lang)
+        for steps in dataset["reformatted_output"]:
+            assert guides.protocol(f"{pchCore.SAFETY_STEP}\n{steps}"), lang
+    # The Chinese tables are matched to the English messages by position: check the pairing.
+    assert pchLang._MESSAGE_KEYS["pet"] == pchTriage.PET_REPLY
+    assert pchLang._MESSAGE_KEYS["discard"] == DISCARD_REPLY
+    assert pchLang._MESSAGE_KEYS["tap"] == "**Tap the one that matches best.**"
+
+
+def test_chinese_detection_script_and_ages():
+    for text, lang in [("我老公冇反應，唔識郁", "zh-Hant"), ("我的宝宝噎住了，不能呼吸", "zh-Hans"),
+                       ("我爸爸暈倒了，沒有呼吸", "zh-Hant"), ("BB唔呼吸", "zh-Hant")]:
+        assert pchLang.detect(text) == (lang, True), text
+    assert pchLang.detect("我爸爸心口痛", "zh-Hant") == ("zh-Hant", True)  # characters both scripts share
+    assert pchLang.detect("my dad is choking") == ("en", False)
+    for original, band in [("3个月大", "infant"), ("兩歲", "child"), ("十天", "infant"), ("一岁半", "child")]:
+        assert pchCore.detect_age_band(pchLang.with_age(original, "is")) == band, original
