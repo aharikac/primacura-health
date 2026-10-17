@@ -1,19 +1,21 @@
 import { Modal, View, Text, TouchableOpacity, StyleSheet, Linking } from 'react-native';
 import { Phone } from 'lucide-react-native'; /*[cite: 15]*/
 import { LocationPanel } from './LocationPanel';
+import { useI18n } from '../lib/i18n';
 
 export function EmergencyDialog({ onCancel }: { onCancel: () => void }) { /*[cite: 15]*/
+  const { t } = useI18n();
   return (
     <Modal transparent={true} visible={true} animationType="fade" onRequestClose={onCancel}>
       <View style={styles.backdrop}>
         <View style={styles.sheet} accessible={true} accessibilityRole="alert">
           <View style={styles.heading}>
             <View style={styles.dot} />
-            <Text style={styles.title}>CONFIRM EMERGENCY CALL</Text>
+            <Text style={styles.title}>{t('confirmCall')}</Text>
           </View>
           
           <Text style={styles.paragraph}>
-            This will dial <Text style={styles.boldText}>911</Text> from your phone. Only use in a real emergency.
+            {t('confirmCallText1')}<Text style={styles.boldText}>911</Text>{t('confirmCallText2')}
           </Text>
 
           {/* Your location, ready to read out to the dispatcher (stays on the phone). */}
@@ -25,18 +27,18 @@ export function EmergencyDialog({ onCancel }: { onCancel: () => void }) { /*[cit
           <TouchableOpacity 
             style={styles.callButton} 
             onPress={() => Linking.openURL('tel:911')}
-            accessibilityLabel="YES, CALL 911"
+            accessibilityLabel={t('yesCall')}
           >
             <Phone size={26} color="#fff" fill="#fff" />
-            <Text style={styles.callButtonText}>YES, CALL 911</Text>
+            <Text style={styles.callButtonText}>{t('yesCall')}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity 
             style={styles.cancelButton} 
             onPress={onCancel}
-            accessibilityLabel="Cancel"
+            accessibilityLabel={t('cancel')}
           >
-            <Text style={styles.cancelButtonText}>Cancel</Text>
+            <Text style={styles.cancelButtonText}>{t('cancel')}</Text>
           </TouchableOpacity>
         </View>
       </View>

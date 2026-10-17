@@ -1,9 +1,10 @@
 import { View, StyleSheet } from 'react-native';
 import { SvgXml } from 'react-native-svg';
-import { diagrams } from '../data/diagrams';
+import { useI18n } from '../lib/i18n';
 
 // A step diagram (SVG generated from primacura-backend/data/diagrams).
 export function StepDiagram({ id }: { id: string }) {
+  const { diagrams } = useI18n();
   const d = diagrams[id];
   if (!d) return null;
   return (

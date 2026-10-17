@@ -1,11 +1,12 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { Play } from 'lucide-react-native';
-import { howTos } from '../data/howTo';
+import { useI18n } from '../lib/i18n';
 import { linkTitle } from './howToAge';
 
 // "Show me how" under a guide step: one clear, full-width button that opens the
 // matching How-To card. The card's name sits under the label.
 export function ShowMeHow({ howToId, onOpen }: { howToId: string; onOpen: (id: string) => void }) {
+  const { t, howTos } = useI18n();
   const card = howTos.find((h) => h.id === howToId);
   if (!card) return null;
   const title = linkTitle(card);
@@ -14,13 +15,13 @@ export function ShowMeHow({ howToId, onOpen }: { howToId: string; onOpen: (id: s
       onPress={() => onOpen(card.id)}
       style={({ pressed }) => [styles.button, pressed && styles.pressed]}
       accessibilityRole="button"
-      accessibilityLabel={`Show me how: ${title}`}
+      accessibilityLabel={`${t('showMeHow')}: ${title}`}
     >
       <View style={styles.play}>
         <Play size={13} color="#fff" fill="#fff" />
       </View>
       <View>
-        <Text style={styles.label}>Show me how</Text>
+        <Text style={styles.label}>{t('showMeHow')}</Text>
         <Text style={styles.sub} numberOfLines={1}>{title}</Text>
       </View>
     </Pressable>

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { View, Text, Pressable, StyleSheet, Share, Linking, ActivityIndicator } from 'react-native';
 import * as Location from 'expo-location';
 import { LocateFixed, MapPin, RefreshCw, Share2 } from 'lucide-react-native';
+import { useI18n } from '../lib/i18n';
 
 // The person's GPS position, to read out to 911. It stays on this phone: it is
 // never sent to the PrimaCura server.
@@ -12,6 +13,7 @@ export type LocationStatus = 'idle' | 'locating' | 'ready' | 'error';
 
 /** Asks for the GPS position. Shared by the panel and the home-screen button. */
 export function useLocationFix(autoStart = false) {
+  const { t } = useI18n();
   const [status, setStatus] = useState<'idle' | 'locating' | 'ready' | 'error'>('idle');
   const [fix, setFix] = useState<Fix | null>(null);
   const [error, setError] = useState('');
@@ -22,7 +24,7 @@ export function useLocationFix(autoStart = false) {
       const { status: perm } = await Location.requestForegroundPermissionsAsync();
       if (perm !== 'granted') {
         setStatus('error');
-        setError('Location is off for PrimaCura. Turn it on in Settings, or tell 911 a nearby address or landmark.');
+        setError(t('locOffApp'));
         return;
       }
       const p = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Highest });
@@ -30,7 +32,7 @@ export function useLocationFix(autoStart = false) {
       setStatus('ready');
     } catch {
       setStatus('error');
-      setError('Could not find your location. Try again near a window, or tell 911 a nearby address or landmark.');
+      setError(t('locFailedApp'));
     }
   };
 
@@ -41,33 +43,35 @@ export function useLocationFix(autoStart = false) {
 
 /** The coordinates card, with Share / Map / Update. */
 export function LocationCard({ fix, onUpdate, compact = false }: { fix: Fix; onUpdate: () => void; compact?: boolean }) {
+  const { t } = useI18n();
   const decimal = `${fix.lat.toFixed(5)}, ${fix.lng.toFixed(5)}`;
   return (
     <View style={[styles.box, styles.ready, compact && styles.readyCompact]} accessibilityLiveRegion="polite">
       <View style={styles.head}>
         <LocateFixed size={15} color="#d33b32" />
-        <Text style={styles.headText}>YOUR LOCATION</Text>
+        <Text style={styles.headText}>{t('yourLocation').toUpperCase()}</Text>
         <Text style={styles.acc}>±{fix.acc} m</Text>
       </View>
       <Text style={[styles.coords, compact && styles.coordsCompact]} selectable>{hemi(fix.lat, 'N', 'S')}, {hemi(fix.lng, 'E', 'W')}</Text>
       <Text style={styles.decimal} selectable>{decimal}</Text>
       <View style={styles.actions}>
-        <Pressable style={styles.action} onPress={() => Share.share({ message: `My location: ${decimal} https://maps.apple.com/?ll=${fix.lat},${fix.lng}` })}>
-          <Share2 size={15} color="#3f3f46" /><Text style={styles.actionText}>Share</Text>
+        <Pressable style={styles.action} onPress={() => Share.share({ message: `${t('myLocationShare', { x: decimal })} https://maps.apple.com/?ll=${fix.lat},${fix.lng}` })}>
+          <Share2 size={15} color="#3f3f46" /><Text style={styles.actionText}>{t('share')}</Text>
         </Pressable>
         <Pressable style={styles.action} onPress={() => Linking.openURL(`https://maps.apple.com/?ll=${fix.lat},${fix.lng}&q=My%20location`)}>
-          <MapPin size={15} color="#3f3f46" /><Text style={styles.actionText}>Map</Text>
+          <MapPin size={15} color="#3f3f46" /><Text style={styles.actionText}>{t('map')}</Text>
         </Pressable>
-        <Pressable style={styles.action} onPress={onUpdate} accessibilityLabel="Update location">
-          <RefreshCw size={15} color="#3f3f46" /><Text style={styles.actionText}>Update</Text>
+        <Pressable style={styles.action} onPress={onUpdate} accessibilityLabel={t('updateLocation')}>
+          <RefreshCw size={15} color="#3f3f46" /><Text style={styles.actionText}>{t('update')}</Text>
         </Pressable>
       </View>
-      {!compact ? <Text style={styles.note}>Read these numbers to the 911 dispatcher. Your location stays on this phone.</Text> : null}
+      {!compact ? <Text style={styles.note}>{t('locNoteApp')}</Text> : null}
     </View>
   );
 }
 
 export function LocationPanel({ compact = false, autoStart = false }: { compact?: boolean; autoStart?: boolean }) {
+  const { t } = useI18n();
   const { status, fix, error, locate } = useLocationFix(autoStart);
 
   if (status !== 'ready' || !fix) {
@@ -75,7 +79,7 @@ export function LocationPanel({ compact = false, autoStart = false }: { compact?
       <View style={styles.box}>
         <Pressable style={[styles.start, compact && styles.startCompact]} onPress={locate} disabled={status === 'locating'} accessibilityRole="button">
           {status === 'locating' ? <ActivityIndicator color="#b42318" /> : <MapPin size={16} color="#b42318" />}
-          <Text style={styles.startText}>{status === 'locating' ? 'Finding your location…' : 'Show my location for 911'}</Text>
+          <Text style={styles.startText}>{status === 'locating' ? t('findingLocation') : t('showLocation911')}</Text>
         </Pressable>
         {status === 'error' ? <Text style={styles.error} accessibilityRole="alert">{error}</Text> : null}
       </View>

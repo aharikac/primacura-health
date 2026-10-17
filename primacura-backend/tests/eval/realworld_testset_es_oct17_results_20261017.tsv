@@ -1,0 +1,21 @@
+# realworld_testset_es_oct17.csv (102 Spanish cases), 2026-10-17, with LLM translation. Every case not listed was right with no condition tap; every reply was in Spanish.
+# Strict 84/102 (82.4%) · within one tap 99/102 (97.1%) · wrong 2 (2.0%) · right option not offered 1 (1.0%)  [after the hot-liquid rule]
+Test_ID	result	app_showed	translation
+S017	one tap	Heart Attack | Anaphylaxis	I felt a sting on the chest, started sweating, having difficulty breathing
+S018	one tap	Heart Attack | Stroke	my left arm and jaw are getting sleepy, I'm sweating a lot
+S019	one tap	Heart Attack | Head, Neck, or Spinal Injury	The pain went up to the shoulder and arms, and then to the jaw.
+S028	wrong	Cardiac Arrest (child)	my 1 year old baby swallowed a fake nail and is not breathing
+S036	one tap	Anaphylaxis | Burns (Thermal)	My grandfather was stung by bees on the barbecue and is choking, he is all red and swollen
+S045	one tap	Diabetic Emergency | Burns (Chemical to Eye)	my blood sugar dropped, I'm shaking all over and my vision is blurry what do I do
+S047	one tap	Anaphylaxis | Stroke	I wanted to speak but only emitted incoherent sounds, had a vacant look, mouth deviated
+S048	one tap	Head, Neck, or Spinal Injury | Stroke	My sister has a very strong headache and now her legs don't respond
+S049	one tap	Stroke | Opioid Overdose	my friend started talking weirdly suddenly, words aren't coming out and says they can't see well
+S053	one tap	Stroke | Head, Neck, or Spinal Injury	my mom bent down and suddenly felt dizzy, now cannot speak well
+S057	wrong	Cardiac Arrest (child)	my 18-month-old child grabbed something and is very sleepy, not breathing well, there was fentanyl in the house
+S058	one tap	triage, then Opioid Overdose | Poisoning / Ingestion	my daughter who is 14 took a pill for toothache, I think it was oxycodone, and she is not waking up
+S077	one tap	Burns (Thermal) | Poisoning / Ingestion	my 11-month-old baby pulled the pot and boiling water fell on them
+S082	one tap	Poisoning / Ingestion | Opioid Overdose	My son took a 75mg Eutirox pill that I should have done?
+S084	one tap	Opioid Overdose | Poisoning / Ingestion	My husband took 20 quetiapine pills of 25mg and doesn't want to go to the emergency room
+S095	one tap	Seizures | Anaphylaxis	my child has a fever and started shaking all over, has eyes rolled back and is drooling
+S097	one tap	Head, Neck, or Spinal Injury | Cardiac Arrest (Drowning)	my friend jumped into the pool and cannot move arms or legs
+S100	not offered	triage, then Stroke | Seizures	The swing in the plaza broke and my child fell, became unconscious

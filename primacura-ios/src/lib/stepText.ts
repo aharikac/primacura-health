@@ -13,7 +13,7 @@ export function splitSentences(text: string): string[] {
     let next = end;
     while (next < text.length && text[next] === ' ') next++;
     if (next === end || next >= text.length) continue;
-    if (!/["“A-Z0-9]/.test(text[next])) continue;
+    if (!/["“¿¡A-ZÁÉÍÓÚÑ0-9]/.test(text[next])) continue;
     const piece = text.slice(start, end).trim();
     if (piece) out.push(piece);
     start = next;

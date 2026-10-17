@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, Phone, Square, TriangleAlert, Volume2 } from 'lucide-react-native';
-import { howTos } from '../data/howTo';
+import { useI18n } from '../lib/i18n';
 import { howToIcon } from './howToIcons';
 import { EmergencyDialog } from './EmergencyDialog';
 import { StepDiagram } from './StepDiagram';
@@ -18,12 +18,14 @@ import { speakAll, stopSpeaking } from '../lib/speech';
 export function HowToScreen({
   howToId,
   onBack,
-  backLabel = 'Back',
+  backLabel,
 }: {
   howToId: string;
   onBack: () => void;
   backLabel?: string;
 }) {
+  const { t, lang, howTos, cardAge } = useI18n();
+  const label = backLabel ?? t('back');
   const [currentId, setCurrentId] = useState(howToId);
   const [confirmCall, setConfirmCall] = useState(false);
   useEffect(() => setCurrentId(howToId), [howToId]);
@@ -38,9 +40,10 @@ export function HowToScreen({
     if (speaking !== null) { stopSpeaking(); setSpeaking(null); return; }
     setSpeaking(-1);
     speakAll(
-      [`${card.title}.`, ...card.steps.map((s, i) => `Step ${i + 1}. ${s.lead ? s.lead + '. ' : ''}${s.text}`)],
+      [`${card.title}.`, ...card.steps.map((s, i) => `${t('stepN', { n: i + 1 })}. ${s.lead ? s.lead + '. ' : ''}${s.text}`)],
       (i) => setSpeaking(i - 1),
       () => setSpeaking(null),
+      lang,
     );
   };
   const { more, scrollProps, scrollDown } = useMoreBelow(currentId);
@@ -53,15 +56,15 @@ export function HowToScreen({
       <View style={styles.scrollArea}>
       <ScrollView {...scrollProps} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.headerTopRow}>
-          <TouchableOpacity style={styles.navBackBtn} onPress={onBack} accessibilityLabel={`Back to ${backLabel}`}>
+          <TouchableOpacity style={styles.navBackBtn} onPress={onBack} accessibilityLabel={t('backTo', { x: label })}>
             <View style={styles.navIconCircle}>
               <ArrowLeft size={18} strokeWidth={2.8} color="#050505" />
             </View>
-            <Text style={styles.navBackText}>{backLabel}</Text>
+            <Text style={styles.navBackText}>{label}</Text>
           </TouchableOpacity>
           <View style={styles.innerBrand}>
             <Text style={styles.innerBrandTitle}>PrimaCura</Text>
-            <Text style={styles.innerBrandSlogan}>The First Care</Text>
+            <Text style={styles.innerBrandSlogan}>{t('slogan')}</Text>
           </View>
         </View>
 
@@ -70,7 +73,7 @@ export function HowToScreen({
             <Icon size={24} strokeWidth={2.4} color="#fff" />
           </View>
           <View style={styles.heroText}>
-            <Text style={styles.eyebrow}>HOW-TO</Text>
+            <Text style={styles.eyebrow}>{t('howTo').toUpperCase()}</Text>
             <Text style={styles.title} accessibilityRole="header">{card.title}</Text>
           </View>
         </View>
@@ -78,7 +81,7 @@ export function HowToScreen({
         <Pressable style={[styles.listen, speaking !== null && styles.listenOn]} onPress={listen} accessibilityRole="button">
           {speaking !== null ? <Square size={12} color="#fff" fill="#fff" /> : <Volume2 size={15} color="#3f3f46" />}
           <Text style={[styles.listenText, speaking !== null && styles.listenTextOn]}>
-            {speaking !== null ? 'Stop listening' : 'Listen to the steps'}
+            {speaking !== null ? t('stopListening') : t('listenSteps')}
           </Text>
         </Pressable>
 
@@ -94,7 +97,7 @@ export function HowToScreen({
                   accessibilityRole="tab"
                   accessibilityState={{ selected: active }}
                 >
-                  <Text style={[styles.tabText, active && styles.tabTextActive]}>{s.age}</Text>
+                  <Text style={[styles.tabText, active && styles.tabTextActive]}>{cardAge(s.age)}</Text>
                 </Pressable>
               );
             })}
@@ -133,7 +136,7 @@ export function HowToScreen({
           <View style={styles.watch}>
             <View style={styles.watchTitleRow}>
               <TriangleAlert size={17} strokeWidth={2.6} color="#b45309" />
-              <Text style={styles.watchTitle}>WATCH OUT</Text>
+              <Text style={styles.watchTitle}>{t('watchOut').toUpperCase()}</Text>
             </View>
             {card.watchOut.map((w) => (
               <Text key={w} style={styles.watchItem}>•  {w}</Text>
@@ -145,10 +148,10 @@ export function HowToScreen({
           style={styles.call}
           onPress={() => setConfirmCall(true)}
           accessibilityRole="button"
-          accessibilityLabel="Life-threatening? Call 911 first."
+          accessibilityLabel={t('callFirst')}
         >
           <Phone size={16} color={RED} fill={RED} />
-          <Text style={styles.callText}>Life-threatening? Call 911 first.</Text>
+          <Text style={styles.callText}>{t('callFirst')}</Text>
         </TouchableOpacity>
       </ScrollView>
       <MoreBelow show={more} onPress={scrollDown} />

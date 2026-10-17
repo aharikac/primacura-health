@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Animated, Easing, ScrollView, NativeScrollEvent, NativeSyntheticEvent, LayoutChangeEvent } from 'react-native';
 import { ChevronDown } from 'lucide-react-native';
+import { useI18n } from '../lib/i18n';
 
 // "More below" hint for a ScrollView: a soft fade at the bottom edge and a small
 // pill that scrolls down when tapped. Hidden once you reach the end.
@@ -30,6 +31,7 @@ export function useMoreBelow(resetKey: unknown) {
 }
 
 export function MoreBelow({ show, onPress }: { show: boolean; onPress: () => void }) {
+  const { t } = useI18n();
   const nudge = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     if (!show) return;
@@ -46,8 +48,8 @@ export function MoreBelow({ show, onPress }: { show: boolean; onPress: () => voi
         {[0.15, 0.35, 0.6, 0.85, 1].map((o) => <View key={o} style={[styles.fadeBand, { opacity: o }]} />)}
       </View>
       <Animated.View pointerEvents="box-none" style={[styles.wrap, { transform: [{ translateY: nudge }] }]}>
-        <TouchableOpacity style={styles.pill} onPress={onPress} accessibilityRole="button" accessibilityLabel="Scroll down for more">
-          <Text style={styles.text}>More below</Text>
+        <TouchableOpacity style={styles.pill} onPress={onPress} accessibilityRole="button" accessibilityLabel={t('scrollMore')}>
+          <Text style={styles.text}>{t('moreBelow')}</Text>
           <ChevronDown size={16} strokeWidth={2.8} color="#3f3f46" />
         </TouchableOpacity>
       </Animated.View>

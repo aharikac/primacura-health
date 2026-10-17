@@ -3,6 +3,7 @@ import { View, Text, Pressable, StyleSheet, Animated } from 'react-native';
 import { useAudioPlayer, setAudioModeAsync } from 'expo-audio';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { Music, Volume2, VolumeX } from 'lucide-react-native';
+import { useI18n } from '../lib/i18n';
 
 // CPR rhythm guide: a beat at 110 pushes a minute with a count to 30, then a
 // "Give 2 breaths" pause (or non-stop in hands-only mode). Keeps the screen awake
@@ -25,6 +26,7 @@ export function CprRhythm({
   onRunningChange?: (running: boolean) => void;
 }) {
   const compact = false;
+  const { t } = useI18n();
   const [mode, setMode] = useState<Mode>(initialMode);
   const [running, setRunning] = useState(false);
   const [count, setCount] = useState(0);
@@ -122,22 +124,22 @@ export function CprRhythm({
 
   const breathing = breathLeft > 0;
   const prompt = !running
-    ? 'Tap Start and push with the beat'
+    ? t('tapStart')
     : breathing
-      ? `Give 2 breaths · ${breathLeft}s`
+      ? t('giveBreaths', { s: breathLeft })
       : mode === 'cpr' && count >= 25
-        ? 'Get ready to give breaths'
-        : 'Push hard and fast';
+        ? t('getReady')
+        : t('pushHardFast');
   const size = compact ? 84 : 112;
 
   if (variant === 'bar') {
     // Slim helper bar on guide steps. Idle: one quiet line + Start. Running: a
     // pulsing dot, the count, a small mode switch and Stop.
     const title = breathing
-      ? `Give 2 breaths · ${breathLeft}s`
-      : mode === 'cpr' ? `${count} of 30 · push` : `Push · ${count}`;
+      ? t('giveBreaths', { s: breathLeft })
+      : mode === 'cpr' ? t('ofThirtyPush', { n: count }) : t('pushN', { n: count });
     return (
-      <View style={[styles.bar, running && styles.barOn, breathing && styles.barBreathe]} accessibilityLabel="CPR rhythm guide">
+      <View style={[styles.bar, running && styles.barOn, breathing && styles.barBreathe]} accessibilityLabel={t('cprGuide')}>
         {running ? (
           <Animated.View style={[styles.barDot, { transform: [{ scale }] }, breathing && styles.pulseBreathe]} />
         ) : (
@@ -147,25 +149,25 @@ export function CprRhythm({
           <Text style={[styles.barTitle, breathing && styles.barTitleBreathe]} accessibilityLiveRegion="polite" numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>{title}</Text>
         ) : (
           <View style={styles.barIdleBox}>
-            <Text style={styles.barIdle} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>Push to the beat</Text>
-            <Text style={styles.barMuted} numberOfLines={1}>110 pushes a minute</Text>
+            <Text style={styles.barIdle} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>{t('pushBeat')}</Text>
+            <Text style={styles.barMuted} numberOfLines={1}>{t('pushesMinute')}</Text>
           </View>
         )}
         {running && !breathing ? (
           <Pressable onPress={() => changeMode(mode === 'cpr' ? 'hands-only' : 'cpr')} accessibilityRole="button" hitSlop={8}>
-            <Text style={styles.barMode}>{mode === 'cpr' ? 'Hands-only' : '30 : 2'}</Text>
+            <Text style={styles.barMode}>{mode === 'cpr' ? t('handsOnly') : '30 : 2'}</Text>
           </Pressable>
         ) : null}
-        <Pressable onPress={running ? stop : start} style={[styles.barStart, running && styles.barStop]} accessibilityRole="button" accessibilityLabel={running ? 'Stop the beat' : 'Start the beat'}>
-          <Text style={[styles.barStartText, running && styles.barStopText]}>{running ? 'Stop' : 'Start'}</Text>
+        <Pressable onPress={running ? stop : start} style={[styles.barStart, running && styles.barStop]} accessibilityRole="button" accessibilityLabel={running ? t('stopBeat') : t('startBeat')}>
+          <Text style={[styles.barStartText, running && styles.barStopText]}>{running ? t('stop') : t('start')}</Text>
         </Pressable>
       </View>
     );
   }
 
   return (
-    <View style={[styles.box, compact && styles.boxCompact]} accessibilityLabel="CPR rhythm guide">
-      {!compact && <Text style={styles.title}>CPR RHYTHM GUIDE · 110 A MINUTE</Text>}
+    <View style={[styles.box, compact && styles.boxCompact]} accessibilityLabel={t('cprGuide')}>
+      {!compact && <Text style={styles.title}>{t('cprGuideTitle').toUpperCase()}</Text>}
       <View style={styles.modes}>
         {(['cpr', 'hands-only'] as const).map((m) => (
           <Pressable
@@ -175,7 +177,7 @@ export function CprRhythm({
             accessibilityRole="button"
             accessibilityState={{ selected: mode === m }}
           >
-            <Text style={[styles.modeText, mode === m && styles.modeTextActive]}>{m === 'cpr' ? '30 : 2 breaths' : 'Hands-only'}</Text>
+            <Text style={[styles.modeText, mode === m && styles.modeTextActive]}>{m === 'cpr' ? t('breaths302') : t('handsOnly')}</Text>
           </Pressable>
         ))}
       </View>
@@ -184,7 +186,7 @@ export function CprRhythm({
           style={[styles.pulse, { width: size, height: size, borderRadius: size / 2, transform: [{ scale }] }, breathing && styles.pulseBreathe]}
         >
           <Text style={[styles.count, compact && styles.countCompact]}>{!running ? '—' : breathing ? '2' : count}</Text>
-          <Text style={styles.countLabel}>{!running ? 'READY' : breathing ? 'BREATHS' : mode === 'cpr' ? 'OF 30' : 'PUSH'}</Text>
+          <Text style={styles.countLabel}>{(!running ? t('ready') : breathing ? t('breaths') : mode === 'cpr' ? t('of30') : t('push')).toUpperCase()}</Text>
         </Animated.View>
         <View style={styles.side}>
           <Text style={[styles.prompt, compact && styles.promptCompact]} accessibilityLiveRegion="polite">{prompt}</Text>
@@ -194,13 +196,13 @@ export function CprRhythm({
               style={[styles.start, compact && styles.btnCompact, running && styles.stop]}
               accessibilityRole="button"
             >
-              <Text style={styles.startText}>{running ? 'STOP' : 'START'}</Text>
+              <Text style={styles.startText}>{running ? t('stopCaps') : t('startCaps')}</Text>
             </Pressable>
             <Pressable
               onPress={() => setSound(!sound)}
               style={[styles.sound, compact && styles.soundCompact]}
               accessibilityRole="button"
-              accessibilityLabel={sound ? 'Turn beep off' : 'Turn beep on'}
+              accessibilityLabel={sound ? t('beepOff') : t('beepOn')}
             >
               {sound ? <Volume2 size={20} color="#3f3f46" /> : <VolumeX size={20} color="#a1a1aa" />}
             </Pressable>

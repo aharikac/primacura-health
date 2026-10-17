@@ -8,7 +8,7 @@ import { ShowMeHow } from './ShowMeHow';
 import { StepDiagram } from './StepDiagram';
 import { CprRhythm } from './CprRhythm';
 import { EmergencyDialog } from './EmergencyDialog';
-import { diagrams } from '../data/diagrams';
+import { useI18n } from '../lib/i18n';
 import { speakAll, stopSpeaking } from '../lib/speech';
 import { factsLine, splitSentences } from '../lib/stepText';
 
@@ -27,7 +27,7 @@ export function ProtocolScreen({
   onOpenHowTo,
   onBack,
   onDone,
-  backLabel = 'First-Aid Guides',
+  backLabel,
 }: {
   condition: Condition;
   // The current step lives in App so "Show me how" -> Back returns to the same step.
@@ -38,6 +38,7 @@ export function ProtocolScreen({
   onDone?: () => void; // Done on the last step; defaults to onBack
   backLabel?: string;
 }) {
+  const { t, lang, diagrams } = useI18n();
   const total = condition.steps.length;
   const isLast = stepIndex === total - 1;
   const text = condition.steps[stepIndex];
@@ -87,7 +88,7 @@ export function ProtocolScreen({
   const [readAloud, setReadAloud] = useState(false);
   useEffect(() => {
     if (!readAloud) return;
-    speakAll([`Step ${stepIndex + 1}. ${action ?? ''} ${details} ${keyLine}`]);
+    speakAll([`${t('stepN', { n: stepIndex + 1 })}. ${action ?? ''} ${details} ${keyLine}`], undefined, undefined, lang);
   }, [readAloud, stepIndex]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => () => stopSpeaking(), []);
   const toggleReadAloud = () => {
@@ -101,14 +102,14 @@ export function ProtocolScreen({
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right', 'bottom']}>
       <View style={styles.header}>
         <View style={styles.headerRow}>
-          <TouchableOpacity style={styles.back} onPress={onBack} accessibilityLabel={`Back to ${backLabel}`}>
+          <TouchableOpacity style={styles.back} onPress={onBack} accessibilityLabel={t('backTo', { x: backLabel ?? t('guidesTitle') })}>
             <ArrowLeft size={20} strokeWidth={2.8} color="#050505" />
           </TouchableOpacity>
           <View style={styles.titleBox}>
-            <Text style={styles.stepOf}>STEP {stepIndex + 1} OF {total}</Text>
+            <Text style={styles.stepOf}>{t('stepNofM', { n: stepIndex + 1, m: total }).toUpperCase()}</Text>
             <Text style={styles.title} accessibilityRole="header" numberOfLines={2}>{condition.title}</Text>
           </View>
-          <TouchableOpacity style={styles.call} onPress={() => setConfirmCall(true)} accessibilityRole="button" accessibilityLabel="Call 911">
+          <TouchableOpacity style={styles.call} onPress={() => setConfirmCall(true)} accessibilityRole="button" accessibilityLabel={t('call911')}>
             <Phone size={15} color={RED} fill={RED} />
             <Text style={styles.callText}>911</Text>
           </TouchableOpacity>
@@ -138,12 +139,12 @@ export function ProtocolScreen({
             onPress={() => setPictureOpen(true)}
             style={({ pressed }) => [styles.picture, pressed && styles.picturePressed]}
             accessibilityRole="imagebutton"
-            accessibilityLabel={`${diagram.alt} Tap to enlarge.`}
+            accessibilityLabel={t('tapToEnlargeAria', { x: diagram.alt })}
           >
             <SvgXml xml={diagram.svg} width="100%" height="100%" />
             <View style={styles.zoom}>
               <Maximize2 size={12} color="#3f3f46" strokeWidth={2.6} />
-              <Text style={styles.zoomText}>Tap to enlarge</Text>
+              <Text style={styles.zoomText}>{t('tapToEnlarge')}</Text>
             </View>
           </Pressable>
         ) : null}
@@ -173,8 +174,8 @@ export function ProtocolScreen({
             {[0.15, 0.35, 0.6, 0.85, 1].map((o) => <View key={o} style={[styles.fadeBand, { opacity: o }]} />)}
           </View>
           <Animated.View pointerEvents="box-none" style={[styles.moreWrap, { transform: [{ translateY: nudge }] }]}>
-            <TouchableOpacity style={styles.more} onPress={scrollDown} accessibilityRole="button" accessibilityLabel="Scroll down for more">
-              <Text style={styles.moreText}>More below</Text>
+            <TouchableOpacity style={styles.more} onPress={scrollDown} accessibilityRole="button" accessibilityLabel={t('scrollMore')}>
+              <Text style={styles.moreText}>{t('moreBelow')}</Text>
               <ChevronDown size={16} strokeWidth={2.8} color="#3f3f46" />
             </TouchableOpacity>
           </Animated.View>
@@ -190,9 +191,9 @@ export function ProtocolScreen({
         )}
         <View style={styles.nav}>
           {stepIndex > 0 ? (
-            <TouchableOpacity style={styles.prev} onPress={() => onStepChange(stepIndex - 1)} accessibilityRole="button" accessibilityLabel="Previous step">
+            <TouchableOpacity style={styles.prev} onPress={() => onStepChange(stepIndex - 1)} accessibilityRole="button" accessibilityLabel={t('previousStep')}>
               <ChevronLeft size={22} strokeWidth={2.6} color="#3f3f46" />
-              <Text style={styles.prevText}>Back</Text>
+              <Text style={styles.prevText}>{t('back')}</Text>
             </TouchableOpacity>
           ) : null}
           <View style={styles.navSpacer} />
@@ -200,13 +201,13 @@ export function ProtocolScreen({
             style={({ pressed }) => [styles.speak, readAloud && styles.speakOn, pressed && styles.speakPressed]}
             onPress={toggleReadAloud}
             accessibilityRole="button"
-            accessibilityLabel={readAloud ? 'Stop reading aloud' : 'Read steps aloud'}
+            accessibilityLabel={readAloud ? t('stopReadingAloud') : t('readStepsAloud')}
             accessibilityState={{ selected: readAloud }}
           >
             {readAloud ? <Square size={16} color="#fff" fill="#fff" /> : <Speech size={22} strokeWidth={2.4} color="#050505" />}
           </Pressable>
           <TouchableOpacity style={styles.next} onPress={goNext} accessibilityRole="button">
-            <Text style={styles.nextText}>{isLast ? 'Done' : 'Next'}</Text>
+            <Text style={styles.nextText}>{isLast ? t('done') : t('next')}</Text>
             {!isLast ? <ChevronRight size={22} strokeWidth={2.8} color="#fff" /> : null}
           </TouchableOpacity>
         </View>
@@ -218,7 +219,7 @@ export function ProtocolScreen({
             <View style={styles.grab} />
             <View style={styles.sheetHead}>
               <Text style={styles.sheetTitle}>{action ?? condition.title}</Text>
-              <TouchableOpacity style={styles.sheetClose} onPress={() => setPictureOpen(false)} accessibilityLabel="Close picture">
+              <TouchableOpacity style={styles.sheetClose} onPress={() => setPictureOpen(false)} accessibilityLabel={t('closePicture')}>
                 <X size={20} strokeWidth={2.6} color="#050505" />
               </TouchableOpacity>
             </View>

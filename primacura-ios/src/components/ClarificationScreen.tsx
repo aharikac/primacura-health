@@ -14,21 +14,25 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, Search } from 'lucide-react-native'; 
 import { optionIcon } from './optionIcons';
+import { useI18n } from '../lib/i18n';
 
 export function ClarificationScreen({
   message, 
   options = [],
+  labels = [],
   hints = [],
   onSelectOption,
   query, 
   setQuery, 
   onSearch, 
   onBack, 
-  backLabel = 'Home',
+  backLabel,
   loading, 
 }: {
   message: string; 
   options?: string[];
+  // What each button shows (Spanish replies); the option itself is what is sent.
+  labels?: string[];
   hints?: string[];
   onSelectOption?: (option: string) => void;
   query: string; 
@@ -40,6 +44,8 @@ export function ClarificationScreen({
 }) {
   // Spacing between header, safety box and card scales with screen height:
   // compact on small phones (iPhone SE), roomier on tall ones (Pro Max).
+  const { t } = useI18n();
+  const label = backLabel ?? t('home');
   const { height } = useWindowDimensions();
   const space = Math.round(Math.min(32, Math.max(16, height * 0.03)));
   const inner = Math.round(space * 0.6);
@@ -62,28 +68,28 @@ export function ClarificationScreen({
           
           <View style={[styles.header, { marginBottom: space }]}>
             <View style={styles.headerTopRow}>
-              <TouchableOpacity style={styles.navBackBtn} onPress={onBack} accessibilityLabel={backLabel === 'Home' ? 'Back to home' : 'Back to the previous question'}>
+              <TouchableOpacity style={styles.navBackBtn} onPress={onBack} accessibilityLabel={label === t('home') ? t('backToHome') : t('backToPrevious')}>
                 <View style={styles.navIconCircle}>
                   <ArrowLeft size={18} strokeWidth={2.8} color="#050505" />
                 </View>
-                <Text style={styles.navBackText}>{backLabel}</Text>
+                <Text style={styles.navBackText}>{label}</Text>
               </TouchableOpacity>
               
               <View style={styles.innerBrand}>
                 <Text style={styles.innerBrandTitle}>PrimaCura</Text>
-                <Text style={styles.innerBrandSlogan}>The First Care</Text>
+                <Text style={styles.innerBrandSlogan}>{t('slogan')}</Text>
               </View>
             </View>
 
             <View style={styles.headerTitleRow}>
-              <Text style={styles.title}>Please clarify the situation</Text>
+              <Text style={styles.title}>{t('clarifyTitle')}</Text>
             </View>
           </View>
 
           <View style={[styles.safetyReminder, { marginBottom: space }]}>
             <Text style={styles.safetyReminderText}>
-              <Text style={styles.safetyReminderBold}>CHECK SCENE FOR SAFETY. </Text>
-              If it's life-threatening, call 911 immediately.
+              <Text style={styles.safetyReminderBold}>{t('checkScene')} </Text>
+              {t('lifeThreatening')}
             </Text>
           </View>
 
@@ -99,6 +105,7 @@ export function ClarificationScreen({
                 {options.map((option, i) => {
                   const Icon = optionIcon(option);
                   const hint = hints[i];
+                  const shown = labels[i] || option;
                   return (
                     <Pressable
                       key={option}
@@ -110,7 +117,7 @@ export function ClarificationScreen({
                       onPress={() => onSelectOption(option)}
                       disabled={loading}
                       accessibilityRole="button"
-                      accessibilityLabel={hint ? `${option}. ${hint}` : option}
+                      accessibilityLabel={hint ? `${shown}. ${hint}` : shown}
                     >
                       {({ pressed }) => (
                         <>
@@ -118,7 +125,7 @@ export function ClarificationScreen({
                             <Icon size={22} strokeWidth={2.4} color={pressed ? '#fff' : '#d33b32'} />
                           </View>
                           <View style={styles.optionText}>
-                            <Text style={[styles.optionButtonText, pressed && styles.optionTextPressed]}>{option}</Text>
+                            <Text style={[styles.optionButtonText, pressed && styles.optionTextPressed]}>{shown}</Text>
                             {hint ? (
                               <Text style={[styles.optionHint, pressed && styles.optionHintPressed]}>{hint}</Text>
                             ) : null}
@@ -146,7 +153,7 @@ export function ClarificationScreen({
                 style={styles.searchInput} 
                 value={query} 
                 onChangeText={setQuery} 
-                placeholder={"Type clarification in\ndetail..."} 
+                placeholder={t('typeClarification')} 
                 placeholderTextColor="#9ca3af" 
                 onSubmitEditing={onSearch} 
                 returnKeyType="send" 

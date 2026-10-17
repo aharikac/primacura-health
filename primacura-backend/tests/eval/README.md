@@ -98,6 +98,20 @@ Then (same day): uninformative replies (only an age, yes/no, filler) to a questi
 Per set, after the first batch, with LLM (strict / within one tap / wrong): Oct-4 73/83/2, held-out 240/259/0, user's 60 52/60/0, real-world 79/100/2.
 Caveat: the contrast examples were written after seeing the failures, so the gains on the cases they fix are optimistic.
 
+2026-10-17: Spanish support (pchLang). Spanish messages are translated to English by the local LLM (word list if it is down), the decision is made as before, and the reply, buttons and guide come back in Spanish. New set `realworld_testset_es_oct17.csv`: 102 Spanish messages from news reports, forums, searches and 911 calls (11 verbatim, 6 trimmed, 85 adapted from real events). Not-right cases in `realworld_testset_es_oct17_results_20261017.tsv`.
+
+| Set | Strict | Within one tap | Wrong protocol |
+|---|---|---|---|
+| Spanish 102, first run | 79 (77.5%) | 94 (92.2%) | 6 (5.9%) |
+| **Spanish 102, after fixes** | **84 (82.4%)** | **98 (96.1%)** | **2 (2.0%)** |
+| English master 777 (no regression) | 669 (86.1%) | 770 (99.1%) | 3 (0.4%) |
+| Spanish 102, + hot-liquid rule | 84 (82.4%) | 99 (97.1%) | 2 (2.0%) |
+| English master 777, + hot-liquid rule | 672 (86.5%) | 770 (99.1%) | 3 (0.4%) |
+
+Fixes after the first run: ages said in Spanish ("tiene 9 meses", "de 10 días") are carried into the translation as "9 months old", the age check reads day-old, "one month old" and "2 years old" and treats 12+ months as a child, and the translator gets a short list of emergency words ("ahogarse", "morado", "casi no respira"...). Remaining wrong: S028 (1-year-old swallowed a fake nail, not breathing -> child CPR) and S057 (18-month-old near fentanyl, not breathing well -> child CPR); English with the same wording does the same.
+Hot-liquid rule (pchTriage `_HOT_LIQUID`): boiling/scalding/steaming or hot water, oil, soup, tea, coffee, milk, or a kettle rules out the drowning guide unless the person is unresponsive or not breathing, and adds weight to Burns (S077, M256, M650, M734 improved; nothing worse). 12 extra toddler-scald training examples were tried with it and rolled back: M374 and M560 dropped from right to one tap.
+Caveat: the translation hints were written after seeing the first run, so the second-run numbers are optimistic.
+
 Note: v1 has now been used to choose between options (LLM model choice, the
 "isn't moving or breathing" rule), so treat it as a regression set from here on.
 

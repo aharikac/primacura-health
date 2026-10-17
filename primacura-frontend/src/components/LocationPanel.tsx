@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Check, Copy, LocateFixed, MapPin, RefreshCw } from 'lucide-react';
+import { useI18n } from '../lib/i18n';
 
 // The person's GPS position, to read out to 911. It stays on this device: it is
 // never sent to the PrimaCura server.
@@ -11,6 +12,7 @@ export type LocationStatus = 'idle' | 'locating' | 'ready' | 'error';
 
 /** Asks the browser for the GPS position. Shared by the panel and the home-screen button. */
 export function useLocationFix(autoStart = false) {
+  const { t } = useI18n();
   const [status, setStatus] = useState<LocationStatus>('idle');
   const [fix, setFix] = useState<Fix | null>(null);
   const [error, setError] = useState('');
@@ -18,7 +20,7 @@ export function useLocationFix(autoStart = false) {
   const locate = () => {
     if (!('geolocation' in navigator)) {
       setStatus('error');
-      setError('This browser cannot share your location. Tell 911 a nearby address or landmark.');
+      setError(t('locNoBrowser'));
       return;
     }
     setStatus('locating');
@@ -30,9 +32,7 @@ export function useLocationFix(autoStart = false) {
       (e) => {
         setStatus('error');
         setError(
-          e.code === e.PERMISSION_DENIED
-            ? 'Location is turned off for this site. Allow it in your browser settings, or tell 911 a nearby address or landmark.'
-            : 'Could not find your location. Try again outside or near a window, or tell 911 a nearby address or landmark.',
+          e.code === e.PERMISSION_DENIED ? t('locDenied') : t('locFailed'),
         );
       },
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 },
@@ -46,6 +46,7 @@ export function useLocationFix(autoStart = false) {
 
 /** The coordinates card, with Copy / Map / Update. */
 export function LocationCard({ fix, onUpdate, compact = false }: { fix: Fix; onUpdate: () => void; compact?: boolean }) {
+  const { t } = useI18n();
   const [copied, setCopied] = useState(false);
   const decimal = `${fix.lat.toFixed(5)}, ${fix.lng.toFixed(5)}`;
   const copy = async () => {
@@ -59,24 +60,25 @@ export function LocationCard({ fix, onUpdate, compact = false }: { fix: Fix; onU
   return (
     <div className={`loc ready ${compact ? 'compact' : ''}`} aria-live="polite">
       <div className="loc-head">
-        <LocateFixed size={16} strokeWidth={2.6} aria-hidden="true" /> Your location
+        <LocateFixed size={16} strokeWidth={2.6} aria-hidden="true" /> {t('yourLocation')}
         <span className="loc-acc">±{fix.acc} m</span>
       </div>
       <div className="loc-coords">{hemi(fix.lat, 'N', 'S')}, {hemi(fix.lng, 'E', 'W')}</div>
       <div className="loc-decimal">{decimal}</div>
       <div className="loc-actions">
-        <button onClick={copy}>{copied ? <Check size={15} /> : <Copy size={15} />} {copied ? 'Copied' : 'Copy'}</button>
+        <button onClick={copy}>{copied ? <Check size={15} /> : <Copy size={15} />} {copied ? t('copied') : t('copy')}</button>
         <a href={`https://maps.google.com/?q=${fix.lat},${fix.lng}`} target="_blank" rel="noreferrer">
-          <MapPin size={15} /> Map
+          <MapPin size={15} /> {t('map')}
         </a>
-        <button onClick={onUpdate} aria-label="Update location"><RefreshCw size={15} /> Update</button>
+        <button onClick={onUpdate} aria-label={t('updateLocation')}><RefreshCw size={15} /> {t('update')}</button>
       </div>
-      {!compact && <p className="loc-note">Read these numbers to the 911 dispatcher. Your location stays on this device.</p>}
+      {!compact && <p className="loc-note">{t('locNote')}</p>}
     </div>
   );
 }
 
 export function LocationPanel({ compact = false, autoStart = false }: { compact?: boolean; autoStart?: boolean }) {
+  const { t } = useI18n();
   const { status, fix, error, locate } = useLocationFix(autoStart);
 
   if (status !== 'ready' || !fix) {
@@ -84,7 +86,7 @@ export function LocationPanel({ compact = false, autoStart = false }: { compact?
       <div className={`loc ${compact ? 'compact' : ''}`}>
         <button className="loc-start" onClick={locate} disabled={status === 'locating'}>
           <MapPin size={16} strokeWidth={2.6} aria-hidden="true" />
-          {status === 'locating' ? 'Finding your location…' : 'Show my location for 911'}
+          {status === 'locating' ? t('findingLocation') : t('showLocation911')}
         </button>
         {status === 'error' && <p className="loc-error" role="alert">{error}</p>}
       </div>

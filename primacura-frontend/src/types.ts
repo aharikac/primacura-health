@@ -1,7 +1,11 @@
 export type Screen = 'home' | 'guides' | 'protocol' | 'howto' | 'clarification' | 'disclaimer' | 'about' | 'contact';
 
+export type Lang = 'en' | 'es';
+
 export type Condition = {
   title: string;
+  // Spanish guides only: the English title of the same guide.
+  key?: string;
   description: string;
   steps: string[];
   // Same length as steps: the short action each step starts with (shown in big type).
@@ -42,6 +46,8 @@ export type ChatResponse = {
   message: string;
   confidence: number;
   options?: string[];
+  // Spanish replies: what to show on each option (send options[i] back, not this).
+  option_labels?: string[];
   // One line per option, same order (empty for age and breathing answers).
   option_hints?: string[];
   // Same length as steps: How-To card id per step, or null (older backends omit it).
@@ -51,4 +57,6 @@ export type ChatResponse = {
   step_action?: (string | null)[];
   step_facts?: string[][];
   session_id: string;
+  // Language of the reply ('es' when the person wrote in Spanish).
+  lang?: Lang;
 };

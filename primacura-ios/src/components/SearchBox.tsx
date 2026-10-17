@@ -1,5 +1,6 @@
 import { View, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
-import { Search } from 'lucide-react-native'; /*[cite: 14]*/
+import { Search } from 'lucide-react-native';
+import { useI18n } from '../lib/i18n';
 
 export function SearchBox({
   value,
@@ -14,6 +15,7 @@ export function SearchBox({
   onSearch?: () => void;
   loading?: boolean;
 }) {
+  const { t } = useI18n();
   if (home) {
     return (
       <View style={styles.homeContainer}>
@@ -21,9 +23,9 @@ export function SearchBox({
           style={styles.textArea}
           value={value}
           onChangeText={onChange} /*[cite: 14]*/
-          placeholder="Type the situation in detail..." /*[cite: 14]*/
+          placeholder={t('typeSituation')}
           placeholderTextColor="#9ca3af"
-          accessibilityLabel="Type the situation in detail..." /*[cite: 14]*/
+          accessibilityLabel={t('typeSituation')}
           multiline={true}
           numberOfLines={5} /*[cite: 14]*/
           editable={!loading} /*[cite: 14]*/
@@ -33,7 +35,7 @@ export function SearchBox({
           style={styles.submitButton} 
           onPress={onSearch} 
           disabled={loading} /*[cite: 14]*/
-          accessibilityLabel="Get help" /*[cite: 14]*/
+          accessibilityLabel={t('getHelp')}
         >
           {loading ? (
             <ActivityIndicator color="#fff" size="small" /> /*[cite: 14]*/
@@ -52,9 +54,9 @@ export function SearchBox({
         style={styles.inlineInput}
         value={value}
         onChangeText={onChange} /*[cite: 14]*/
-        placeholder="Search conditions..." /*[cite: 14]*/
+        placeholder={t('searchConditions')}
         placeholderTextColor="#9ca3af"
-        accessibilityLabel="Search conditions" /*[cite: 14]*/
+        accessibilityLabel={t('searchConditionsAria')}
         editable={!loading}
       />
     </View>

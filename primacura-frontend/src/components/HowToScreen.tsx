@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { speakAll, speechSupported, stopSpeaking } from '../lib/speech';
 import { ArrowLeft, Phone, Square, TriangleAlert, Volume2 } from 'lucide-react';
-import { howTos } from '../data/howTo';
+import { useI18n } from '../lib/i18n';
 import { howToIcon } from './howToIcons';
 import { StepDiagram } from './StepDiagram';
 import { CprRhythm } from './CprRhythm';
@@ -15,12 +15,14 @@ import { factsLine } from '../lib/stepText';
 export function HowToScreen({
   howToId,
   onBack,
-  backLabel = 'Back',
+  backLabel,
 }: {
   howToId: string;
   onBack: () => void;
   backLabel?: string;
 }) {
+  const { t, lang, howTos, cardAge } = useI18n();
+  const label = backLabel ?? t('back');
   const [currentId, setCurrentId] = useState(howToId);
   useEffect(() => setCurrentId(howToId), [howToId]);
 
@@ -35,12 +37,13 @@ export function HowToScreen({
     if (speaking !== null) { stopSpeaking(); setSpeaking(null); return; }
     setSpeaking(-1);
     speakAll(
-      [`${card.title}.`, ...card.steps.map((s, i) => `Step ${i + 1}. ${s.lead ? s.lead + '. ' : ''}${s.text}`)],
+      [`${card.title}.`, ...card.steps.map((s, i) => `${t('stepN', { n: i + 1 })}. ${s.lead ? s.lead + '. ' : ''}${s.text}`)],
       (i) => {
         setSpeaking(i - 1);
         stepRefs.current[i - 1]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       },
       () => setSpeaking(null),
+      lang,
     );
   };
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -55,15 +58,15 @@ export function HowToScreen({
       <div className="howto-scroll" ref={scrollRef} onScroll={check}>
       <header className="inner-page-header tight-bottom">
         <div className="header-top-row">
-          <button className="nav-back-btn" onClick={onBack} aria-label={`Back to ${backLabel}`}>
+          <button className="nav-back-btn" onClick={onBack} aria-label={t('backTo', { x: label })}>
             <div className="nav-icon-circle">
               <ArrowLeft size={20} strokeWidth={2.8} color="#050505" />
             </div>
-            {backLabel}
+            {label}
           </button>
           <div className="inner-brand">
             <span className="inner-brand-title">PrimaCura</span>
-            <span className="inner-brand-slogan">The First Care</span>
+            <span className="inner-brand-slogan">{t('slogan')}</span>
           </div>
         </div>
       </header>
@@ -73,7 +76,7 @@ export function HowToScreen({
           <Icon size={30} strokeWidth={2.4} />
         </div>
         <div className="howto-hero-text">
-          <span className="howto-eyebrow">How-To</span>
+          <span className="howto-eyebrow">{t('howTo')}</span>
           <h1>{card.title}</h1>
         </div>
       </section>
@@ -81,12 +84,12 @@ export function HowToScreen({
       {speechSupported && (
         <button className={`read-aloud listen ${speaking !== null ? 'on' : ''}`} onClick={listen} aria-pressed={speaking !== null}>
           {speaking !== null ? <Square size={13} fill="currentColor" /> : <Volume2 size={15} />}
-          {speaking !== null ? 'Stop listening' : 'Listen to the steps'}
+          {speaking !== null ? t('stopListening') : t('listenSteps')}
         </button>
       )}
 
       {siblings.length > 1 && (
-        <div className="howto-tabs" role="tablist" aria-label="Who is it for">
+        <div className="howto-tabs" role="tablist" aria-label={t('whoFor')}>
           {siblings.map((s) => (
             <button
               key={s.id}
@@ -95,7 +98,7 @@ export function HowToScreen({
               className={`howto-tab ${s.id === card.id ? 'active' : ''}`}
               onClick={() => setCurrentId(s.id)}
             >
-              {s.age}
+              {cardAge(s.age)}
             </button>
           ))}
         </div>
@@ -121,9 +124,9 @@ export function HowToScreen({
       </ol>
 
       {card.watchOut.length > 0 && (
-        <aside className="howto-watch" aria-label="Watch out">
+        <aside className="howto-watch" aria-label={t('watchOut')}>
           <div className="howto-watch-title">
-            <TriangleAlert size={18} strokeWidth={2.6} aria-hidden="true" /> Watch out
+            <TriangleAlert size={18} strokeWidth={2.6} aria-hidden="true" /> {t('watchOut')}
           </div>
           <ul>
             {card.watchOut.map((w) => (
@@ -135,7 +138,7 @@ export function HowToScreen({
 
       {/* Text only on the web (no dial link). */}
       <div className="emergency-pill" role="note">
-        <Phone size={16} fill="currentColor" aria-hidden="true" /> Life-threatening? Call 911 first.
+        <Phone size={16} fill="currentColor" aria-hidden="true" /> {t('callFirst')}
       </div>
       </div>
       <MoreBelow show={more} onClick={scrollDown} />

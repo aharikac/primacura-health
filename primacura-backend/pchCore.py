@@ -114,14 +114,16 @@ _AGE_FROM_QUERY = (
     # "baby" is not here: callers say "my baby" about toddlers too, and infant
     # CPR differs from child CPR, so "baby" alone gets the age question.
     ("infant", re.compile(
-        r"\b(infant|newborn|\d+[- ]?(month|week)s?[- ]old|(months|weeks) old)\b", re.I)),
+        r"\b(infant|newborn|(?:\d+|a|one|two|three|four|five|six|seven|eight|nine|ten)[- ]?(day|week)s?[- ]old|"
+        r"(?:[1-9]|1[01]|a|one|two|three|four|five|six|seven|eight|nine|ten|eleven)[- ]?months?[- ]old|"
+        r"(?:a )?few (days|weeks|months) old)\b", re.I)),
         ("child", re.compile(
         r"\b(child|kid|toddler|schoolgirl|schoolboy|(?<!baby )(?:girl|boy)|my (son|daughter)|"
-        r"([1-9]|1[0-2])[- ]year[- ]old)\b", re.I)),
+        r"([1-9]|1[0-2])[- ]years?[- ]old|(?:1[2-9]|[2-9]\d)[- ]?months?[- ]old)\b", re.I)),
     ("adult", re.compile(
         r"\b(adult|man|woman|guy|lady|husband|wife|uncle|aunt|"
         r"grandfather|grandmother|elderly|my (dad|mom|father|mother)|"
-        r"colleague|co[- ]?worker|([2-9]\d|1[3-9])[- ]year[- ]old)\b", re.I)),
+        r"colleague|co[- ]?worker|([2-9]\d|1[3-9])[- ]years?[- ]old)\b", re.I)),
 )
 
 # --------------------------------------------------------------------------
@@ -308,6 +310,9 @@ STEP_FACTS: dict[str, list[str]] = {}
 SAFETY_ACTION = "Make sure the scene is safe."
 SAFETY_STEP = f"{SAFETY_ACTION} Look for traffic, fire, water, electricity or other dangers before you go near."
 STEP_ACTION[SAFETY_STEP] = SAFETY_ACTION
+# Spanish (lang="es"): same safety step, shown first in every Spanish guide.
+SAFETY_ACTION_ES = "Asegúrate de que el lugar es seguro."
+SAFETY_STEP_ES = f"{SAFETY_ACTION_ES} Busca tráfico, fuego, agua, electricidad u otros peligros antes de acercarte."
 
 
 def strip_howto(raw_steps: str) -> str:
@@ -438,6 +443,8 @@ class Conversation:
     # Set once the LLM has picked a different condition than the classifier's
     # best guess. From then on no protocol is shown without the LLM agreeing.
     llm_disagreed: bool = False
+    # Language of the replies: "es" once the person writes in Spanish.
+    lang: str | None = None
 
 
 # --------------------------------------------------------------------------

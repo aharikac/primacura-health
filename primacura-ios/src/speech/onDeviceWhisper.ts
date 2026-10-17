@@ -3,8 +3,8 @@
  *
  * The recording never leaves the phone: we record a 16 kHz mono WAV,
  * transcribe it here, and send only the resulting text to the backend.
- * Non-English speech is translated to English on the device, matching what
- * the backend's /transcribe/ endpoint used to do.
+ * English and Spanish are sent as spoken (the backend answers Spanish in
+ * Spanish); other languages are translated to English on the device.
  *
  * The model ships inside the app bundle so speech works on first use and
  * offline. Download it once with:  sh scripts/fetch-whisper-model.sh
@@ -54,15 +54,18 @@ export function loadWhisper(): Promise<WhisperContext> {
   return pending;
 }
 
-/** Transcribe a recorded WAV file on the device; returns English text ('' if nothing heard). */
-export async function transcribeOnDevice(fileUri: string): Promise<string> {
+/**
+ * Transcribe a recorded WAV file on the device ('' if nothing heard).
+ * English and Spanish come back as spoken (the backend reads Spanish and answers
+ * in Spanish); any other language is translated to English on the device.
+ */
+export async function transcribeOnDevice(fileUri: string): Promise<{ text: string; lang: 'en' | 'es' | null }> {
   const context = await loadWhisper();
-  const { promise } = context.transcribe(fileUri, {
-    language: 'auto', // detect the spoken language...
-    translate: true, // ...and return English, which the backend understands
-  });
-  const { result } = await promise;
-  return cleanTranscript(result);
+  const first = await context.transcribe(fileUri, { language: 'auto', translate: false }).promise;
+  const spoken = (first.language || '').toLowerCase();
+  if (spoken === 'en' || spoken === 'es') return { text: cleanTranscript(first.result), lang: spoken };
+  const { result } = await context.transcribe(fileUri, { language: 'auto', translate: true }).promise;
+  return { text: cleanTranscript(result), lang: null };
 }
 
 /** Drop whisper's non-speech markers such as "[BLANK_AUDIO]" or "(wind blowing)". */

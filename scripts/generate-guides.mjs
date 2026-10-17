@@ -23,6 +23,9 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DATA = path.join(ROOT, 'primacura-backend', 'data');
 const CSV = path.join(DATA, 'First_Aid_Dataset_Final.csv');
 const HOWTO_CSV = path.join(DATA, 'how-to-guides.csv');
+// Spanish: same rows, steps and [marks]; guide_id (Spanish guides) is the English guide_title.
+const CSV_ES = path.join(DATA, 'First_Aid_Dataset_Final.es.csv');
+const HOWTO_CSV_ES = path.join(DATA, 'how-to-guides.es.csv');
 const DIAGRAM_DIR = path.join(DATA, 'diagrams');
 const APPS = ['primacura-frontend', 'primacura-ios'].map((app) => path.join(ROOT, app, 'src', 'data'));
 const PCH_CORE = path.join(ROOT, 'primacura-backend', 'pchCore.py');
@@ -48,7 +51,7 @@ function parseMarks(step) {
   return { text: details ? `${action.trim()} ${details}` : action.trim(), action: action.trim(), ...marks };
 }
 
-export function renderDiagrams(dir) {
+export function renderDiagrams(dir, { source = 'diagrams/*.svg', exportName = 'diagrams' } = {}) {
   const files = existsSync(dir) ? readdirSync(dir).filter((f) => f.endsWith('.svg')).sort() : [];
   const items = files.map((f) => {
     const svg = readFileSync(path.join(dir, f), 'utf8').trim();
@@ -60,8 +63,8 @@ export function renderDiagrams(dir) {
   const body = items.map((d) => `  ${q(d.id)}: { alt: ${q(d.alt)}, aspect: ${d.aspect}, svg: ${q(d.svg)} },`).join('\n');
   return {
     ids: new Set(items.map((d) => d.id)),
-    content: [...HEADER('diagrams/*.svg'), "import { Diagram } from '../types';", '',
-      'export const diagrams: Record<string, Diagram> = {', body, '};', ''].join('\n'),
+    content: [...HEADER(source), "import { Diagram } from '../types';", '',
+      `export const ${exportName}: Record<string, Diagram> = {`, body, '};', ''].join('\n'),
   };
 }
 const HEADER = (what) => [
@@ -112,9 +115,9 @@ function requireColumns(rows, cols, file) {
 const q = (s) => JSON.stringify(s);
 const list = (s) => s.split('|').map((x) => x.trim()).filter(Boolean);
 
-export function renderHowTo(csvText, diagramIds = null) {
+export function renderHowTo(csvText, diagramIds = null, { source = 'how-to-guides.csv', exportName = 'howTos' } = {}) {
   const rows = parseCsv(csvText);
-  requireColumns(rows, HOWTO_REQUIRED, 'how-to-guides.csv');
+  requireColumns(rows, HOWTO_REQUIRED, source);
   const cards = rows.map((r, i) => {
     // diagrams column: "2:hand-position|4:compression-depth" (step number : diagram id)
     const stepDiagrams = Object.fromEntries(list(r.diagrams ?? '').map((d) => d.split(':').map((x) => x.trim())));
@@ -155,8 +158,8 @@ export function renderHowTo(csvText, diagramIds = null) {
   return {
     ids: new Set(cards.map((c) => c.id)),
     cards,
-    content: [...HEADER('how-to-guides.csv'), "import { HowTo } from '../types';", '',
-      'export const howTos: HowTo[] = [', body, '];', ''].join('\n'),
+    content: [...HEADER(source), "import { HowTo } from '../types';", '',
+      `export const ${exportName}: HowTo[] = [`, body, '];', ''].join('\n'),
   };
 }
 
@@ -168,9 +171,9 @@ export function conditionsForSpeech(csvText) {
   });
 }
 
-export function render(csvText, howToIds = null, diagramIds = null) {
+export function render(csvText, howToIds = null, diagramIds = null, { source = 'First_Aid_Dataset_Final.csv', exportName = 'conditions' } = {}) {
   const rows = parseCsv(csvText);
-  requireColumns(rows, REQUIRED, 'First_Aid_Dataset_Final.csv');
+  requireColumns(rows, REQUIRED, source);
   const conditions = rows.map((r, i) => {
     const parsed = splitSteps(r.output).map(parseMarks);
     const howTo = parsed.map((p) => p.howTo);
@@ -185,13 +188,14 @@ export function render(csvText, howToIds = null, diagramIds = null) {
     for (const id of diagram) {
       if (id && diagramIds && !diagramIds.has(id)) throw new Error(`First_Aid_Dataset_Final.csv row ${i + 2}: no diagram "${id}" in data/diagrams`);
     }
-    const c = { title: r.guide_title.trim(), description: r.situation.trim(), steps, actions, facts, howTo, diagram, rhythm };
+    const c = { title: r.guide_title.trim(), ...(r.guide_id ? { key: r.guide_id.trim() } : {}), description: r.situation.trim(), steps, actions, facts, howTo, diagram, rhythm };
     if (!c.title || !c.steps.length) throw new Error(`CSV row ${i + 2} needs a guide_title and numbered steps`);
     return c;
   });
   const body = conditions.map((c) => [
     '  {',
     `    title: ${q(c.title)},`,
+    ...(c.key ? [`    key: ${q(c.key)},`] : []),
     `    description: ${q(c.description)},`,
     '    steps: [',
     ...c.steps.map((s) => `      ${q(s)},`),
@@ -203,8 +207,8 @@ export function render(csvText, howToIds = null, diagramIds = null) {
     ...(c.rhythm.some(Boolean) ? [`    rhythm: [${c.rhythm.join(', ')}],`] : []),
     '  },',
   ].join('\n')).join('\n');
-  return [...HEADER('First_Aid_Dataset_Final.csv'), "import { Condition } from '../types';", '',
-    'export const conditions: Condition[] = [', body, '];', ''].join('\n');
+  return [...HEADER(source), "import { Condition } from '../types';", '',
+    `export const ${exportName}: Condition[] = [`, body, '];', ''].join('\n');
 }
 
 const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
@@ -218,7 +222,23 @@ if (isMain) {
   const howTo = existsSync(HOWTO_CSV) ? renderHowTo(readFileSync(HOWTO_CSV, 'utf8'), diagrams.ids) : null;
   const outputs = { 'conditions.ts': render(readFileSync(CSV, 'utf8'), howTo?.ids ?? null, diagrams.ids) };
   if (howTo) outputs['howTo.ts'] = howTo.content;
+  // Spanish guides and How-To cards (same order, ids and marks as the English ones).
+  const howToEs = existsSync(HOWTO_CSV_ES)
+    ? renderHowTo(readFileSync(HOWTO_CSV_ES, 'utf8'), diagrams.ids, { source: 'how-to-guides.es.csv', exportName: 'howTosEs' }) : null;
+  if (howToEs) {
+    const en = howTo?.cards.map((c) => c.id).join() ?? '', es = howToEs.cards.map((c) => c.id).join();
+    if (en !== es) throw new Error('how-to-guides.es.csv must have the same ids, in the same order, as how-to-guides.csv');
+    outputs['howTo.es.ts'] = howToEs.content;
+  }
+  if (existsSync(CSV_ES)) {
+    outputs['conditions.es.ts'] = render(readFileSync(CSV_ES, 'utf8'), howTo?.ids ?? null, diagrams.ids,
+      { source: 'First_Aid_Dataset_Final.es.csv', exportName: 'conditionsEs' });
+  }
   outputs['diagrams.ts'] = diagrams.content;
+  // Spanish diagrams (scripts/translate-diagrams-es.py); the apps fall back to English for any missing.
+  const diagramsEs = renderDiagrams(path.join(DIAGRAM_DIR, 'es'), { source: 'diagrams/es/*.svg', exportName: 'diagramsEs' });
+  for (const id of diagramsEs.ids) if (!diagrams.ids.has(id)) throw new Error(`diagrams/es/${id}.svg has no English diagrams/${id}.svg`);
+  outputs['diagrams.es.ts'] = diagramsEs.content;
   let stale = 0;
   const report = (what) => {
     stale++;
@@ -227,11 +247,22 @@ if (isMain) {
   };
 
   // Read-aloud clips: the manifest of everything the apps say, and which clips are recorded.
+  const pchCore = existsSync(PCH_CORE) ? readFileSync(PCH_CORE, 'utf8') : null;
   const clips = collectSpeech({
     conditions: conditionsForSpeech(readFileSync(CSV, 'utf8')),
     cards: howTo?.cards ?? [],
-    safetyStep: existsSync(PCH_CORE) ? readSafetyStep(readFileSync(PCH_CORE, 'utf8')) : null,
+    safetyStep: pchCore ? readSafetyStep(pchCore) : null,
   });
+  if (existsSync(CSV_ES)) {
+    const ids = new Set(clips.map((c) => c.id));
+    for (const c of collectSpeech({
+      conditions: conditionsForSpeech(readFileSync(CSV_ES, 'utf8')),
+      cards: howToEs?.cards ?? [],
+      safetyStep: pchCore ? readSafetyStep(pchCore, 'es') : null,
+      lang: 'es',
+    })) if (!ids.has(c.id)) clips.push(c);
+    clips.sort((a, b) => a.id.localeCompare(b.id));
+  }
   const manifest = manifestContent(clips);
   if ((existsSync(SPEECH_MANIFEST) ? readFileSync(SPEECH_MANIFEST, 'utf8') : '') !== manifest) {
     report(path.relative(ROOT, SPEECH_MANIFEST));

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Send, Loader2, Mail } from 'lucide-react';
+import { useI18n } from '../lib/i18n';
 import { MAX_EMAIL_CHARS, MAX_MESSAGE_CHARS, MAX_MESSAGE_WORDS, MAX_NAME_CHARS, countWords, limitWords } from '../lib/limits';
 
 export function ContactScreen({ onBack }: { onBack: () => void }) {
+  const { t } = useI18n();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
@@ -60,29 +62,29 @@ export function ContactScreen({ onBack }: { onBack: () => void }) {
     <main className="contact-screen" style={{ padding: '16px', overflowY: 'auto', maxHeight: '100%', boxSizing: 'border-box' }}>
       <header className="inner-page-header">
         <div className="header-top-row">
-          <button className="nav-back-btn" onClick={onBack} aria-label="Back to home">
+          <button className="nav-back-btn" onClick={onBack} aria-label={t('backToHome')}>
             <div className="nav-icon-circle">
               <ArrowLeft size={20} strokeWidth={2.8} color="#050505" />
             </div>
-            Home
+            {t('home')}
           </button>
           
           <div className="inner-brand">
             <span className="inner-brand-title">PrimaCura</span>
-            <span className="inner-brand-slogan">The First Care</span>
+            <span className="inner-brand-slogan">{t('slogan')}</span>
           </div>
         </div>
 
         <div className="header-title-row">
-          <h1>Contact Us</h1>
-          <p>Get in touch with the team.</p>
+          <h1>{t('contactTitle')}</h1>
+          <p>{t('contactSub')}</p>
         </div>
       </header>
 
       <div style={{ backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', padding: '16px', borderRadius: '8px', marginBottom: '24px', fontSize: '0.9rem' }}>
         <p style={{ margin: 0, color: '#4b5563', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Mail size={18} color="#e63946" />
-          Reach us directly at:
+          {t('reachUs')}
         </p>
         <a href="mailto:contactprimacura@gmail.com" style={{ color: '#e63946', fontWeight: 700, textDecoration: 'none', display: 'block', marginTop: '4px', marginLeft: '26px' }}>
           contactprimacura@gmail.com
@@ -91,7 +93,7 @@ export function ContactScreen({ onBack }: { onBack: () => void }) {
 
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column' }}>
         <div>
-          <label htmlFor="name" style={labelStyle}>Name</label>
+          <label htmlFor="name" style={labelStyle}>{t('name')}</label>
           <input
             id="name"
             type="text"
@@ -100,12 +102,12 @@ export function ContactScreen({ onBack }: { onBack: () => void }) {
             maxLength={MAX_NAME_CHARS}
             onChange={(e) => setName(e.target.value.slice(0, MAX_NAME_CHARS))}
             style={inputStyle}
-            placeholder="Your Name"
+            placeholder={t('yourName')}
           />
         </div>
 
         <div>
-          <label htmlFor="email" style={labelStyle}>Email Address</label>
+          <label htmlFor="email" style={labelStyle}>{t('emailAddress')}</label>
           <input
             id="email"
             type="email"
@@ -120,9 +122,9 @@ export function ContactScreen({ onBack }: { onBack: () => void }) {
 
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '6px' }}>
-            <label htmlFor="message" style={{ ...labelStyle, marginBottom: 0 }}>Message</label>
+            <label htmlFor="message" style={{ ...labelStyle, marginBottom: 0 }}>{t('message')}</label>
             <span style={{ fontSize: '0.75rem', fontWeight: 600, color: countWords(message) >= MAX_MESSAGE_WORDS ? '#e63946' : '#6b7280' }}>
-              {countWords(message)} / {MAX_MESSAGE_WORDS} words
+              {countWords(message)} / {MAX_MESSAGE_WORDS} {t('words')}
             </span>
           </div>
           <textarea
@@ -133,7 +135,7 @@ export function ContactScreen({ onBack }: { onBack: () => void }) {
             value={message}
             onChange={(e) => setMessage(limitWords(e.target.value))}
             style={{ ...inputStyle, resize: 'none' }}
-            placeholder="How can we help you?"
+            placeholder={t('howHelp')}
           />
         </div>
 
@@ -158,21 +160,21 @@ export function ContactScreen({ onBack }: { onBack: () => void }) {
           }}
         >
           {status === 'submitting' ? (
-            <><Loader2 size={20} className="spin" /> <span>Sending...</span></>
+            <><Loader2 size={20} className="spin" /> <span>{t('sending')}</span></>
           ) : (
-            <><Send size={20} /> <span>Send Message</span></>
+            <><Send size={20} /> <span>{t('sendMessage')}</span></>
           )}
         </button>
 
         {status === 'success' && (
           <div style={{ marginTop: '16px', padding: '12px', backgroundColor: '#d1fae5', color: '#065f46', borderRadius: '8px', textAlign: 'center', fontWeight: 600, fontSize: '0.9rem' }}>
-            Thank you! Your message has been sent successfully.
+            {t('sentOk')}
           </div>
         )}
         
         {status === 'error' && (
           <div style={{ marginTop: '16px', padding: '12px', backgroundColor: '#fee2e2', color: '#991b1b', borderRadius: '8px', textAlign: 'center', fontWeight: 600, fontSize: '0.9rem' }}>
-            Failed to send message. Please try again or email us directly.
+            {t('sendFailed')}
           </div>
         )}
       </form>

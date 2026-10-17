@@ -1,15 +1,18 @@
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowLeft, ListChecks, MapPin, Mic, Quote, ShieldPlus, Speech, User } from 'lucide-react-native';
+import { ArrowLeft, Languages, ListChecks, MapPin, Mic, Quote, ShieldPlus, Speech, User } from 'lucide-react-native';
+import { useI18n, StringKey } from '../lib/i18n';
 
-const FEATURES = [
-  { Icon: ListChecks, label: 'Step-by-step guides' },
-  { Icon: Mic, label: 'Speak or type' },
-  { Icon: Speech, label: 'Reads steps aloud' },
-  { Icon: MapPin, label: 'Location for 911' },
+const FEATURES: { Icon: typeof Mic; label: StringKey }[] = [
+  { Icon: ListChecks, label: 'featSteps' },
+  { Icon: Mic, label: 'featSpeak' },
+  { Icon: Speech, label: 'featRead' },
+  { Icon: MapPin, label: 'featLocation' },
+  { Icon: Languages, label: 'featSpanish' },
 ];
 
 export function AboutScreen({ onBack }: { onBack: () => void }) {
+  const { t } = useI18n();
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
       <ScrollView 
@@ -19,37 +22,35 @@ export function AboutScreen({ onBack }: { onBack: () => void }) {
       >
         <View style={styles.header}>
           <View style={styles.headerTopRow}>
-            <TouchableOpacity style={styles.navBackBtn} onPress={onBack} accessibilityLabel="Back">
+            <TouchableOpacity style={styles.navBackBtn} onPress={onBack} accessibilityLabel={t('backToHome')}>
               <View style={styles.navIconCircle}>
                 <ArrowLeft size={18} strokeWidth={2.8} color="#050505" />
               </View>
-              <Text style={styles.navBackText}>Home</Text>
+              <Text style={styles.navBackText}>{t('home')}</Text>
             </TouchableOpacity>
             
             <View style={styles.innerBrand}>
               <Text style={styles.innerBrandTitle}>PrimaCura</Text>
-              <Text style={styles.innerBrandSlogan}>The First Care</Text>
+              <Text style={styles.innerBrandSlogan}>{t('slogan')}</Text>
             </View>
           </View>
 
           <View style={styles.headerTitleRow}>
-            <Text style={styles.title}>About PrimaCura</Text>
+            <Text style={styles.title}>{t('aboutTitle')}</Text>
           </View>
         </View>
 
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <View style={styles.iconTile}><ShieldPlus size={20} color="#fff" strokeWidth={2.4} /></View>
-            <Text style={styles.cardTitle}>The Mission</Text>
+            <Text style={styles.cardTitle}>{t('mission')}</Text>
           </View>
-          <Text style={styles.cardBody}>
-            When a medical emergency strikes, panic often follows. PrimaCura was built to bridge the critical gap between an incident occurring and professional medical help arriving. By providing clear, step-by-step first-aid protocols, this app ensures anyone can take immediate, life-saving action when seconds matter most.
-          </Text>
+          <Text style={styles.cardBody}>{t('missionText')}</Text>
           <View style={styles.features}>
             {FEATURES.map(({ Icon, label }) => (
               <View key={label} style={styles.feature}>
                 <Icon size={18} strokeWidth={2.4} color="#9f1d15" />
-                <Text style={styles.featureText}>{label}</Text>
+                <Text style={styles.featureText}>{t(label)}</Text>
               </View>
             ))}
           </View>
@@ -58,24 +59,22 @@ export function AboutScreen({ onBack }: { onBack: () => void }) {
         <View style={[styles.card, styles.developerCard]}>
           <View style={styles.cardHeader}>
             <View style={styles.iconTile}><User size={20} color="#fff" strokeWidth={2.4} /></View>
-            <Text style={styles.cardTitle}>The Developer</Text>
+            <Text style={styles.cardTitle}>{t('developer')}</Text>
           </View>
           <View style={styles.devId}>
             <View style={styles.avatar}><Text style={styles.avatarText}>HA</Text></View>
             <View>
               <Text style={[styles.devName, styles.devNameLarge]}>Harika Appalla</Text>
-              <Text style={styles.devRole}>Designer & developer</Text>
+              <Text style={styles.devRole}>{t('devRole')}</Text>
             </View>
           </View>
           <Text style={styles.cardBody}>
-            PrimaCura was designed and engineered by <Text style={styles.devName}>Harika Appalla</Text>, a 14-year-old 9th grader with a passion for using technology to make a tangible difference in people's lives.
+            {t('devText1')}<Text style={styles.devName}>Harika Appalla</Text>{t('devText2')}
           </Text>
 
           <View style={styles.quoteBlock}>
             <Quote size={22} strokeWidth={2.6} color="#d33b32" />
-            <Text style={styles.quoteText}>
-              I built this app hoping it will help someone in a moment of desperate need. Even if PrimaCura helps just one single person manage an emergency safely, I've achieved my goal.
-            </Text>
+            <Text style={styles.quoteText}>{t('devQuote')}</Text>
           </View>
         </View>
 

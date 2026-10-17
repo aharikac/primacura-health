@@ -13,7 +13,8 @@ import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, unlinkS
 import path from 'node:path';
 
 // Keep in sync with src/lib/speakable.ts in both apps.
-export function speakable(text) {
+export function speakable(text, lang = 'en') {
+  if (lang === 'es') return speakableEs(text);
   return text
     .replace(/½/g, ' and a half')
     // Phone numbers digit by digit (1-800-222-1222), before "2-3" becomes "2 to 3".
@@ -37,6 +38,36 @@ export function speakable(text) {
     .trim();
 }
 
+// Spanish guides ("100–120/min" -> "100 a 120 por minuto", "2 pulg" -> "2 pulgadas").
+function speakableEs(text) {
+  return text
+    .replace(/(\d)\s*½/g, '$1 y media')
+    .replace(/½/g, 'media')
+    .replace(/\b(?:\d{1,3}-)?\d{3}-\d{3}-\d{4}\b/g, (m) => m.split('-').map((g) => g.split('').join(' ')).join(', '))
+    .replace(/(\d)\s*[-–]\s*(\d)/g, '$1 a $2')
+    .replace(/(\d)\s*:\s*(\d)/g, '$1 a $2')
+    .replace(/\/min\b/g, ' por minuto')
+    .replace(/(\d|media)\s*pulg\b\.?/g, '$1 pulgadas')
+    .replace(/(\d)\s*cm\b/g, '$1 centímetros')
+    .replace(/(\d)\s*mg\/dL\b/g, '$1 miligramos por decilitro')
+    .replace(/(\d)\s*mg\b/g, '$1 miligramos')
+    .replace(/(\d)\s*kg\b/g, '$1 kilos')
+    .replace(/(\d)\s*g\b/g, '$1 gramos')
+    .replace(/(\d)\s*oz\b/g, '$1 onzas')
+    .replace(/(\d)\s*lb\b/g, '$1 libras')
+    .replace(/(\d)\s*min\b/g, '$1 minutos')
+    .replace(/(\d)\s*seg\b/g, '$1 segundos')
+    .replace(/(\d)\+/g, '$1 o más')
+    .replace(/×/g, ' por ')
+    .replace(/\b2\.ª/g, 'segunda')
+    .replace(/\s+·\s+/g, ', ')
+    .replace(/\b911\b/g, '9 1 1')
+    .replace(/\bDEA\b/g, 'D E A')
+    .replace(/\bRCP\b/g, 'R C P')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 // Keep in sync with src/lib/clipId.ts in both apps (cyrb53, base 36).
 export function clipId(text) {
   let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
@@ -51,10 +82,11 @@ export function clipId(text) {
 }
 
 // The guides' safety step, which the backend puts first in every guide it sends.
-export function readSafetyStep(pchCorePy) {
-  const action = (pchCorePy.match(/^SAFETY_ACTION\s*=\s*"([^"]+)"/m) || [])[1];
-  const step = (pchCorePy.match(/^SAFETY_STEP\s*=\s*f"([^"]+)"/m) || [])[1];
-  return action && step ? step.replace('{SAFETY_ACTION}', action) : null;
+export function readSafetyStep(pchCorePy, lang = 'en') {
+  const sfx = lang === 'es' ? '_ES' : '';
+  const action = (pchCorePy.match(new RegExp(`^SAFETY_ACTION${sfx}\\s*=\\s*"([^"]+)"`, 'm')) || [])[1];
+  const step = (pchCorePy.match(new RegExp(`^SAFETY_STEP${sfx}\\s*=\\s*f"([^"]+)"`, 'm')) || [])[1];
+  return action && step ? step.replace(`{SAFETY_ACTION${sfx}}`, action) : null;
 }
 
 const MAX_STEP_NUMBER = 20;
@@ -62,9 +94,12 @@ const MAX_STEP_NUMBER = 20;
 // Every piece of text the apps read aloud. Long pieces start with "Step N." in
 // the apps; that prefix is its own short clip, so the same step body is reused
 // whatever number it has (guides from chat start with the safety step).
-export function collectSpeech({ conditions, cards, safetyStep }) {
+// lang "es": Spanish guides ("Paso N."); those clips carry lang: "es" so they are
+// recorded with a Spanish voice.
+export function collectSpeech({ conditions, cards, safetyStep, lang = 'en' }) {
   const texts = new Set();
-  for (let n = 1; n <= MAX_STEP_NUMBER; n++) texts.add(`Step ${n}.`);
+  const stepWord = lang === 'es' ? 'Paso' : 'Step';
+  for (let n = 1; n <= MAX_STEP_NUMBER; n++) texts.add(`${stepWord} ${n}.`);
   // Guide step: "<action> <details> <key numbers>" (ProtocolScreen).
   for (const c of conditions) {
     c.steps.forEach((text, i) => {
@@ -80,10 +115,10 @@ export function collectSpeech({ conditions, cards, safetyStep }) {
   }
   const clips = new Map();
   for (const t of texts) {
-    const spoken = speakable(t);
+    const spoken = speakable(t, lang);
     if (spoken) clips.set(clipId(spoken), spoken);
   }
-  return [...clips].map(([id, text]) => ({ id, text })).sort((a, b) => a.id.localeCompare(b.id));
+  return [...clips].map(([id, text]) => (lang === 'en' ? { id, text } : { id, text, lang })).sort((a, b) => a.id.localeCompare(b.id));
 }
 
 export function manifestContent(clips) {

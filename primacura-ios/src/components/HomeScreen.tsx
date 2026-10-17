@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Linking, TextInput, ActivityIndicator, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LocationCard, useLocationFix } from './LocationPanel';
-import { BookOpen, ChevronDown, ChevronRight, Mail, MapPin, Mic, Phone, Search, ShieldAlert, Square, User } from 'lucide-react-native';
+import { useI18n } from '../lib/i18n';
+import { BookOpen, ChevronDown, ChevronRight, Languages, Mail, MapPin, Mic, Phone, Search, ShieldAlert, Square, User } from 'lucide-react-native';
 
 const RED = '#d33b32';
 
@@ -38,6 +39,7 @@ export function HomeScreen({
   recordingTimeLeft: number;
 }) {
   // Location stays on this phone. "My location" opens and closes the details.
+  const { t, lang, setLang } = useI18n();
   const location = useLocationFix();
   const [locOpen, setLocOpen] = useState(false);
   const toggleLocation = () => {
@@ -59,20 +61,31 @@ export function HomeScreen({
           <View style={styles.brandMark}><Text style={styles.brandMarkText}>+</Text></View>
           <View>
             <Text style={styles.brandTitle}>PrimaCura</Text>
-            <Text style={styles.brandSlogan}>The First Care</Text>
+            <Text style={styles.brandSlogan}>{t('slogan')}</Text>
           </View>
+          <TouchableOpacity
+            style={styles.langSwitch}
+            onPress={() => setLang(lang === 'es' ? 'en' : 'es')}
+            accessibilityRole="button"
+            accessibilityLabel={t('langSwitchLabel')}
+          >
+            {/* Language icon + EN | ES, the current one highlighted (no flags: a language is not a country). */}
+            <Languages size={16} color={RED} strokeWidth={2.4} />
+            <Text style={[styles.langCode, lang === 'en' && styles.langCodeOn]}>EN</Text>
+            <Text style={[styles.langCode, lang === 'es' && styles.langCodeOn]}>ES</Text>
+          </TouchableOpacity>
         </View>
 
         {/* 1 · Describe it */}
         <View style={styles.ask}>
-          <Text style={styles.heading}>Describe what's{'\n'}happening.</Text>
+          <Text style={styles.heading}>{t('heading1')}{'\n'}{t('heading2')}</Text>
 
           <View style={[styles.searchBox, focused && styles.searchBoxFocused]}>
             <TextInput
               style={styles.searchInput}
               value={query}
               onChangeText={setQuery}
-              placeholder="Type the situation in detail..."
+              placeholder={t('typeSituation')}
               placeholderTextColor="#a1a1aa"
               onSubmitEditing={onSearch}
               onFocus={() => setFocused(true)}
@@ -81,29 +94,29 @@ export function HomeScreen({
               multiline
               blurOnSubmit
               editable={!loading}
-              accessibilityLabel="Describe the situation"
+              accessibilityLabel={t('describeSituation')}
             />
-            <TouchableOpacity style={styles.searchButton} onPress={onSearch} disabled={loading} accessibilityRole="button" accessibilityLabel="Get help">
+            <TouchableOpacity style={styles.searchButton} onPress={onSearch} disabled={loading} accessibilityRole="button" accessibilityLabel={t('getHelp')}>
               {loading ? <ActivityIndicator color="#fff" /> : <Search color="#fff" size={26} strokeWidth={2.8} />}
             </TouchableOpacity>
           </View>
 
           <View style={styles.speakRow}>
-            <Text style={styles.speakLabel}>Or speak using microphone</Text>
+            <Text style={styles.speakLabel}>{t('speakLabel')}</Text>
             {loading ? (
-              <View style={[styles.speakButton, styles.speakBusy]} accessibilityLabel="Processing audio description">
+              <View style={[styles.speakButton, styles.speakBusy]} accessibilityLabel={t('processingAria')}>
                 <ActivityIndicator color="#050505" />
                 <Text style={styles.speakText}>Processing…</Text>
               </View>
             ) : !isRecording ? (
-              <TouchableOpacity style={styles.speakButton} onPress={onStartRecording} accessibilityRole="button" accessibilityLabel="Start talking to describe the situation">
+              <TouchableOpacity style={styles.speakButton} onPress={onStartRecording} accessibilityRole="button" accessibilityLabel={t('speakAria')}>
                 <Mic color="#050505" size={18} strokeWidth={2.6} />
-                <Text style={styles.speakText}>Speak</Text>
+                <Text style={styles.speakText}>{t('speak')}</Text>
               </TouchableOpacity>
             ) : (
-              <TouchableOpacity style={[styles.speakButton, styles.speakRecording]} onPress={onStopRecording} accessibilityRole="button" accessibilityLabel="Stop talking and process the description of the situation">
+              <TouchableOpacity style={[styles.speakButton, styles.speakRecording]} onPress={onStopRecording} accessibilityRole="button" accessibilityLabel={t('stopAria')}>
                 <Square color="#fff" size={13} fill="#fff" />
-                <Text style={[styles.speakText, styles.speakTextOn]}>Stop</Text>
+                <Text style={[styles.speakText, styles.speakTextOn]}>{t('stop')}</Text>
                 <Text style={styles.timer}>0:{recordingTimeLeft < 10 ? `0${recordingTimeLeft}` : recordingTimeLeft}</Text>
               </TouchableOpacity>
             )}
@@ -114,10 +127,10 @@ export function HomeScreen({
         <View style={styles.browse}>
           <TouchableOpacity style={styles.guides} onPress={onOpenGuides} activeOpacity={0.85} accessibilityRole="button">
             <BookOpen size={22} color="#fff" strokeWidth={2.4} />
-            <Text style={styles.guidesText}>Pick a First-Aid Guide</Text>
+            <Text style={styles.guidesText}>{t('pickGuide')}</Text>
             <ChevronRight size={20} color="#fff" strokeWidth={2.8} />
           </TouchableOpacity>
-          <Text style={styles.note}>Step-by-step first aid for when medical help isn't nearby.</Text>
+          <Text style={styles.note}>{t('homeNote')}</Text>
         </View>
 
         {/* 3 · Utilities */}
@@ -127,22 +140,22 @@ export function HomeScreen({
               style={styles.pairButton}
               onPress={() => Linking.openURL('tel:911')}
               accessibilityRole="button"
-              accessibilityLabel="Call 911"
-              accessibilityHint="Use if it's life-threatening"
+              accessibilityLabel={t('call911')}
+              accessibilityHint={t('useIfLifeThreatening')}
             >
               <Phone size={16} color={RED} fill={RED} />
-              <Text style={styles.callText}>Call 911</Text>
+              <Text style={styles.callText}>{t('call911')}</Text>
             </TouchableOpacity>
             <View style={styles.pairDivider} />
             <TouchableOpacity
               style={[styles.pairButton, locOpen && styles.pairButtonOpen]}
               onPress={toggleLocation}
               accessibilityRole="button"
-              accessibilityLabel={locOpen ? 'Hide my location' : 'Show my location for 911'}
+              accessibilityLabel={locOpen ? t('hideLocation') : t('showLocation911')}
               accessibilityState={{ expanded: locOpen }}
             >
               {location.status === 'locating' ? <ActivityIndicator size="small" color={RED} /> : <MapPin size={16} color={RED} strokeWidth={2.6} />}
-              <Text style={[styles.locText, locOpen && styles.locTextOpen]}>{location.status === 'locating' ? 'Finding…' : 'My location'}</Text>
+              <Text style={[styles.locText, locOpen && styles.locTextOpen]}>{location.status === 'locating' ? t('finding') : t('myLocation')}</Text>
               <ChevronDown size={16} color={locOpen ? RED : '#a1a1aa'} strokeWidth={2.6} style={locOpen ? styles.chevUp : undefined} />
             </TouchableOpacity>
           </View>
@@ -153,17 +166,17 @@ export function HomeScreen({
           <View style={styles.links}>
             <TouchableOpacity style={styles.link} onPress={onOpenAbout}>
               <User size={13} color="#8a8f99" />
-              <Text style={styles.linkText}>About</Text>
+              <Text style={styles.linkText}>{t('about')}</Text>
             </TouchableOpacity>
             <Text style={styles.dot}>·</Text>
             <TouchableOpacity style={styles.link} onPress={onOpenDisclaimer}>
               <ShieldAlert size={13} color="#8a8f99" />
-              <Text style={styles.linkText}>Disclaimer</Text>
+              <Text style={styles.linkText}>{t('disclaimer')}</Text>
             </TouchableOpacity>
             <Text style={styles.dot}>·</Text>
             <TouchableOpacity style={styles.link} onPress={onOpenContact}>
               <Mail size={13} color="#8a8f99" />
-              <Text style={styles.linkText}>Contact</Text>
+              <Text style={styles.linkText}>{t('contact')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -173,6 +186,15 @@ export function HomeScreen({
 }
 
 const styles = StyleSheet.create({
+  langSwitch: {
+    marginLeft: 'auto', flexDirection: 'row', alignItems: 'center', gap: 4, paddingLeft: 9, paddingRight: 4,
+    paddingVertical: 4, borderWidth: 1.5, borderColor: '#e4e4e7', borderRadius: 999, backgroundColor: '#fff',
+  },
+  langCode: {
+    fontSize: 12, fontWeight: '800', color: '#52525b', letterSpacing: 0.3, paddingHorizontal: 8, paddingVertical: 4,
+    borderRadius: 999, overflow: 'hidden',
+  },
+  langCodeOn: { backgroundColor: '#050505', color: '#fff' },
   safeArea: { flex: 1, backgroundColor: '#fff' },
   // space-between + a minimum gap: the three groups spread evenly on tall
   // phones and close up (never touching) on short ones.

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ArrowLeft, ShieldAlert, Globe, MapPin, CheckCircle2 } from 'lucide-react';
+import { useI18n } from '../lib/i18n';
 
 type DisclaimerSection = 'universal' | 'us-states' | 'international';
 
@@ -56,7 +57,64 @@ const US_STATES_DATA: { state: string; text: string }[] = [
   { state: 'Wyoming', text: 'Incorporates Wyo. Stat. § 1-1-110. App Providers disclaim all liability for emergency first aid procedures or medical information.' },
 ];
 
+// Spanish version of the general and international terms. The state-by-state
+// legal provisions stay in their original English.
+const TEXT = {
+  en: {
+    binding: "By downloading, opening, or using PrimaCura Health, you automatically agree to all terms and liability disclaimers listed below.",
+    tab1: "1. Universal Terms",
+    tab2: "2. US (50 States)",
+    tab3: "3. International",
+    s1: "Section 1: Core Universal Terms",
+    h1: "1. NOT MEDICAL ADVICE & NO DOCTOR-PATIENT RELATIONSHIP",
+    p1: "The App, including all text, instructions, and interactive tools, is provided solely for informational and educational purposes. It does not provide medical diagnosis or professional healthcare advice.",
+    h2: "2. EMERGENCY WARNING",
+    p2: "THE APP IS NOT A SUBSTITUTE FOR EMERGENCY SERVICES. In a life-threatening emergency, immediately call 911 or your local emergency number.",
+    h3: "3. ABSOLUTE LIMITATION OF LIABILITY & RELEASE",
+    p3: "To the maximum extent permitted by applicable law, the App creators and team shall not be liable for any claims, injuries, losses, or damages arising out of your use of the App or reliance on its instructions.",
+    h4: "4. \"AS-IS\" WARRANTY DISCLAIMER",
+    p4: "The App is provided \"AS IS\" and \"AS AVAILABLE\" without warranties of any kind, either express or implied.",
+    s2: "Section 2: State-Specific Provisions (All 50 US States)",
+    search: "Search state (e.g. California, Texas)...",
+    s3: "Section 3: International Provisions",
+    g: "Global Emergency Dispatch",
+    gp: "International users are responsible for calling their local national emergency response number (e.g., 112 in Europe, 999 in the UK, 000 in Australia) rather than US-centric numbers.",
+    eu: "European Union (EU) & United Kingdom (UK)",
+    eup: "The App is an educational reference tool and is NOT a certified medical device under EU Regulation 2017/745 (MDR) or UK Medical Devices Regulations 2002.",
+    au: "Australia & New Zealand",
+    aup: "Under Australian Consumer Law and NZ Consumer Guarantees Act, statutory guarantees are limited strictly to re-supplying the App services.",
+    stateNote: "",
+  },
+  es: {
+    binding: "Al descargar, abrir o usar PrimaCura Health, aceptas automáticamente todos los términos y exenciones de responsabilidad que aparecen abajo.",
+    tab1: "1. Términos generales",
+    tab2: "2. EE. UU. (50 estados)",
+    tab3: "3. Internacional",
+    s1: "Sección 1: Términos generales",
+    h1: "1. NO ES CONSEJO MÉDICO NI CREA UNA RELACIÓN MÉDICO-PACIENTE",
+    p1: "La App, incluidos todos sus textos, instrucciones y herramientas interactivas, se ofrece solo con fines informativos y educativos. No da diagnósticos médicos ni consejo profesional de salud.",
+    h2: "2. ADVERTENCIA DE EMERGENCIA",
+    p2: "LA APP NO REEMPLAZA A LOS SERVICIOS DE EMERGENCIA. En una emergencia que pone en riesgo la vida, llama de inmediato al 911 o a tu número local de emergencias.",
+    h3: "3. LIMITACIÓN TOTAL DE RESPONSABILIDAD Y LIBERACIÓN",
+    p3: "En la máxima medida que permita la ley aplicable, los creadores y el equipo de la App no serán responsables de ningún reclamo, lesión, pérdida o daño que surja del uso de la App o de seguir sus instrucciones.",
+    h4: "4. EXENCIÓN DE GARANTÍAS (\"TAL CUAL\")",
+    p4: "La App se ofrece \"TAL CUAL\" y \"SEGÚN DISPONIBILIDAD\", sin garantías de ningún tipo, ni expresas ni implícitas.",
+    s2: "Sección 2: Disposiciones por estado (los 50 estados de EE. UU.)",
+    search: "Busca un estado (p. ej., California, Texas)...",
+    s3: "Sección 3: Disposiciones internacionales",
+    g: "Emergencias en otros países",
+    gp: "Fuera de EE. UU., cada usuario debe llamar al número nacional de emergencias de su país (por ejemplo, 112 en Europa, 999 en el Reino Unido, 000 en Australia) en lugar de números de EE. UU.",
+    eu: "Unión Europea (UE) y Reino Unido",
+    eup: "La App es una herramienta educativa de consulta y NO es un dispositivo médico certificado según el Reglamento (UE) 2017/745 (MDR) ni el Reglamento de Dispositivos Médicos del Reino Unido de 2002.",
+    au: "Australia y Nueva Zelanda",
+    aup: "Según la Ley del Consumidor de Australia y la Ley de Garantías al Consumidor de Nueva Zelanda, las garantías legales se limitan estrictamente a volver a prestar los servicios de la App.",
+    stateNote: "Las disposiciones legales de cada estado se muestran en su idioma original (inglés).",
+  },
+};
+
 export function DisclaimerScreen({ onBack }: { onBack: () => void }) {
+  const { t, lang } = useI18n();
+  const d = TEXT[lang];
   const [activeTab, setActiveTab] = useState<DisclaimerSection>('universal');
   const [searchState, setSearchState] = useState('');
 
@@ -70,22 +128,22 @@ export function DisclaimerScreen({ onBack }: { onBack: () => void }) {
       <header className="inner-page-header">
         
         <div className="header-top-row">
-          <button className="nav-back-btn" onClick={onBack} aria-label="Back to home">
+          <button className="nav-back-btn" onClick={onBack} aria-label={t('backToHome')}>
             <div className="nav-icon-circle">
               <ArrowLeft size={20} strokeWidth={2.8} color="#050505" />
             </div>
-            Home
+            {t('home')}
           </button>
           
           <div className="inner-brand">
             <span className="inner-brand-title">PrimaCura</span>
-            <span className="inner-brand-slogan">The First Care</span>
+            <span className="inner-brand-slogan">{t('slogan')}</span>
           </div>
         </div>
 
         <div className="header-title-row">
-          <h1>Medical Disclaimer</h1>
-          <p>Important safety information.</p>
+          <h1>{t('disclaimerTitle')}</h1>
+          <p>{t('disclaimerSub')}</p>
         </div>
         
       </header>
@@ -94,10 +152,10 @@ export function DisclaimerScreen({ onBack }: { onBack: () => void }) {
       <div style={{ backgroundColor: '#fff3cd', borderLeft: '4px solid #ffc107', padding: '12px', borderRadius: '6px', marginBottom: '16px', fontSize: '0.85rem' }}>
         <p style={{ margin: 0, fontWeight: 700, color: '#856404' }}>
           <ShieldAlert size={16} style={{ display: 'inline', marginRight: '6px', verticalAlign: '-2px' }} />
-          BINDING AGREEMENT:
+          {t('bindingAgreement')}
         </p>
         <span style={{ color: '#856404' }}>
-          By downloading, opening, or using PrimaCura Health, you automatically agree to all terms and liability disclaimers listed below.
+          {d.binding}
         </span>
       </div>
 
@@ -117,7 +175,7 @@ export function DisclaimerScreen({ onBack }: { onBack: () => void }) {
             cursor: 'pointer'
           }}
         >
-          1. Universal Terms
+          {d.tab1}
         </button>
         <button
           onClick={() => setActiveTab('us-states')}
@@ -133,7 +191,7 @@ export function DisclaimerScreen({ onBack }: { onBack: () => void }) {
             cursor: 'pointer'
           }}
         >
-          2. US (50 States)
+          {d.tab2}
         </button>
         <button
           onClick={() => setActiveTab('international')}
@@ -149,7 +207,7 @@ export function DisclaimerScreen({ onBack }: { onBack: () => void }) {
             cursor: 'pointer'
           }}
         >
-          3. International
+          {d.tab3}
         </button>
       </div>
 
@@ -157,34 +215,34 @@ export function DisclaimerScreen({ onBack }: { onBack: () => void }) {
       {activeTab === 'universal' && (
         <div style={{ fontSize: '0.85rem', lineHeight: '1.4', color: '#1f2937' }}>
           <h2 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '8px', color: '#e63946' }}>
-            Section 1: Core Universal Terms
+            {d.s1}
           </h2>
           
           <div style={{ marginBottom: '12px' }}>
-            <strong>1. NOT MEDICAL ADVICE & NO DOCTOR-PATIENT RELATIONSHIP</strong>
+            <strong>{d.h1}</strong>
             <p style={{ marginTop: '4px', color: '#4b5563' }}>
-              The App, including all text, instructions, and interactive tools, is provided solely for informational and educational purposes. It does not provide medical diagnosis or professional healthcare advice.
+              {d.p1}
             </p>
           </div>
 
           <div style={{ marginBottom: '12px' }}>
-            <strong>2. EMERGENCY WARNING</strong>
+            <strong>{d.h2}</strong>
             <p style={{ marginTop: '4px', color: '#4b5563' }}>
-              THE APP IS NOT A SUBSTITUTE FOR EMERGENCY SERVICES. In a life-threatening emergency, immediately call 911 or your local emergency number.
+              {d.p2}
             </p>
           </div>
 
           <div style={{ marginBottom: '12px' }}>
-            <strong>3. ABSOLUTE LIMITATION OF LIABILITY & RELEASE</strong>
+            <strong>{d.h3}</strong>
             <p style={{ marginTop: '4px', color: '#4b5563' }}>
-              To the maximum extent permitted by applicable law, the App creators and team shall not be liable for any claims, injuries, losses, or damages arising out of your use of the App or reliance on its instructions.
+              {d.p3}
             </p>
           </div>
 
           <div style={{ marginBottom: '12px' }}>
-            <strong>4. "AS-IS" WARRANTY DISCLAIMER</strong>
+            <strong>{d.h4}</strong>
             <p style={{ marginTop: '4px', color: '#4b5563' }}>
-              The App is provided "AS IS" and "AS AVAILABLE" without warranties of any kind, either express or implied.
+              {d.p4}
             </p>
           </div>
         </div>
@@ -194,11 +252,11 @@ export function DisclaimerScreen({ onBack }: { onBack: () => void }) {
       {activeTab === 'us-states' && (
         <div style={{ fontSize: '0.85rem', lineHeight: '1.4' }}>
           <h2 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '8px', color: '#e63946' }}>
-            Section 2: State-Specific Provisions (All 50 US States)
+            {d.s2}
           </h2>
           <input
             type="text"
-            placeholder="Search state (e.g. California, Texas)..."
+            placeholder={d.search}
             value={searchState}
             onChange={(e) => setSearchState(e.target.value)}
             style={{
@@ -211,6 +269,7 @@ export function DisclaimerScreen({ onBack }: { onBack: () => void }) {
             }}
           />
 
+          {d.stateNote && <p style={{ margin: '0 0 8px', fontSize: '0.8rem', color: '#6b7280' }}>{d.stateNote}</p>}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '350px', overflowY: 'auto' }}>
             {filteredStates.map((item) => (
               <div key={item.state} style={{ padding: '8px 12px', backgroundColor: '#f9fafb', borderRadius: '6px', border: '1px solid #e5e7eb' }}>
@@ -228,29 +287,29 @@ export function DisclaimerScreen({ onBack }: { onBack: () => void }) {
       {activeTab === 'international' && (
         <div style={{ fontSize: '0.85rem', lineHeight: '1.4', color: '#1f2937' }}>
           <h2 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '8px', color: '#e63946' }}>
-            Section 3: International Provisions
+            {d.s3}
           </h2>
 
           <div style={{ marginBottom: '12px' }}>
             <strong style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <Globe size={14} /> Global Emergency Dispatch
+              <Globe size={14} /> {d.g}
             </strong>
             <p style={{ marginTop: '4px', color: '#4b5563' }}>
-              International users are responsible for calling their local national emergency response number (e.g., 112 in Europe, 999 in the UK, 000 in Australia) rather than US-centric numbers.
+              {d.gp}
             </p>
           </div>
 
           <div style={{ marginBottom: '12px' }}>
-            <strong>European Union (EU) & United Kingdom (UK)</strong>
+            <strong>{d.eu}</strong>
             <p style={{ marginTop: '4px', color: '#4b5563' }}>
-              The App is an educational reference tool and is NOT a certified medical device under EU Regulation 2017/745 (MDR) or UK Medical Devices Regulations 2002.
+              {d.eup}
             </p>
           </div>
 
           <div style={{ marginBottom: '12px' }}>
-            <strong>Australia & New Zealand</strong>
+            <strong>{d.au}</strong>
             <p style={{ marginTop: '4px', color: '#4b5563' }}>
-              Under Australian Consumer Law and NZ Consumer Guarantees Act, statutory guarantees are limited strictly to re-supplying the App services.
+              {d.aup}
             </p>
           </div>
         </div>

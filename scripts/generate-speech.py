@@ -16,6 +16,10 @@ own packages (see below).
   python3 scripts/generate-speech.py --voice en-US-Chirp3-HD-Charon
   python3 scripts/generate-speech.py --redo           # re-record everything (after a voice change)
   python3 scripts/generate-speech.py --engine kokoro  # free, runs on this computer
+  python3 scripts/generate-speech.py --voice-es es-US-Chirp3-HD-Leda  # another Spanish voice
+
+Spanish clips (manifest entries with "lang": "es", from the Spanish guides) are
+recorded with a Spanish voice: es-US-Chirp3-HD-Aoede on Google, ef_dora on Kokoro.
 
 Google: needs the gcloud CLI signed in (gcloud auth login), a project set
 (gcloud config set project <id>) and the Text-to-Speech API enabled on it
@@ -109,7 +113,8 @@ class Kokoro:
         if not shutil.which("ffmpeg"):
             sys.exit("ffmpeg not found. Run: brew install ffmpeg")
         self.voice = voice or "af_heart"
-        self.pipeline = KPipeline(lang_code="a" if self.voice.startswith("a") else "b")
+        # Voice prefix: a = American English, b = British English, e = Spanish.
+        self.pipeline = KPipeline(lang_code=self.voice[0] if self.voice[0] in "abe" else "a")
 
     def synthesize(self, text, dest):
         import numpy as np
@@ -125,6 +130,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--engine", choices=["google", "kokoro"], default="google")
     ap.add_argument("--voice", help="Google: e.g. en-US-Chirp3-HD-Aoede (default), en-US-Chirp3-HD-Charon, en-US-Neural2-F. Kokoro: af_heart (default), am_michael")
+    ap.add_argument("--voice-es", help="Spanish clips. Google: es-US-Chirp3-HD-Aoede (default). Kokoro: ef_dora (default)")
     ap.add_argument("--sample", action="store_true", help="record 3 sample clips into scripts/speech-samples/ and stop")
     ap.add_argument("--redo", action="store_true", help="re-record every clip (e.g. after changing the voice)")
     args = ap.parse_args()
@@ -132,11 +138,21 @@ def main():
     if not MANIFEST.exists():
         sys.exit("scripts/speech-manifest.json not found. Run: node scripts/generate-guides.mjs")
     clips = json.loads(MANIFEST.read_text())["clips"]
-    engine = (Google if args.engine == "google" else Kokoro)(args.voice)
+    Engine = Google if args.engine == "google" else Kokoro
+    engine = Engine(args.voice)
+    engines = {"en": engine}
+
+    def engine_for(clip):
+        lang = clip.get("lang", "en")
+        if lang not in engines:
+            default = "es-US-Chirp3-HD-Aoede" if args.engine == "google" else "ef_dora"
+            engines[lang] = Engine(args.voice_es or default)
+        return engines[lang]
 
     if args.sample:
         SAMPLE_DIR.mkdir(exist_ok=True)
-        picks = sorted(clips, key=lambda c: -len(c["text"]))[:2] + [c for c in clips if c["text"] == "Step 3."]
+        english = [c for c in clips if c.get("lang", "en") == "en"]
+        picks = sorted(english, key=lambda c: -len(c["text"]))[:2] + [c for c in english if c["text"] == "Step 3."]
         for i, c in enumerate(picks, 1):
             dest = SAMPLE_DIR / f"sample-{i}-{engine.voice}.mp3"
             engine.synthesize(c["text"], dest)
@@ -147,11 +163,13 @@ def main():
     AUDIO_DIR.mkdir(parents=True, exist_ok=True)
     wanted = {c["id"] for c in clips}
     todo = [c for c in clips if args.redo or not (AUDIO_DIR / f"{c['id']}.mp3").exists()]
-    print(f"{len(clips)} clips, {len(todo)} to record with {args.engine} voice {engine.voice}")
+    spanish = sum(1 for c in todo if c.get("lang") == "es")
+    print(f"{len(clips)} clips, {len(todo)} to record with {args.engine} voice {engine.voice}"
+          + (f" ({spanish} Spanish, with a Spanish voice)" if spanish else ""))
     for n, c in enumerate(todo, 1):
         dest = AUDIO_DIR / f"{c['id']}.mp3"
         tmp = dest.with_suffix(".part")
-        engine.synthesize(c["text"], tmp)
+        engine_for(c).synthesize(c["text"], tmp)
         tmp.replace(dest)
         print(f"  [{n}/{len(todo)}] {c['text'][:72]}")
     stale = [f for f in AUDIO_DIR.glob("*.mp3") if f.stem not in wanted]

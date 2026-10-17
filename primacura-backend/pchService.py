@@ -30,6 +30,7 @@ import whisper
 from pydantic import BaseModel, Field, field_validator
 import pchCore
 import pchGate
+import pchLang
 import pchLLM
 import pchTriage
 from pchCore import CONFIG, Conversation, load_dataset, load_embedding_model
@@ -65,6 +66,8 @@ class FirstAidRuntime:
     age_sensitive: set[str]
     llm: pchLLM.LLMClassifier | None
     gate: pchGate.NonsenseGate | None
+    translator: pchLang.Translator
+    guides_es: pchLang.SpanishGuides | None
 
 
 @lru_cache(maxsize=1)
@@ -73,13 +76,21 @@ def get_runtime() -> FirstAidRuntime:
 
     dataset = load_dataset()
     model = load_embedding_model()
+    llm = pchLLM.load_llm()
+    try:
+        guides_es = pchLang.SpanishGuides(dataset)
+    except FileNotFoundError:
+        logger.warning("No Spanish guides (%s); Spanish messages get English guides.", pchLang.ES_CSV)
+        guides_es = None
     return FirstAidRuntime(
         dataset=dataset,
         model=model,
         classifier=pchTriage.ConditionClassifier.train(model),
         age_sensitive=pchCore.age_sensitive_conditions(dataset),
-        llm=pchLLM.load_llm(),
+        llm=llm,
         gate=pchGate.load_gate(model),
+        translator=pchLang.Translator(use_llm=llm is not None),
+        guides_es=guides_es,
     )
 
 
@@ -160,6 +171,9 @@ app.add_middleware(
 class ChatRequest(BaseModel):
     query: str
     session_id: str = "default"
+    # The app's language ("en" or "es"). Replies follow the language the person
+    # writes in; this only decides for messages that could be either (e.g. "RCP").
+    lang: str | None = None
 
 class ContactForm(BaseModel):
     # Same limits as the web and iOS contact forms (lib/limits.ts).
@@ -177,7 +191,7 @@ class ContactForm(BaseModel):
     
 @app.post("/chat/")
 def chat_endpoint(req: ChatRequest):
-    result = processUserQuery(req.query, session_id=req.session_id)
+    result = processUserQuery(req.query, session_id=req.session_id, lang=req.lang)
     return result
 
 # ---------------------------------------------------------------------------
@@ -212,10 +226,14 @@ if os.getenv("PRIMACURA_DEV_ENDPOINTS") == "1":
         return {"rows": len(texts), "dim": int(vectors.shape[1]), "out": str(dst.relative_to(base))}
 
     @app.get("/dev/master_test_set")
-    def dev_master_test_set():
-        """The master test set as JSON, so a browser-based evaluation can load it."""
+    def dev_master_test_set(name: str = "master-test-set.csv"):
+        """A test set from tests/eval as JSON (default: the master set), so a
+        browser-based evaluation can load it."""
         import csv
-        path = pchCore.REPO_ROOT / "tests" / "eval" / "master-test-set.csv"
+        folder = (pchCore.REPO_ROOT / "tests" / "eval").resolve()
+        path = (folder / name).resolve()
+        if path.parent != folder or path.suffix != ".csv" or not path.exists():
+            raise HTTPException(status_code=404, detail="no such test set in tests/eval")
         with path.open(encoding="utf-8") as fh:
             return list(csv.DictReader(fh))
 
@@ -282,6 +300,7 @@ if os.getenv("PRIMACURA_DEV_ENDPOINTS") == "1":
 async def speak_endpoint(
     audio_file: UploadFile = File(...),
     session_id: str = Form("default", embed=True, description="Conversation identifier"),
+    lang: str | None = Form(None, description="The app's language (en or es)"),
 ):
     # CRITICAL: Generate a unique filename to prevent race conditions 
     # if multiple requests hit this endpoint at the same time.
@@ -323,7 +342,10 @@ async def speak_endpoint(
 
         # Move processing inside the try block so it only runs on success
         if(not(trasncribedText['text'].strip() == "")):
-            result = processUserQuery(userQuery=trasncribedText['text'], session_id=session_id)
+            # Whisper already translated non-English speech to English; answer in Spanish if it was Spanish.
+            spoken = "es" if detected_lang == "es" else ("en" if detected_lang == "en" else lang)
+            result = processUserQuery(userQuery=trasncribedText['text'], session_id=session_id,
+                                      lang=spoken, already_english=True)
             print(f"Processed result: {result}")
         
         return result
@@ -365,15 +387,41 @@ async def submit_contact_form(form: ContactForm):
         raise HTTPException(status_code=500, detail="Failed to send email")
 
 
-def processUserQuery(userQuery: str, session_id: str = "default"):
+def _reply_language(query: str, conversation: Conversation, app_lang: str | None) -> tuple[str, bool]:
+    """(language to reply in, whether the query needs translating to English)."""
+    answer = pchCore.normalise_answer(query)
+    tapped = any(answer == o.lower() for t in conversation.turns for o in t.options)
+    fallback = conversation.lang or (app_lang if app_lang in ("en", "es") else None) or "en"
+    if tapped:  # buttons always send the English value
+        return fallback, False
+    if pchLang.looks_spanish(query):
+        return "es", True
+    if pchLang.looks_english(query):
+        # Mixed ("my wife no respira"): reply in English, but translate the Spanish words.
+        return "en", pchLang.has_spanish(query)
+    return fallback, fallback == "es"
+
+
+def processUserQuery(userQuery: str, session_id: str = "default", lang: str | None = None,
+                     already_english: bool = False):
     runtime = get_runtime()
     conversation = _conversation_for(session_id)
+
+    if already_english:
+        reply_lang, translate = (lang if lang in ("en", "es") else conversation.lang or "en"), False
+    else:
+        reply_lang, translate = _reply_language(userQuery, conversation, lang)
+    english = userQuery
+    if translate:
+        english, how = runtime.translator.to_english(userQuery)
+        logger.info("es -> en (%s): %r -> %r", how, userQuery, english)
 
     # Conversation is mutable, so keep a single local request from interleaving
     # turns with another request using the same session.
     with _conversation_lock:
+        conversation.lang = reply_lang
         out = pchTriage.run_triage_agent(
-            userQuery,
+            english,
             conversation,
             dataset=runtime.dataset,
             classifier=runtime.classifier,
@@ -383,7 +431,20 @@ def processUserQuery(userQuery: str, session_id: str = "default"):
         )
     logger.info("status=%s condition=%s llm=%s (%s ms)%s", out["status"], out["condition"],
                 out.get("llm_label"), out.get("llm_ms"), " [discarded by gate]" if out.get("discarded") else "")
-    return _serialize_agent_output(out, session_id)
+    if reply_lang == "es" and out["status"] == "success" and runtime.guides_es is not None:
+        spanish = runtime.guides_es.protocol(out["response"])
+        if spanish is None:
+            logger.warning("no Spanish guide for %s; sending English", out["condition"])
+            reply_lang = "en"
+        else:
+            out = {**out, "condition": spanish[0], "response": spanish[1]}
+    result = _serialize_agent_output(out, session_id)
+    if reply_lang == "es":
+        result = pchLang.localize(result)
+        result["translated_query"] = english if translate else None
+    else:
+        result["lang"] = "en"
+    return result
 
 def _steps_from_agent_response(response: str) -> list[str]:
     """Convert a successful numbered protocol into frontend checklist steps."""

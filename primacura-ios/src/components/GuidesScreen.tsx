@@ -2,8 +2,7 @@ import { useMemo } from 'react';
 import { View, Text, TouchableOpacity, Pressable, ScrollView, StyleSheet, SafeAreaView, TextInput } from 'react-native';
 import { ArrowLeft, ArrowRight, Search } from 'lucide-react-native';
 import { Condition } from '../types';
-import { conditions } from '../data/conditions';
-import { howTos } from '../data/howTo';
+import { useI18n } from '../lib/i18n';
 import { howToIcon } from './howToIcons';
 
 export type GuidesTab = 'guides' | 'howto';
@@ -25,54 +24,55 @@ export function GuidesScreen({
   onOpenProtocol: (condition: Condition) => void;
   onOpenHowTo: (howToId: string) => void;
 }) {
+  const { t, conditions, howTos, cardAge } = useI18n();
   const filteredHowTos = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
     if (!normalizedQuery) return howTos;
-    return howTos.filter(({ title, summary, age }) => `${title} ${summary} ${age}`.toLowerCase().includes(normalizedQuery));
-  }, [query]);
+    return howTos.filter(({ title, summary, age }) => `${title} ${summary} ${cardAge(age)}`.toLowerCase().includes(normalizedQuery));
+  }, [query, howTos]); // eslint-disable-line react-hooks/exhaustive-deps
   const filteredConditions = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
     if (!normalizedQuery) return conditions;
     return conditions.filter(({ title, description }) => 
       `${title} ${description}`.toLowerCase().includes(normalizedQuery)
     );
-  }, [query]);
+  }, [query, conditions]);
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
         <View style={styles.headerTopRow}>
-          <TouchableOpacity style={styles.navBackBtn} onPress={onBack} accessibilityLabel="Back to home">
+          <TouchableOpacity style={styles.navBackBtn} onPress={onBack} accessibilityLabel={t('backToHome')}>
             <View style={styles.navIconCircle}>
               <ArrowLeft size={20} strokeWidth={2.8} color="#050505" />
             </View>
-            <Text style={styles.navBackText}>Home</Text>
+            <Text style={styles.navBackText}>{t('home')}</Text>
           </TouchableOpacity>
           
           <View style={styles.innerBrand}>
             <Text style={styles.innerBrandTitle}>PrimaCura</Text>
-            <Text style={styles.innerBrandSlogan}>The First Care</Text>
+            <Text style={styles.innerBrandSlogan}>{t('slogan')}</Text>
           </View>
         </View>
 
         <View style={styles.headerTitleRow}>
-          <Text style={styles.title}>First-Aid Guides</Text>
+          <Text style={styles.title}>{t('guidesTitle')}</Text>
           <Text style={styles.subtitle}>
-            {tab === 'guides' ? 'Select a condition to view its protocol.' : 'Learn each skill, move by move.'}
+            {tab === 'guides' ? t('guidesPick') : t('howToPick')}
           </Text>
         </View>
       </View>
 
       <View style={styles.tabs} accessibilityRole="tablist">
-        {(['guides', 'howto'] as const).map((t) => (
+        {(['guides', 'howto'] as const).map((k) => (
           <Pressable
-            key={t}
-            onPress={() => onTabChange(t)}
-            style={[styles.tab, tab === t && styles.tabActive]}
+            key={k}
+            onPress={() => onTabChange(k)}
+            style={[styles.tab, tab === k && styles.tabActive]}
             accessibilityRole="tab"
-            accessibilityState={{ selected: tab === t }}
+            accessibilityState={{ selected: tab === k }}
           >
-            <Text style={[styles.tabText, tab === t && styles.tabTextActive]}>{t === 'guides' ? 'Emergencies' : 'How-To'}</Text>
+            <Text style={[styles.tabText, tab === k && styles.tabTextActive]}>{k === 'guides' ? t('emergencies') : t('howTo')}</Text>
           </Pressable>
         ))}
       </View>
@@ -83,7 +83,7 @@ export function GuidesScreen({
           style={styles.searchInput}
           value={query}
           onChangeText={setQuery}
-          placeholder="Search guides..."
+          placeholder={t('searchConditions')}
           placeholderTextColor="#9ca3af"
           clearButtonMode="while-editing"
         />
@@ -103,7 +103,7 @@ export function GuidesScreen({
                     <Text style={styles.howToTileTitle}>{card.title}</Text>
                     {card.age !== 'Any' && (
                       <View style={styles.howToTileAge}>
-                        <Text style={styles.howToTileAgeText}>{card.age}</Text>
+                        <Text style={styles.howToTileAgeText}>{cardAge(card.age)}</Text>
                       </View>
                     )}
                   </TouchableOpacity>
@@ -112,8 +112,8 @@ export function GuidesScreen({
             </View>
           ) : (
             <View style={styles.emptyState}>
-              <Text style={styles.emptyStateTitle}>NO GUIDES{"\n"}FOUND</Text>
-              <Text style={styles.emptyStateText}>Try a different search{"\n"}term.</Text>
+              <Text style={styles.emptyStateTitle}>{t('noGuides1')}{"\n"}{t('noGuides2')}</Text>
+              <Text style={styles.emptyStateText}>{t('tryAgain1')}{"\n"}{t('tryAgain2')}</Text>
             </View>
           )
         ) : filteredConditions.length > 0 ? (
@@ -132,8 +132,8 @@ export function GuidesScreen({
           ))
         ) : (
           <View style={styles.emptyState}>
-            <Text style={styles.emptyStateTitle}>NO GUIDES{"\n"}FOUND</Text>
-            <Text style={styles.emptyStateText}>Try a different search{"\n"}term.</Text>
+            <Text style={styles.emptyStateTitle}>{t('noGuides1')}{"\n"}{t('noGuides2')}</Text>
+            <Text style={styles.emptyStateText}>{t('tryAgain1')}{"\n"}{t('tryAgain2')}</Text>
           </View>
         )}
       </ScrollView>

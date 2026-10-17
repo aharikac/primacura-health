@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Music, Volume2, VolumeX } from 'lucide-react';
+import { useI18n } from '../lib/i18n';
 
 // CPR rhythm guide: a beat at 110 pushes a minute with a count to 30, then a
 // "Give 2 breaths" pause (or non-stop in hands-only mode). Keeps the screen awake
@@ -20,6 +21,7 @@ export function CprRhythm({
   variant?: 'full' | 'bar';
   onRunningChange?: (running: boolean) => void;
 }) {
+  const { t } = useI18n();
   const [mode, setMode] = useState<Mode>(initialMode);
   const [running, setRunning] = useState(false);
   const [count, setCount] = useState(0);
@@ -109,61 +111,61 @@ export function CprRhythm({
 
   const breathing = breathLeft > 0;
   const prompt = !running
-    ? 'Tap Start and push with the beat'
+    ? t('tapStart')
     : breathing
-      ? `Give 2 breaths · ${breathLeft}s`
+      ? t('giveBreaths', { s: breathLeft })
       : mode === 'cpr' && count >= 25
-        ? 'Get ready to give breaths'
-        : 'Push hard and fast';
+        ? t('getReady')
+        : t('pushHardFast');
 
   if (variant === 'bar') {
     // Slim helper bar on guide steps. Idle: one quiet line + Start. Running: a
     // pulsing dot, the count, a small mode switch and Stop.
     const title = breathing
-      ? `Give 2 breaths · ${breathLeft}s`
-      : mode === 'cpr' ? `${count} of 30 · push` : `Push · ${count}`;
+      ? t('giveBreaths', { s: breathLeft })
+      : mode === 'cpr' ? t('ofThirtyPush', { n: count }) : t('pushN', { n: count });
     return (
-      <section className={`cpr-bar ${running ? 'running' : ''} ${breathing ? 'breathing' : ''}`} aria-label="CPR rhythm guide">
+      <section className={`cpr-bar ${running ? 'running' : ''} ${breathing ? 'breathing' : ''}`} aria-label={t('cprGuide')}>
         {running
           ? <span className={`cpr-bar-dot ${pushing ? 'push' : ''}`} aria-hidden="true" />
           : <Music size={17} strokeWidth={2.4} className="cpr-bar-note" aria-hidden="true" />}
         {running
           ? <b className="cpr-bar-title" aria-live="polite">{title}</b>
-          : <span className="cpr-bar-idle"><b>Push to the beat</b><small>110 pushes a minute</small></span>}
+          : <span className="cpr-bar-idle"><b>{t('pushBeat')}</b><small>{t('pushesMinute')}</small></span>}
         {running && !breathing && (
           <button className="cpr-bar-mode" onClick={() => changeMode(mode === 'cpr' ? 'hands-only' : 'cpr')}>
-            {mode === 'cpr' ? 'Hands-only' : '30 : 2'}
+            {mode === 'cpr' ? t('handsOnly') : '30 : 2'}
           </button>
         )}
-        <button className={`cpr-bar-start ${running ? 'stop' : ''}`} onClick={running ? stop : start} aria-label={running ? 'Stop the beat' : 'Start the beat'}>
-          {running ? 'Stop' : 'Start'}
+        <button className={`cpr-bar-start ${running ? 'stop' : ''}`} onClick={running ? stop : start} aria-label={running ? t('stopBeat') : t('startBeat')}>
+          {running ? t('stop') : t('start')}
         </button>
       </section>
     );
   }
 
   return (
-    <section className="cpr-rhythm" aria-label="CPR rhythm guide">
-      <div className="cpr-rhythm-title">CPR rhythm guide · 110 a minute</div>
-      <div className="cpr-rhythm-modes" role="group" aria-label="Mode">
-        <button aria-pressed={mode === 'cpr'} onClick={() => changeMode('cpr')}>30 : 2 breaths</button>
-        <button aria-pressed={mode === 'hands-only'} onClick={() => changeMode('hands-only')}>Hands-only</button>
+    <section className="cpr-rhythm" aria-label={t('cprGuide')}>
+      <div className="cpr-rhythm-title">{t('cprGuideTitle')}</div>
+      <div className="cpr-rhythm-modes" role="group" aria-label={t('mode')}>
+        <button aria-pressed={mode === 'cpr'} onClick={() => changeMode('cpr')}>{t('breaths302')}</button>
+        <button aria-pressed={mode === 'hands-only'} onClick={() => changeMode('hands-only')}>{t('handsOnly')}</button>
       </div>
       <div className="cpr-rhythm-main">
         <div className={`cpr-rhythm-pulse ${pushing ? 'push' : ''} ${breathing ? 'breathe' : ''}`} aria-hidden="true">
           <span className="cpr-rhythm-count">{!running ? '—' : breathing ? '2' : count}</span>
-          <span className="cpr-rhythm-label">{!running ? 'Ready' : breathing ? 'Breaths' : mode === 'cpr' ? 'of 30' : 'Push'}</span>
+          <span className="cpr-rhythm-label">{!running ? t('ready') : breathing ? t('breaths') : mode === 'cpr' ? t('of30') : t('push')}</span>
         </div>
         <div className="cpr-rhythm-side">
           <div className="cpr-rhythm-prompt" aria-live="polite">{prompt}</div>
           <div className="cpr-rhythm-controls">
             <button className={`cpr-rhythm-start ${running ? 'stop' : ''}`} onClick={running ? stop : start}>
-              {running ? 'STOP' : 'START'}
+              {running ? t('stopCaps') : t('startCaps')}
             </button>
             <button
               className="cpr-rhythm-sound"
               aria-pressed={sound}
-              aria-label={sound ? 'Turn beep off' : 'Turn beep on'}
+              aria-label={sound ? t('beepOff') : t('beepOn')}
               onClick={() => setSound(!sound)}
             >
               {sound ? <Volume2 size={20} /> : <VolumeX size={20} />}

@@ -1467,6 +1467,18 @@ button:disabled { cursor: wait; }
 .hp-brand .brand-mark { width: 44px; height: 44px; font-size: 30px; border-radius: 10px; }
 .hp-brand .brand-title { font-size: 24px; letter-spacing: -.8px; }
 .hp-brand .brand-slogan { font-size: 11px; margin-top: 3px; }
+/* EN / ES switch, top right of the home screen: language icon, then both
+   codes with the current one filled in. */
+.lang-switch {
+  margin-left: auto; display: inline-flex; align-items: center; gap: 4px; padding: 4px 4px 4px 9px;
+  border: 1.5px solid #e4e4e7; border-radius: 999px; background: #fff; color: #52525b;
+  font: inherit; font-size: 12px; font-weight: 800; letter-spacing: .3px; cursor: pointer;
+}
+.lang-switch svg { color: #d33b32; margin-right: 2px; }
+.lang-switch span { padding: 4px 8px; border-radius: 999px; }
+.lang-switch span.on { background: #050505; color: #fff; }
+.lang-switch:hover { border-color: #a1a1aa; }
+.lang-switch:focus-visible { outline: 3px solid #d33b32; outline-offset: 2px; }
 
 .hp-ask { display: flex; flex-direction: column; gap: 14px; }
 .hp-heading { margin: 0; font-size: 30px; line-height: 1.08; letter-spacing: -1.2px; font-weight: 900; color: #050505; }
@@ -1509,6 +1521,7 @@ button:disabled { cursor: wait; }
 .hp-pair-btn {
   flex: 1 1 0; min-width: 0; height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 7px;
   border: 0; background: transparent; font: inherit; font-size: 14.5px; font-weight: 800; white-space: nowrap; text-decoration: none; cursor: pointer;
+  overflow: hidden; /* a longer translation never spills past the border */
 }
 .hp-pair-btn + .hp-pair-btn { border-left: 1.5px solid #e4e4e7; }
 .hp-call { color: #991b1b; }

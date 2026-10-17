@@ -220,6 +220,15 @@ _FIRE = re.compile(
     re.I,
 )
 
+# Scalds: hot liquid on someone is a burn, not drowning, even when the words
+# are "baby", "pulled" and "water" ("my baby pulled the pot and boiling water
+# fell on him").
+_HOT_LIQUID = re.compile(
+    r"\b(boiling|scald\w*|steaming)\b|\bhot (?:water|oil|grease|soup|tea|coffee|milk|liquid|bath ?water|pot|pan|kettle)\b|"
+    r"\b(?:cooking|frying) oil\b|\bkettle\b",
+    re.I,
+)
+
 _AIRWAY_OBSTRUCTION = re.compile(
     r"\b(chok\w*|gag\w*|cough\w*|stuck|swallow\w*|eating|ate|food|candy|toy|coin|grape|hot ?dog|piece|bite|"
     r"windpipe|throat|heimlich|back blows?|back slaps?|abdominal thrusts?)\b",
@@ -602,8 +611,10 @@ def _apply_safety_state(probs: dict[str, float], responsive: str | None, breathi
     p = dict(probs)
     # Someone who caught fire and then got into water needs burn care, not the
     # drowning steps, unless they are now unresponsive or not breathing.
-    if _FIRE.search(text) and responsive != "unresponsive" and breathing != "absent":
+    if (_FIRE.search(text) or _HOT_LIQUID.search(text)) and responsive != "unresponsive" and breathing != "absent":
         p[DROWNING] = 0.0
+    if _HOT_LIQUID.search(text) and p.get("Burns (Thermal)", 0.0) > 0:
+        p["Burns (Thermal)"] += CUE_BOOST
     for condition, cue in _CUES:
         if condition in p and p[condition] > 0 and cue.search(text):
             p[condition] += CUE_BOOST

@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import { Screen, Condition, ChatResponse } from './types';
+import { Screen, Condition, ChatResponse, Lang } from './types';
 import { HomeScreen } from './components/HomeScreen';
 import { GuidesScreen, GuidesTab } from './components/GuidesScreen';
 import { HowToScreen } from './components/HowToScreen';
-import { AGE_HINTS, AGE_OPTIONS, cardForAge } from './components/howToAge';
-import { howTos } from './data/howTo';
+import { AGE_OPTIONS, cardForAge } from './components/howToAge';
+import { LangContext, i18nFor, initialLang, saveLang } from './lib/i18n';
 import { ProtocolScreen } from './components/ProtocolScreen';
 import { ClarificationScreen } from './components/ClarificationScreen';
 import { DisclaimerScreen } from './components/DisclaimerScreen';
@@ -15,11 +15,11 @@ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://127.0.0.1:8000';
 const REQUEST_TIMEOUT_MS = 15_000;
 const RECORDING_TIMEOUT_MS = 20_000;
 
-// Before a How-To card whose steps differ by age, ask who needs help
-// ("Show me how" links to ask_age cards).
-const LINK_AGE_MESSAGE = '**Who needs help?** Tap their age to see the right steps.';
+// A question on the clarification screen: the options are what is sent back
+// (English), the labels what the buttons show (Spanish replies).
+type Question = { message: string; options: string[]; labels: string[]; hints: string[] };
 // Where the age question came from, so Back from it returns there.
-type ClarificationState = { message: string; options: string[]; hints: string[]; history: { message: string; options: string[]; hints: string[] }[] };
+type ClarificationState = Question & { history: Question[] };
 type AgePick = { group: string; back: Screen; backLabel: string; saved?: ClarificationState };
 
 const createSessionId = () =>
@@ -28,6 +28,11 @@ const createSessionId = () =>
     : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
 export default function App() {
+  // App language: from the toggle on the home screen, and switched automatically
+  // when the backend answers in the other language (the person typed in it).
+  const [lang, setLangState] = useState<Lang>(initialLang);
+  const setLang = (next: Lang) => { setLangState(next); saveLang(next); };
+  const { t, howTos, ageLabels, ageHints } = i18nFor(lang);
   const [screen, setScreen] = useState<Screen | 'about' | 'contact'>('home'); // Explicitly adding 'about' and 'contact' to type safety
   const [query, setQuery] = useState('');
   const [selectedCondition, setSelectedCondition] = useState<Condition | null>(null);
@@ -38,7 +43,7 @@ export default function App() {
   const [protocolStep, setProtocolStep] = useState(0);
   // The How-To card on screen and where its Back button goes.
   const [howToId, setHowToId] = useState<string | null>(null);
-  const [howToBack, setHowToBack] = useState<{ screen: Screen; label: string }>({ screen: 'guides', label: 'Guides' });
+  const [howToBack, setHowToBack] = useState<{ screen: Screen; label: string }>({ screen: 'guides', label: '' });
   const [guidesTab, setGuidesTab] = useState<GuidesTab>('guides');
   const [agePick, setAgePick] = useState<AgePick | null>(null);
 
@@ -52,12 +57,13 @@ export default function App() {
     // Keep the conversation's question so Back -> Options on the steps still shows it.
     setAgePick({
       ...pick,
-      saved: { message: clarificationMessage, options: clarificationOptions, hints: clarificationHints, history: clarificationHistory },
+      saved: { message: clarificationMessage, options: clarificationOptions, labels: clarificationLabels, hints: clarificationHints, history: clarificationHistory },
     });
     setClarificationHistory([]);
     setClarificationMessage(message);
     setClarificationOptions(AGE_OPTIONS);
-    setClarificationHints(AGE_HINTS);
+    setClarificationLabels(ageLabels);
+    setClarificationHints(ageHints);
     setQuery('');
     setScreen('clarification');
   };
@@ -66,34 +72,39 @@ export default function App() {
   // "Show me how" on a guide step: cards marked ask_age ask who needs help first.
   const openStepHowTo = (id: string) => {
     const card = howTos.find((h) => h.id === id);
-    const stepLabel = `Step ${protocolStep + 1}`;
+    const stepLabel = t('stepN', { n: protocolStep + 1 });
     if (card?.askAge && card.group) {
-      askAge({ group: card.group, back: 'protocol', backLabel: stepLabel }, LINK_AGE_MESSAGE);
+      askAge({ group: card.group, back: 'protocol', backLabel: stepLabel }, t('linkAgeMessage'));
     } else {
       openHowTo(id, { screen: 'protocol', label: stepLabel });
     }
   };
   const [clarificationMessage, setClarificationMessage] = useState('');
   const [clarificationOptions, setClarificationOptions] = useState<string[]>([]);
+  const [clarificationLabels, setClarificationLabels] = useState<string[]>([]);
   const [clarificationHints, setClarificationHints] = useState<string[]>([]);
   // Earlier questions in this conversation (oldest first), so Back on the
   // question screen steps back one question at a time before going home.
-  const [clarificationHistory, setClarificationHistory] = useState<
-    { message: string; options: string[]; hints: string[] }[]
-  >([]);
+  const [clarificationHistory, setClarificationHistory] = useState<Question[]>([]);
+
+  // The backend replies in the language the person wrote in; follow it.
+  const followLanguage = (response: ChatResponse) => {
+    if (response.lang && response.lang !== lang) setLang(response.lang);
+  };
 
   const showClarification = (response: ChatResponse) => {
     setAgePick(null);
     if (screen === 'clarification') {
       setClarificationHistory((history) => [
         ...history,
-        { message: clarificationMessage, options: clarificationOptions, hints: clarificationHints },
+        { message: clarificationMessage, options: clarificationOptions, labels: clarificationLabels, hints: clarificationHints },
       ]);
     } else if (screen !== 'protocol') {
       setClarificationHistory([]);
     }
     setClarificationMessage(response.message);
     setClarificationOptions(response.options ?? []);
+    setClarificationLabels(response.option_labels ?? []);
     setClarificationHints(response.option_hints ?? []);
     setQuery('');
     setScreen('clarification');
@@ -104,6 +115,7 @@ export default function App() {
       if (agePick.saved) {
         setClarificationMessage(agePick.saved.message);
         setClarificationOptions(agePick.saved.options);
+        setClarificationLabels(agePick.saved.labels);
         setClarificationHints(agePick.saved.hints);
         setClarificationHistory(agePick.saved.history);
       }
@@ -119,6 +131,7 @@ export default function App() {
     setClarificationHistory(clarificationHistory.slice(0, -1));
     setClarificationMessage(previous.message);
     setClarificationOptions(previous.options);
+    setClarificationLabels(previous.labels);
     setClarificationHints(previous.hints);
   };
   const [sessionId, setSessionId] = useState(createSessionId);
@@ -214,6 +227,7 @@ export default function App() {
         const fileExtension = recordedMimeType.includes('mp4') ? 'mp4' : 'webm';
         formData.append('audio_file', audioBlob, `recording.${fileExtension}`);
         formData.append('session_id', sessionId);
+        formData.append('lang', lang);
 
         const controller = new AbortController();
         const timeoutId = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
@@ -228,6 +242,7 @@ export default function App() {
           if (!response.ok) throw new Error('Backend failed to respond');
 
           const matchingCondition = await response.json() as ChatResponse;
+          followLanguage(matchingCondition);
 
           if (matchingCondition.status === 'clarification_needed' || matchingCondition.status === 'age_clarification_needed' || matchingCondition.status === 'unable_to_identify') {
             showClarification(matchingCondition);
@@ -329,13 +344,14 @@ export default function App() {
       const response = await fetch(`${BACKEND_URL}/chat/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: searchQuery, session_id: sessionId }),
+        body: JSON.stringify({ query: searchQuery, session_id: sessionId, lang }),
         signal: controller.signal,
       });
 
       if (!response.ok) throw new Error('Backend failed to respond');
 
       const matchingCondition = await response.json() as ChatResponse;
+      followLanguage(matchingCondition);
 
       if (matchingCondition.status === 'clarification_needed' || matchingCondition.status === 'age_clarification_needed' || matchingCondition.status === 'unable_to_identify') {
         showClarification(matchingCondition);
@@ -360,10 +376,9 @@ export default function App() {
     } catch (error) {
       console.error('Error connecting to backend:', error);
       setClarificationOptions([]);
+      setClarificationLabels([]);
       setClarificationHints([]);
-      setClarificationMessage(
-        'The local first-aid engine did not respond. Call 911 now for a life-threatening emergency, then try again when the engine is ready.',
-      );
+      setClarificationMessage(t('engineDown'));
       setScreen('clarification');
     } finally {
       window.clearTimeout(timeoutId);
@@ -390,6 +405,7 @@ export default function App() {
     setQuery('');
     setClarificationMessage('');
     setClarificationOptions([]);
+    setClarificationLabels([]);
     setClarificationHints([]);
     setClarificationHistory([]);
     setAgePick(null);
@@ -399,7 +415,8 @@ export default function App() {
   };
 
   return (
-    <div className="app-shell">
+    <LangContext.Provider value={{ lang, setLang }}>
+    <div className="app-shell" lang={lang}>
       <div className="phone-frame">
         {screen === 'home' && (
           <HomeScreen
@@ -431,7 +448,7 @@ export default function App() {
             onTabChange={setGuidesTab}
             onBack={backToHome}
             onOpenProtocol={openProtocol}
-            onOpenHowTo={(id) => openHowTo(id, { screen: 'guides', label: 'Guides' })}
+            onOpenHowTo={(id) => openHowTo(id, { screen: 'guides', label: t('guides') })}
           />
         )}
         {screen === 'protocol' && selectedCondition && (
@@ -442,29 +459,30 @@ export default function App() {
             onOpenHowTo={openStepHowTo}
             onBack={() => setScreen(protocolBack)}
             onDone={() => setScreen('guides')}
-            backLabel={protocolBack === 'clarification' ? 'Options' : 'First-Aid Guides'}
+            backLabel={protocolBack === 'clarification' ? t('options') : t('guidesTitle')}
           />
         )}
         {screen === 'clarification' && (
           <ClarificationScreen
             message={clarificationMessage}
             options={clarificationOptions}
+            labels={clarificationLabels}
             hints={clarificationHints}
             onSelectOption={(option: string) =>
               agePick
-                ? openHowTo(cardForAge(agePick.group, option), { screen: 'clarification', label: 'Back' })
+                ? openHowTo(cardForAge(agePick.group, option), { screen: 'clarification', label: t('back') })
                 : handleEmergencySearch(option)
             }
             query={query}
             setQuery={setQuery}
             onSearch={() => handleEmergencySearch(query)}
             onBack={clarificationBack}
-            backLabel={agePick ? agePick.backLabel : clarificationHistory.length > 0 ? 'Back' : 'Home'}
+            backLabel={agePick ? agePick.backLabel : clarificationHistory.length > 0 ? t('back') : t('home')}
             loading={loading}
           />
         )}
         {screen === 'howto' && howToId && (
-          <HowToScreen howToId={howToId} onBack={() => setScreen(howToBack.screen)} backLabel={howToBack.label} />
+          <HowToScreen howToId={howToId} onBack={() => setScreen(howToBack.screen)} backLabel={howToBack.label || t('guides')} />
         )}
         {screen === 'disclaimer' && (
           <DisclaimerScreen onBack={backToHome} />
@@ -477,5 +495,6 @@ export default function App() {
         )}
       </div>
     </div>
+    </LangContext.Provider>
   );
 }

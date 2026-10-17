@@ -14,6 +14,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, Mail, Send } from 'lucide-react-native';
 import { BACKEND_URL, CONTACT_EMAIL, REQUEST_TIMEOUT_MS } from '../config';
+import { useI18n } from '../lib/i18n';
 import { MAX_EMAIL_CHARS, MAX_MESSAGE_CHARS, MAX_MESSAGE_WORDS, MAX_NAME_CHARS, countWords, limitWords } from '../lib/limits';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -21,6 +22,7 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 type Status = 'idle' | 'submitting' | 'success' | 'error';
 
 export function ContactScreen({ onBack }: { onBack: () => void }) {
+  const { t } = useI18n();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
@@ -64,40 +66,40 @@ export function ContactScreen({ onBack }: { onBack: () => void }) {
         >
           <View style={styles.header}>
             <View style={styles.headerTopRow}>
-              <TouchableOpacity style={styles.navBackBtn} onPress={onBack} accessibilityLabel="Back to home">
+              <TouchableOpacity style={styles.navBackBtn} onPress={onBack} accessibilityLabel={t('backToHome')}>
                 <View style={styles.navIconCircle}>
                   <ArrowLeft size={18} strokeWidth={2.8} color="#050505" />
                 </View>
-                <Text style={styles.navBackText}>Home</Text>
+                <Text style={styles.navBackText}>{t('home')}</Text>
               </TouchableOpacity>
               <View style={styles.innerBrand}>
                 <Text style={styles.innerBrandTitle}>PrimaCura</Text>
-                <Text style={styles.innerBrandSlogan}>The First Care</Text>
+                <Text style={styles.innerBrandSlogan}>{t('slogan')}</Text>
               </View>
             </View>
             <View style={styles.headerTitleRow}>
-              <Text style={styles.title}>Contact Us</Text>
-              <Text style={styles.subtitle}>Get in touch with the team.</Text>
+              <Text style={styles.title}>{t('contactTitle')}</Text>
+              <Text style={styles.subtitle}>{t('contactSub')}</Text>
             </View>
           </View>
 
           <View style={styles.emailCard}>
             <View style={styles.emailCardRow}>
               <Mail size={18} color="#d33b32" />
-              <Text style={styles.emailCardLabel}>Reach us directly at:</Text>
+              <Text style={styles.emailCardLabel}>{t('reachUs')}</Text>
             </View>
             <TouchableOpacity onPress={() => Linking.openURL(`mailto:${CONTACT_EMAIL}`)} accessibilityRole="link">
               <Text style={styles.emailLink}>{CONTACT_EMAIL}</Text>
             </TouchableOpacity>
           </View>
 
-          <Text style={styles.label}>Name</Text>
+          <Text style={styles.label}>{t('name')}</Text>
           <TextInput
             style={styles.input}
             value={name}
-            onChangeText={(t) => setName(t.slice(0, MAX_NAME_CHARS))}
+            onChangeText={(v) => setName(v.slice(0, MAX_NAME_CHARS))}
             maxLength={MAX_NAME_CHARS}
-            placeholder="Your Name"
+            placeholder={t('yourName')}
             placeholderTextColor="#9ca3af"
             autoComplete="name"
             textContentType="name"
@@ -105,11 +107,11 @@ export function ContactScreen({ onBack }: { onBack: () => void }) {
             editable={status !== 'submitting'}
           />
 
-          <Text style={styles.label}>Email Address</Text>
+          <Text style={styles.label}>{t('emailAddress')}</Text>
           <TextInput
             style={styles.input}
             value={email}
-            onChangeText={(t) => setEmail(t.slice(0, MAX_EMAIL_CHARS))}
+            onChangeText={(v) => setEmail(v.slice(0, MAX_EMAIL_CHARS))}
             maxLength={MAX_EMAIL_CHARS}
             placeholder="your.email@example.com"
             placeholderTextColor="#9ca3af"
@@ -123,16 +125,16 @@ export function ContactScreen({ onBack }: { onBack: () => void }) {
           />
 
           <View style={styles.messageLabelRow}>
-            <Text style={[styles.label, styles.labelNoMargin]}>Message</Text>
+            <Text style={[styles.label, styles.labelNoMargin]}>{t('message')}</Text>
             <Text style={[styles.counter, countWords(message) >= MAX_MESSAGE_WORDS && styles.counterFull]}>
-              {countWords(message)} / {MAX_MESSAGE_WORDS} words
+              {countWords(message)} / {MAX_MESSAGE_WORDS} {t('words')}
             </Text>
           </View>
           <TextInput
             style={[styles.input, styles.messageInput]}
             value={message}
-            onChangeText={(t) => setMessage(limitWords(t))}
-            placeholder="How can we help you?"
+            onChangeText={(v) => setMessage(limitWords(v))}
+            placeholder={t('howHelp')}
             placeholderTextColor="#9ca3af"
             multiline
             maxLength={MAX_MESSAGE_CHARS}
@@ -145,17 +147,17 @@ export function ContactScreen({ onBack }: { onBack: () => void }) {
             onPress={handleSubmit}
             disabled={disabled}
             accessibilityRole="button"
-            accessibilityLabel="Send message"
+            accessibilityLabel={t('sendMessage')}
           >
             {status === 'submitting' ? (
               <>
                 <ActivityIndicator color="#fff" />
-                <Text style={styles.submitText}>Sending...</Text>
+                <Text style={styles.submitText}>{t('sending')}</Text>
               </>
             ) : (
               <>
                 <Send size={20} color="#fff" />
-                <Text style={styles.submitText}>Send Message</Text>
+                <Text style={styles.submitText}>{t('sendMessage')}</Text>
               </>
             )}
           </TouchableOpacity>
@@ -163,14 +165,14 @@ export function ContactScreen({ onBack }: { onBack: () => void }) {
           {status === 'success' && (
             <View style={[styles.banner, styles.bannerSuccess]}>
               <Text style={[styles.bannerText, styles.bannerTextSuccess]}>
-                Thank you! Your message has been sent successfully.
+                {t('sentOk')}
               </Text>
             </View>
           )}
           {status === 'error' && (
             <View style={[styles.banner, styles.bannerError]}>
               <Text style={[styles.bannerText, styles.bannerTextError]}>
-                Failed to send message. Please try again or email us directly.
+                {t('sendFailed')}
               </Text>
             </View>
           )}

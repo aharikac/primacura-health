@@ -1,21 +1,25 @@
 import { ArrowLeft } from 'lucide-react';
 import { SearchBox } from './SearchBox';
 import { optionIcon } from './optionIcons';
+import { useI18n } from '../lib/i18n';
 
 export function ClarificationScreen({
   message,
   options = [],
+  labels = [],
   hints = [],
   onSelectOption,
   query,
   setQuery,
   onSearch,
   onBack,
-  backLabel = 'Home',
+  backLabel,
   loading,
 }: {
   message: string;
   options?: string[];
+  // What each button shows (Spanish replies); the option itself is what is sent.
+  labels?: string[];
   hints?: string[];
   onSelectOption?: (option: string) => void;
   query: string;
@@ -25,32 +29,34 @@ export function ClarificationScreen({
   backLabel?: string;
   loading: boolean;
 }) {
+  const { t } = useI18n();
+  const label = backLabel ?? t('home');
   return (
     <main className="clarification-screen">
       <header className="inner-page-header tight-bottom">
         
         <div className="header-top-row">
-          <button className="nav-back-btn" onClick={onBack} aria-label={backLabel === 'Home' ? 'Back to home' : 'Back to the previous question'}>
+          <button className="nav-back-btn" onClick={onBack} aria-label={label === t('home') ? t('backToHome') : t('backToPrevious')}>
             <div className="nav-icon-circle">
               <ArrowLeft size={20} strokeWidth={2.8} color="#050505" />
             </div>
-            {backLabel}
+            {label}
           </button>
           
           <div className="inner-brand">
             <span className="inner-brand-title">PrimaCura</span>
-            <span className="inner-brand-slogan">The First Care</span>
+            <span className="inner-brand-slogan">{t('slogan')}</span>
           </div>
         </div>
 
         <div className="header-title-row">
-          <h1 style={{ margin: 0 }}>Please clarify the situation</h1>
+          <h1 style={{ margin: 0 }}>{t('clarifyTitle')}</h1>
         </div>
         
       </header>
       <div className="safety-reminder">
-        <strong>CHECK SCENE FOR SAFETY.</strong>
-        <span>If it's life-threatening, call 911 immediately.</span>
+        <strong>{t('checkScene')}</strong>
+        <span>{t('lifeThreatening')}</span>
       </div>
 
       {/* With buttons, the question and its answers share one card so the
@@ -78,7 +84,7 @@ export function ClarificationScreen({
                     <Icon size={22} strokeWidth={2.4} />
                   </span>
                   <span className="option-text">
-                    <span className="option-label">{option}</span>
+                    <span className="option-label">{labels[i] || option}</span>
                     {hint && <span className="option-hint">{hint}</span>}
                   </span>
                 </button>

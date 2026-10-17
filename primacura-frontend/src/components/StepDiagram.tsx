@@ -1,8 +1,9 @@
-import { diagrams } from '../data/diagrams';
+import { useI18n } from '../lib/i18n';
 
 // A step diagram (SVG generated from primacura-backend/data/diagrams). The SVG is
 // our own bundled file, so injecting it is safe; screen readers get the alt text.
 export function StepDiagram({ id }: { id: string }) {
+  const { diagrams } = useI18n();
   const d = diagrams[id];
   if (!d) return null;
   return (

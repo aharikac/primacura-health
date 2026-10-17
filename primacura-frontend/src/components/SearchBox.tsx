@@ -1,4 +1,5 @@
 import { Loader2, Search } from 'lucide-react';
+import { useI18n } from '../lib/i18n';
 
 export function SearchBox({
   value,
@@ -13,6 +14,7 @@ export function SearchBox({
   onSearch?: () => void;
   loading?: boolean;
 }) {
+  const { t } = useI18n();
   if (home) {
     return (
       <form
@@ -26,8 +28,8 @@ export function SearchBox({
         <textarea
             value={value}
             onChange={(event) => onChange(event.target.value)}
-            placeholder={'Type the situation in detail...'}
-            aria-label={'Type the situation in detail...'}
+            placeholder={t('typeSituation')}
+            aria-label={t('typeSituation')}
             rows={2}
             disabled={loading}
             maxLength={500}
@@ -39,7 +41,7 @@ export function SearchBox({
           </span>
         </div>
 
-        <button className="search-submit" type="submit" aria-label="Get help" disabled={loading}>
+        <button className="search-submit" type="submit" aria-label={t('getHelp')} disabled={loading}>
           {loading ? (
             <Loader2 size={30} strokeWidth={2.8} className="spin" aria-hidden="true" />
           ) : (
@@ -56,8 +58,8 @@ export function SearchBox({
       <input
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        placeholder={'Search conditions...'}
-        aria-label={'Search conditions'}
+        placeholder={t('searchConditions')}
+        aria-label={t('searchConditionsAria')}
       />
     </label>
   );

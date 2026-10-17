@@ -3,6 +3,7 @@ import { createAudioPlayer, setAudioModeAsync, type AudioPlayer } from 'expo-aud
 import { speakable } from './speakable';
 import { clipId } from './clipId';
 import { AUDIO } from '../data/speechAudio';
+import { Lang } from '../types';
 
 // Read-aloud. Every guide and How-To sentence is pre-recorded with a natural
 // voice (assets/audio, see scripts/generate-speech.py); anything without a
@@ -25,9 +26,9 @@ function ensurePlaybackSession() {
 
 // "Step 3. Push hard…" is said as two clips, "Step 3." and the step itself,
 // so one recording of each step works whatever number it has.
-function units(piece: string): string[] {
-  const m = piece.match(/^\s*(Step \d+\.)\s+([\s\S]+)$/);
-  return (m ? [m[1], m[2]] : [piece]).map(speakable).filter(Boolean);
+function units(piece: string, lang: Lang): string[] {
+  const m = piece.match(/^\s*((?:Step|Paso) \d+\.)\s+([\s\S]+)$/);
+  return (m ? [m[1], m[2]] : [piece]).map((t) => speakable(t, lang)).filter(Boolean);
 }
 
 function releaseCurrent() {
@@ -36,7 +37,7 @@ function releaseCurrent() {
   if (p) { try { p.pause(); p.remove(); } catch { /* already released */ } }
 }
 
-function sayOne(text: string, mine: number, done: () => void) {
+function sayOne(text: string, mine: number, done: () => void, lang: Lang) {
   if (mine !== run) return;
   const source = AUDIO[clipId(text)];
   if (source !== undefined) {
@@ -58,20 +59,21 @@ function sayOne(text: string, mine: number, done: () => void) {
       releaseCurrent(); // fall through to the device voice
     }
   }
-  Speech.speak(text, { language: 'en-US', rate: 0.95, useApplicationAudioSession: true, onDone: done, onError: done });
+  // No recording: the phone's own voice, Spanish for Spanish text.
+  Speech.speak(text, { language: lang === 'es' ? 'es-US' : 'en-US', rate: 0.95, useApplicationAudioSession: true, onDone: done, onError: done });
 }
 
 // Speak several pieces in order; onIndex(i) fires as piece i starts, onEnd when all are done.
-export function speakAll(pieces: string[], onIndex?: (i: number) => void, onEnd?: () => void) {
+export function speakAll(pieces: string[], onIndex?: (i: number) => void, onEnd?: () => void, lang: Lang = 'en') {
   stopSpeaking();
   const mine = run;
-  const queue = pieces.flatMap((p, i) => units(p).map((text, k) => ({ text, piece: i, first: k === 0 })));
+  const queue = pieces.flatMap((p, i) => units(p, lang).map((text, k) => ({ text, piece: i, first: k === 0 })));
   const next = (j: number) => {
     if (mine !== run) return;
     if (j >= queue.length) { onEnd?.(); return; }
     const item = queue[j];
     if (item.first) onIndex?.(item.piece);
-    sayOne(item.text, mine, () => next(j + 1));
+    sayOne(item.text, mine, () => next(j + 1), lang);
   };
   void ensurePlaybackSession().then(() => next(0));
 }
