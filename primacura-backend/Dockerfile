@@ -15,10 +15,13 @@ RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTr
 RUN python -c "import whisper; whisper.load_model('base')"
 
 # Copy backend source code
-COPY pchService.py pchCore.py pchTriage.py pchLLM.py pchGate.py ./
+COPY pchService.py pchCore.py pchTriage.py pchLLM.py pchGate.py pchLang.py pchLangZh.py ./
 
 # The backend expects the dataset in a 'data' subdirectory relative to the repository root
 COPY data/First_Aid_Dataset_Final.csv ./data/First_Aid_Dataset_Final.csv
+# Translated guides (pchLang) and the Chinese script table (pchLangZh)
+COPY data/First_Aid_Dataset_Final.es.csv data/First_Aid_Dataset_Final.zh-Hans.csv data/First_Aid_Dataset_Final.zh-Hant.csv ./data/
+COPY data/zh-script-chars.json ./data/zh-script-chars.json
 # Everyday phrasings the condition classifier (pchTriage) trains on at startup
 COPY data/master-training-examples.csv ./data/master-training-examples.csv
 # Nonsense filter (pchGate): junk / real examples and the emergency words
