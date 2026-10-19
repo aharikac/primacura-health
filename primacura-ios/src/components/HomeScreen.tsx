@@ -59,9 +59,10 @@ export function HomeScreen({
       >
         <View style={styles.brand}>
           <View style={styles.brandMark}><Text style={styles.brandMarkText}>+</Text></View>
-          <View>
-            <Text style={styles.brandTitle}>PrimaCura</Text>
-            <Text style={styles.brandSlogan}>{t('slogan')}</Text>
+          {/* Shrinks and wraps the slogan so the language switch always fits ("LOS PRIMEROS CUIDADOS" is long). */}
+          <View style={styles.brandText}>
+            <Text style={styles.brandTitle} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>PrimaCura</Text>
+            <Text style={styles.brandSlogan} numberOfLines={2}>{t('slogan')}</Text>
           </View>
           {/* Language icon + EN | ES | 简 | 繁, the current one filled in (no flags: a language is not a country). */}
           <View style={styles.langSwitch} accessibilityRole="radiogroup" accessibilityLabel={t('langSwitchLabel')}>
@@ -192,12 +193,12 @@ export function HomeScreen({
 
 const styles = StyleSheet.create({
   langSwitch: {
-    marginLeft: 'auto', flexDirection: 'row', alignItems: 'center', gap: 2, paddingLeft: 8, paddingRight: 3,
+    marginLeft: 'auto', flexShrink: 0, flexDirection: 'row', alignItems: 'center', gap: 1, paddingLeft: 7, paddingRight: 3,
     paddingVertical: 4, borderWidth: 1.5, borderColor: '#e4e4e7', borderRadius: 999, backgroundColor: '#fff',
   },
   langCode: {
-    fontSize: 12, fontWeight: '800', color: '#52525b', letterSpacing: 0.3, paddingHorizontal: 7, paddingVertical: 5,
-    minWidth: 28, textAlign: 'center',
+    fontSize: 12, fontWeight: '800', color: '#52525b', letterSpacing: 0.3, paddingHorizontal: 6, paddingVertical: 5,
+    minWidth: 27, textAlign: 'center',
     borderRadius: 999, overflow: 'hidden',
   },
   langCodeOn: { backgroundColor: '#050505', color: '#fff' },
@@ -206,7 +207,8 @@ const styles = StyleSheet.create({
   // phones and close up (never touching) on short ones.
   container: { flexGrow: 1, justifyContent: 'space-between', gap: 20, paddingHorizontal: 20, paddingTop: 12, paddingBottom: 8 },
 
-  brand: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  brand: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  brandText: { flexShrink: 1, minWidth: 0 },
   brandMark: { width: 40, height: 40, borderRadius: 10, backgroundColor: RED, alignItems: 'center', justifyContent: 'center' },
   brandMarkText: { color: '#fff', fontSize: 28, fontWeight: '900', marginTop: -2 },
   brandTitle: { fontSize: 22, fontWeight: '900', color: '#050505', letterSpacing: -0.6 },
